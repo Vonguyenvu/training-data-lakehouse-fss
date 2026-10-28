@@ -1,0 +1,4 @@
+minio
+oracledb
+python-dotenv
+pyspark

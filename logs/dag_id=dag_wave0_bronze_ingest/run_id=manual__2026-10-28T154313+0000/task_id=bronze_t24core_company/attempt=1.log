@@ -1,0 +1,206 @@
+[2026-10-28T15:47:37.442+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-10-28T15:47:37.534+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: dag_wave0_bronze_ingest.bronze_t24core_company manual__2026-10-28T15:43:13+00:00 [queued]>
+[2026-10-28T15:47:37.572+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: dag_wave0_bronze_ingest.bronze_t24core_company manual__2026-10-28T15:43:13+00:00 [queued]>
+[2026-10-28T15:47:37.573+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 2
+[2026-10-28T15:47:37.593+0000] {taskinstance.py:2890} INFO - Executing <Task(SparkSubmitOperator): bronze_t24core_company> on 2026-10-28 15:43:13+00:00
+[2026-10-28T15:47:37.604+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'dag_wave0_bronze_ingest', 'bronze_t24core_company', 'manual__2026-10-28T15:43:13+00:00', '--job-id', '32', '--raw', '--subdir', 'DAGS_FOLDER/dag_wave0_bronze_ingest.py', '--cfg-path', '/tmp/tmpvvc6kbk2']
+[2026-10-28T15:47:37.605+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70 DeprecationWarning: This process (pid=6645) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-10-28T15:47:37.608+0000] {standard_task_runner.py:105} INFO - Job 32: Subtask bronze_t24core_company
+[2026-10-28T15:47:37.609+0000] {standard_task_runner.py:72} INFO - Started process 6649 to run task
+[2026-10-28T15:47:37.712+0000] {task_command.py:467} INFO - Running <TaskInstance: dag_wave0_bronze_ingest.bronze_t24core_company manual__2026-10-28T15:43:13+00:00 [running]> on host 9b1695de43a7
+[2026-10-28T15:47:37.859+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data_platform' AIRFLOW_CTX_DAG_ID='dag_wave0_bronze_ingest' AIRFLOW_CTX_TASK_ID='bronze_t24core_company' AIRFLOW_CTX_EXECUTION_DATE='2026-10-28T15:43:13+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-10-28T15:43:13+00:00'
+[2026-10-28T15:47:37.862+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2026-10-28T15:47:37.984+0000] {base.py:84} INFO - Retrieving connection 'spark_default'
+[2026-10-28T15:47:37.987+0000] {spark_submit.py:474} INFO - Spark-Submit cmd: spark-submit --master spark://spark-master:7077 --name arrow-spark /opt/***/src/jobs/run_sql.py --sql-file /opt/***/sql/bronze/t24core_company.sql --etl-date 2025-01-01
+[2026-10-28T15:47:40.378+0000] {spark_submit.py:641} INFO - :: loading settings :: url = jar:file:/home/***/.local/lib/python3.12/site-packages/pyspark/jars/ivy-2.5.3.jar!/org/apache/ivy/core/settings/ivysettings.xml
+[2026-10-28T15:47:40.472+0000] {spark_submit.py:641} INFO - Ivy Default Cache set to: /home/***/.ivy2/cache
+[2026-10-28T15:47:40.473+0000] {spark_submit.py:641} INFO - The jars for the packages stored in: /home/***/.ivy2/jars
+[2026-10-28T15:47:40.477+0000] {spark_submit.py:641} INFO - org.apache.iceberg#iceberg-spark-runtime-3.5_2.12 added as a dependency
+[2026-10-28T15:47:40.478+0000] {spark_submit.py:641} INFO - org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12 added as a dependency
+[2026-10-28T15:47:40.479+0000] {spark_submit.py:641} INFO - org.apache.hadoop#hadoop-aws added as a dependency
+[2026-10-28T15:47:40.480+0000] {spark_submit.py:641} INFO - :: resolving dependencies :: org.apache.spark#spark-submit-parent-7ecf1ed1-d3a3-440b-9cca-55edbd34208d;1.0
+[2026-10-28T15:47:40.481+0000] {spark_submit.py:641} INFO - confs: [default]
+[2026-10-28T15:47:40.589+0000] {spark_submit.py:641} INFO - found org.apache.iceberg#iceberg-spark-runtime-3.5_2.12;1.6.1 in central
+[2026-10-28T15:47:40.609+0000] {spark_submit.py:641} INFO - found org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12;0.76.6 in central
+[2026-10-28T15:47:40.672+0000] {spark_submit.py:641} INFO - found org.apache.hadoop#hadoop-aws;3.3.4 in central
+[2026-10-28T15:47:40.695+0000] {spark_submit.py:641} INFO - found com.amazonaws#aws-java-sdk-bundle;1.12.262 in central
+[2026-10-28T15:47:40.721+0000] {spark_submit.py:641} INFO - found org.wildfly.openssl#wildfly-openssl;1.0.7.Final in central
+[2026-10-28T15:47:40.757+0000] {spark_submit.py:641} INFO - :: resolution report :: resolve 260ms :: artifacts dl 18ms
+[2026-10-28T15:47:40.758+0000] {spark_submit.py:641} INFO - :: modules in use:
+[2026-10-28T15:47:40.760+0000] {spark_submit.py:641} INFO - com.amazonaws#aws-java-sdk-bundle;1.12.262 from central in [default]
+[2026-10-28T15:47:40.761+0000] {spark_submit.py:641} INFO - org.apache.hadoop#hadoop-aws;3.3.4 from central in [default]
+[2026-10-28T15:47:40.762+0000] {spark_submit.py:641} INFO - org.apache.iceberg#iceberg-spark-runtime-3.5_2.12;1.6.1 from central in [default]
+[2026-10-28T15:47:40.763+0000] {spark_submit.py:641} INFO - org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12;0.76.6 from central in [default]
+[2026-10-28T15:47:40.765+0000] {spark_submit.py:641} INFO - org.wildfly.openssl#wildfly-openssl;1.0.7.Final from central in [default]
+[2026-10-28T15:47:40.766+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:47:40.768+0000] {spark_submit.py:641} INFO - |                  |            modules            ||   artifacts   |
+[2026-10-28T15:47:40.769+0000] {spark_submit.py:641} INFO - |       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+[2026-10-28T15:47:40.770+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:47:40.772+0000] {spark_submit.py:641} INFO - |      default     |   5   |   0   |   0   |   0   ||   5   |   0   |
+[2026-10-28T15:47:40.773+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:47:40.774+0000] {spark_submit.py:641} INFO - :: retrieving :: org.apache.spark#spark-submit-parent-7ecf1ed1-d3a3-440b-9cca-55edbd34208d
+[2026-10-28T15:47:40.775+0000] {spark_submit.py:641} INFO - confs: [default]
+[2026-10-28T15:47:40.781+0000] {spark_submit.py:641} INFO - 0 artifacts copied, 5 already retrieved (0kB/14ms)
+[2026-10-28T15:47:41.261+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:41 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[2026-10-28T15:47:44.344+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SparkContext: Running Spark version 3.5.9
+[2026-10-28T15:47:44.345+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SparkContext: OS info Linux, 6.18.54.1-microsoft-standard-WSL2, amd64
+[2026-10-28T15:47:44.346+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SparkContext: Java version 17.0.21
+[2026-10-28T15:47:44.380+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO ResourceUtils: ==============================================================
+[2026-10-28T15:47:44.381+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO ResourceUtils: No custom resources configured for spark.driver.
+[2026-10-28T15:47:44.382+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO ResourceUtils: ==============================================================
+[2026-10-28T15:47:44.383+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SparkContext: Submitted application: run-sql-t24core_company
+[2026-10-28T15:47:44.421+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(memory -> name: memory, amount: 800, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+[2026-10-28T15:47:44.433+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO ResourceProfile: Limiting resource is cpu
+[2026-10-28T15:47:44.434+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO ResourceProfileManager: Added ResourceProfile id: 0
+[2026-10-28T15:47:44.543+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SecurityManager: Changing view acls to: ***
+[2026-10-28T15:47:44.545+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SecurityManager: Changing modify acls to: ***
+[2026-10-28T15:47:44.546+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SecurityManager: Changing view acls groups to:
+[2026-10-28T15:47:44.547+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SecurityManager: Changing modify acls groups to:
+[2026-10-28T15:47:44.548+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:44 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: ***; groups with view permissions: EMPTY; users with modify permissions: ***; groups with modify permissions: EMPTY
+[2026-10-28T15:47:45.063+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO Utils: Successfully started service 'sparkDriver' on port 39817.
+[2026-10-28T15:47:45.126+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkEnv: Registering MapOutputTracker
+[2026-10-28T15:47:45.217+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkEnv: Registering BlockManagerMaster
+[2026-10-28T15:47:45.280+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+[2026-10-28T15:47:45.281+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+[2026-10-28T15:47:45.287+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+[2026-10-28T15:47:45.356+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-d07c4a42-d0b5-4aa7-af0f-06fea7c96548
+[2026-10-28T15:47:45.410+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+[2026-10-28T15:47:45.444+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkEnv: Registering OutputCommitCoordinator
+[2026-10-28T15:47:45.781+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+[2026-10-28T15:47:45.921+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+[2026-10-28T15:47:45.992+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkContext: Added JAR file:///opt/spark/jars/ojdbc11.jar at spark://9b1695de43a7:39817/jars/ojdbc11.jar with timestamp 1793202464330
+[2026-10-28T15:47:45.993+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar at spark://9b1695de43a7:39817/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar with timestamp 1793202464330
+[2026-10-28T15:47:45.994+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar at spark://9b1695de43a7:39817/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar with timestamp 1793202464330
+[2026-10-28T15:47:45.995+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar at spark://9b1695de43a7:39817/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar with timestamp 1793202464330
+[2026-10-28T15:47:45.997+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar at spark://9b1695de43a7:39817/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar with timestamp 1793202464330
+[2026-10-28T15:47:45.998+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:45 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar at spark://9b1695de43a7:39817/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar with timestamp 1793202464330
+[2026-10-28T15:47:46.001+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar at spark://9b1695de43a7:39817/files/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar with timestamp 1793202464330
+[2026-10-28T15:47:46.004+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO Utils: Copying /home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar to /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015/userFiles-04344519-c838-42dd-8677-6103991c544a/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar
+[2026-10-28T15:47:46.044+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar at spark://9b1695de43a7:39817/files/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar with timestamp 1793202464330
+[2026-10-28T15:47:46.046+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO Utils: Copying /home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar to /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015/userFiles-04344519-c838-42dd-8677-6103991c544a/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar
+[2026-10-28T15:47:46.051+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar at spark://9b1695de43a7:39817/files/org.apache.hadoop_hadoop-aws-3.3.4.jar with timestamp 1793202464330
+[2026-10-28T15:47:46.052+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO Utils: Copying /home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar to /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015/userFiles-04344519-c838-42dd-8677-6103991c544a/org.apache.hadoop_hadoop-aws-3.3.4.jar
+[2026-10-28T15:47:46.059+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO SparkContext: Added file file:///home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar at spark://9b1695de43a7:39817/files/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar with timestamp 1793202464330
+[2026-10-28T15:47:46.061+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO Utils: Copying /home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar to /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015/userFiles-04344519-c838-42dd-8677-6103991c544a/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar
+[2026-10-28T15:47:46.262+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar at spark://9b1695de43a7:39817/files/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar with timestamp 1793202464330
+[2026-10-28T15:47:46.263+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO Utils: Copying /home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar to /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015/userFiles-04344519-c838-42dd-8677-6103991c544a/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar
+[2026-10-28T15:47:46.455+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://spark-master:7077...
+[2026-10-28T15:47:46.525+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO TransportClientFactory: Successfully created connection to spark-master/172.19.0.3:7077 after 42 ms (0 ms spent in bootstraps)
+[2026-10-28T15:47:46.678+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20261028154746-0032
+[2026-10-28T15:47:46.681+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028154746-0032/0 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:47:46.684+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028154746-0032/0 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:47:46.694+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 34027.
+[2026-10-28T15:47:46.695+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO NettyBlockTransferService: Server created on 9b1695de43a7:34027
+[2026-10-28T15:47:46.698+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+[2026-10-28T15:47:46.724+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 9b1695de43a7, 34027, None)
+[2026-10-28T15:47:46.734+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO BlockManagerMasterEndpoint: Registering block manager 9b1695de43a7:34027 with 434.4 MiB RAM, BlockManagerId(driver, 9b1695de43a7, 34027, None)
+[2026-10-28T15:47:46.739+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 9b1695de43a7, 34027, None)
+[2026-10-28T15:47:46.744+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 9b1695de43a7, 34027, None)
+[2026-10-28T15:47:46.760+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:46 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028154746-0032/0 is now RUNNING
+[2026-10-28T15:47:47.268+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:47 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+[2026-10-28T15:47:47.635+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:47 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
+[2026-10-28T15:47:47.638+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:47 INFO SharedState: Warehouse path is 'file:/opt/***/spark-warehouse'.
+[2026-10-28T15:47:51.839+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:51 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Registered executor NettyRpcEndpointRef(spark-client://Executor) (172.19.0.6:39108) with ID 0,  ResourceProfileId 0
+[2026-10-28T15:47:54.505+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:54 INFO CatalogUtil: Loading custom FileIO implementation: org.apache.iceberg.hadoop.HadoopFileIO
+[2026-10-28T15:48:01.026+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:54 INFO BaseMetastoreTableOperations: Refreshing table metadata from new version: s3a://warehouse/pg_bronze/t24core_company_83b495e2-9377-4652-a1e3-c0f883a2b61c/metadata/00000-f3a95d5c-3c5f-4448-8258-affa95b37010.metadata.json
+[2026-10-28T15:48:01.028+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:55 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+[2026-10-28T15:48:01.028+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:55 INFO MetricsSystemImpl: Scheduled Metric snapshot period at 10 second(s).
+[2026-10-28T15:48:01.029+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:55 INFO MetricsSystemImpl: s3a-file-system metrics system started
+[2026-10-28T15:48:01.029+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:56 INFO NessieUtil: loadTableMetadata for 'pg_bronze.t24core_company' from location 's3a://warehouse/pg_bronze/t24core_company_83b495e2-9377-4652-a1e3-c0f883a2b61c/metadata/00000-f3a95d5c-3c5f-4448-8258-affa95b37010.metadata.json' at 'Branch{name=main, metadata=null, hash=b30df999645959deb20e2ec3e4257cade73e888f6fe3f38f652a63bd026ae530}'
+[2026-10-28T15:48:01.030+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:56 INFO BaseMetastoreCatalog: Table loaded by catalog: iceberg.pg_bronze.t24core_company
+[2026-10-28T15:48:01.031+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:57 INFO V2ScanRelationPushDown:
+[2026-10-28T15:48:01.031+0000] {spark_submit.py:641} INFO - Output: COMPANY_NAME#3, RECID#4
+[2026-10-28T15:48:01.032+0000] {spark_submit.py:641} INFO - 
+[2026-10-28T15:48:01.032+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:57 INFO SparkWrite: Requesting 402653184 bytes advisory partition size for table iceberg.pg_bronze.t24core_company
+[2026-10-28T15:48:01.033+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:57 INFO SparkWrite: Requesting ClusteredDistribution(ETL_DATE) as write distribution for table iceberg.pg_bronze.t24core_company
+[2026-10-28T15:48:01.034+0000] {spark_submit.py:641} INFO - 26/10/28 15:47:57 INFO SparkWrite: Requesting [] as write ordering for table iceberg.pg_bronze.t24core_company
+[2026-10-28T15:48:01.638+0000] {job.py:229} INFO - Heartbeat recovered after 13.87 seconds
+[2026-10-28T15:48:01.756+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:01 INFO BlockManagerMasterEndpoint: Registering block manager 172.19.0.6:42821 with 300.0 MiB RAM, BlockManagerId(0, 172.19.0.6, 42821, None)
+[2026-10-28T15:48:02.471+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO CodeGenerator: Code generated in 542.225428 ms
+[2026-10-28T15:48:02.824+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO DAGScheduler: Registering RDD 2 (sql at NativeMethodAccessorImpl.java:0) as input to shuffle 0
+[2026-10-28T15:48:02.830+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO DAGScheduler: Got map stage job 0 (sql at NativeMethodAccessorImpl.java:0) with 1 output partitions
+[2026-10-28T15:48:02.831+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO DAGScheduler: Final stage: ShuffleMapStage 0 (sql at NativeMethodAccessorImpl.java:0)
+[2026-10-28T15:48:02.832+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO DAGScheduler: Parents of final stage: List()
+[2026-10-28T15:48:02.833+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO DAGScheduler: Missing parents: List()
+[2026-10-28T15:48:02.835+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:02 INFO DAGScheduler: Submitting ShuffleMapStage 0 (MapPartitionsRDD[2] at sql at NativeMethodAccessorImpl.java:0), which has no missing parents
+[2026-10-28T15:48:04.806+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:04 INFO MemoryStore: Block broadcast_0 stored as values in memory (estimated size 14.6 KiB, free 434.4 MiB)
+[2026-10-28T15:48:04.877+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:04 INFO MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 7.6 KiB, free 434.4 MiB)
+[2026-10-28T15:48:04.883+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:04 INFO BlockManagerInfo: Added broadcast_0_piece0 in memory on 9b1695de43a7:34027 (size: 7.6 KiB, free: 434.4 MiB)
+[2026-10-28T15:48:04.891+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:04 INFO SparkContext: Created broadcast 0 from broadcast at DAGScheduler.scala:1611
+[2026-10-28T15:48:04.918+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:04 INFO DAGScheduler: Submitting 1 missing tasks from ShuffleMapStage 0 (MapPartitionsRDD[2] at sql at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+[2026-10-28T15:48:04.921+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:04 INFO TaskSchedulerImpl: Adding task set 0.0 with 1 tasks resource profile 0
+[2026-10-28T15:48:26.037+0000] {job.py:229} INFO - Heartbeat recovered after 32.64 seconds
+[2026-10-28T15:48:27.983+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:27 INFO TaskSetManager: Starting task 0.0 in stage 0.0 (TID 0) (172.19.0.6, executor 0, partition 0, PROCESS_LOCAL, 10060 bytes)
+[2026-10-28T15:48:28.513+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:28 INFO BlockManagerInfo: Added broadcast_0_piece0 in memory on 172.19.0.6:42821 (size: 7.6 KiB, free: 300.0 MiB)
+[2026-10-28T15:48:31.121+0000] {job.py:229} INFO - Heartbeat recovered after 22.19 seconds
+[2026-10-28T15:48:33.587+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO TaskSetManager: Finished task 0.0 in stage 0.0 (TID 0) in 5625 ms on 172.19.0.6 (executor 0) (1/1)
+[2026-10-28T15:48:33.592+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool
+[2026-10-28T15:48:33.611+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: ShuffleMapStage 0 (sql at NativeMethodAccessorImpl.java:0) finished in 30.759 s
+[2026-10-28T15:48:33.616+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: looking for newly runnable stages
+[2026-10-28T15:48:33.617+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: running: Set()
+[2026-10-28T15:48:33.618+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: waiting: Set()
+[2026-10-28T15:48:33.619+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: failed: Set()
+[2026-10-28T15:48:33.685+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO ShufflePartitionsUtil: For shuffle(0), advisory target size: 402653184, actual target size 1048576, minimum partition size: 1048576
+[2026-10-28T15:48:33.755+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO MemoryStore: Block broadcast_1 stored as values in memory (estimated size 32.0 KiB, free 434.3 MiB)
+[2026-10-28T15:48:33.797+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO MemoryStore: Block broadcast_1_piece0 stored as bytes in memory (estimated size 30.8 KiB, free 434.3 MiB)
+[2026-10-28T15:48:33.798+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO BlockManagerInfo: Added broadcast_1_piece0 in memory on 9b1695de43a7:34027 (size: 30.8 KiB, free: 434.4 MiB)
+[2026-10-28T15:48:33.800+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO SparkContext: Created broadcast 1 from broadcast at SparkWrite.java:193
+[2026-10-28T15:48:33.805+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO OverwritePartitionsDynamicExec: Start processing data source write support: IcebergBatchWrite(table=iceberg.pg_bronze.t24core_company, format=PARQUET). The input RDD has 1 partitions.
+[2026-10-28T15:48:33.826+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO SparkContext: Starting job: sql at NativeMethodAccessorImpl.java:0
+[2026-10-28T15:48:33.830+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: Got job 1 (sql at NativeMethodAccessorImpl.java:0) with 1 output partitions
+[2026-10-28T15:48:33.832+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: Final stage: ResultStage 2 (sql at NativeMethodAccessorImpl.java:0)
+[2026-10-28T15:48:33.835+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: Parents of final stage: List(ShuffleMapStage 1)
+[2026-10-28T15:48:33.837+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: Missing parents: List()
+[2026-10-28T15:48:33.839+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: Submitting ResultStage 2 (ShuffledRowRDD[3] at sql at NativeMethodAccessorImpl.java:0), which has no missing parents
+[2026-10-28T15:48:33.875+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO MemoryStore: Block broadcast_2 stored as values in memory (estimated size 10.6 KiB, free 434.3 MiB)
+[2026-10-28T15:48:33.877+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO MemoryStore: Block broadcast_2_piece0 stored as bytes in memory (estimated size 5.7 KiB, free 434.3 MiB)
+[2026-10-28T15:48:33.911+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO BlockManagerInfo: Added broadcast_2_piece0 in memory on 9b1695de43a7:34027 (size: 5.7 KiB, free: 434.4 MiB)
+[2026-10-28T15:48:33.916+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO SparkContext: Created broadcast 2 from broadcast at DAGScheduler.scala:1611
+[2026-10-28T15:48:33.923+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 2 (ShuffledRowRDD[3] at sql at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+[2026-10-28T15:48:33.925+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO TaskSchedulerImpl: Adding task set 2.0 with 1 tasks resource profile 0
+[2026-10-28T15:48:33.927+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO BlockManagerInfo: Removed broadcast_0_piece0 on 172.19.0.6:42821 in memory (size: 7.6 KiB, free: 300.0 MiB)
+[2026-10-28T15:48:33.932+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO TaskSetManager: Starting task 0.0 in stage 2.0 (TID 1) (172.19.0.6, executor 0, partition 0, NODE_LOCAL, 10225 bytes)
+[2026-10-28T15:48:33.936+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO BlockManagerInfo: Removed broadcast_0_piece0 on 9b1695de43a7:34027 in memory (size: 7.6 KiB, free: 434.4 MiB)
+[2026-10-28T15:48:33.982+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:33 INFO BlockManagerInfo: Added broadcast_2_piece0 in memory on 172.19.0.6:42821 (size: 5.7 KiB, free: 300.0 MiB)
+[2026-10-28T15:48:34.079+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:34 INFO MapOutputTrackerMasterEndpoint: Asked to send map output locations for shuffle 0 to 172.19.0.6:39108
+[2026-10-28T15:48:34.262+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:34 INFO BlockManagerInfo: Added broadcast_1_piece0 in memory on 172.19.0.6:42821 (size: 30.8 KiB, free: 300.0 MiB)
+[2026-10-28T15:48:38.246+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO TaskSetManager: Finished task 0.0 in stage 2.0 (TID 1) in 4320 ms on 172.19.0.6 (executor 0) (1/1)
+[2026-10-28T15:48:38.247+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO TaskSchedulerImpl: Removed TaskSet 2.0, whose tasks have all completed, from pool
+[2026-10-28T15:48:38.249+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO DAGScheduler: ResultStage 2 (sql at NativeMethodAccessorImpl.java:0) finished in 4.384 s
+[2026-10-28T15:48:38.250+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO DAGScheduler: Job 1 is finished. Cancelling potential speculative or zombie tasks for this job
+[2026-10-28T15:48:38.251+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO TaskSchedulerImpl: Killing all running tasks in stage 2: Stage finished
+[2026-10-28T15:48:38.254+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO DAGScheduler: Job 1 finished: sql at NativeMethodAccessorImpl.java:0, took 4.428092 s
+[2026-10-28T15:48:38.255+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO OverwritePartitionsDynamicExec: Data source write support IcebergBatchWrite(table=iceberg.pg_bronze.t24core_company, format=PARQUET) is committing.
+[2026-10-28T15:48:38.316+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:38 INFO SparkWrite: Committing dynamic partition overwrite with 1 new data files to table iceberg.pg_bronze.t24core_company
+[2026-10-28T15:48:39.131+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO BlockManagerInfo: Removed broadcast_2_piece0 on 9b1695de43a7:34027 in memory (size: 5.7 KiB, free: 434.4 MiB)
+[2026-10-28T15:48:39.134+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO BlockManagerInfo: Removed broadcast_2_piece0 on 172.19.0.6:42821 in memory (size: 5.7 KiB, free: 300.0 MiB)
+[2026-10-28T15:48:39.185+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO NessieIcebergClient: Committed 'pg_bronze.t24core_company' against 'Branch{name=main, metadata=null, hash=478bebe6c869bba2658026157dec955db780c2ae5e25368e035c3c93c31d22d6}', expected commit-id was 'b30df999645959deb20e2ec3e4257cade73e888f6fe3f38f652a63bd026ae530'
+[2026-10-28T15:48:39.186+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO BaseMetastoreTableOperations: Successfully committed to table pg_bronze.t24core_company in 113 ms
+[2026-10-28T15:48:39.187+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO SnapshotProducer: Committed snapshot 427385483225069153 (BaseReplacePartitions)
+[2026-10-28T15:48:39.195+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO BaseMetastoreTableOperations: Refreshing table metadata from new version: s3a://warehouse/pg_bronze/t24core_company_83b495e2-9377-4652-a1e3-c0f883a2b61c/metadata/00001-ff04725c-caa4-4d0d-8187-73a552209496.metadata.json
+[2026-10-28T15:48:39.209+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO NessieUtil: loadTableMetadata for 'pg_bronze.t24core_company' from location 's3a://warehouse/pg_bronze/t24core_company_83b495e2-9377-4652-a1e3-c0f883a2b61c/metadata/00001-ff04725c-caa4-4d0d-8187-73a552209496.metadata.json' at 'Branch{name=main, metadata=null, hash=478bebe6c869bba2658026157dec955db780c2ae5e25368e035c3c93c31d22d6}'
+[2026-10-28T15:48:39.316+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO LoggingMetricsReporter: Received metrics report: CommitReport{tableName=iceberg.pg_bronze.t24core_company, snapshotId=427385483225069153, sequenceNumber=1, operation=overwrite, commitMetrics=CommitMetricsResult{totalDuration=TimerResult{timeUnit=NANOSECONDS, totalDuration=PT0.956917551S, count=1}, attempts=CounterResult{unit=COUNT, value=1}, addedDataFiles=CounterResult{unit=COUNT, value=1}, removedDataFiles=null, totalDataFiles=CounterResult{unit=COUNT, value=1}, addedDeleteFiles=null, addedEqualityDeleteFiles=null, addedPositionalDeleteFiles=null, removedDeleteFiles=null, removedEqualityDeleteFiles=null, removedPositionalDeleteFiles=null, totalDeleteFiles=CounterResult{unit=COUNT, value=0}, addedRecords=CounterResult{unit=COUNT, value=142}, removedRecords=null, totalRecords=CounterResult{unit=COUNT, value=142}, addedFilesSizeInBytes=CounterResult{unit=BYTES, value=2988}, removedFilesSizeInBytes=null, totalFilesSizeInBytes=CounterResult{unit=BYTES, value=2988}, addedPositionalDeletes=null, removedPositionalDeletes=null, totalPositionalDeletes=CounterResult{unit=COUNT, value=0}, addedEqualityDeletes=null, removedEqualityDeletes=null, totalEqualityDeletes=CounterResult{unit=COUNT, value=0}}, metadata={engine-version=3.5.9, app-id=app-20261028154746-0032, engine-name=spark, iceberg-version=Apache Iceberg 1.6.1 (commit 8e9d59d299be42b0bca9461457cd1e95dbaad086)}}
+[2026-10-28T15:48:39.317+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO SparkWrite: Committed in 999 ms
+[2026-10-28T15:48:39.318+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO OverwritePartitionsDynamicExec: Data source write support IcebergBatchWrite(table=iceberg.pg_bronze.t24core_company, format=PARQUET) committed.
+[2026-10-28T15:48:39.324+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO SparkContext: SparkContext is stopping with exitCode 0.
+[2026-10-28T15:48:39.339+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO SparkUI: Stopped Spark web UI at http://9b1695de43a7:4040
+[2026-10-28T15:48:39.343+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO StandaloneSchedulerBackend: Shutting down all executors
+[2026-10-28T15:48:39.344+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asking each executor to shut down
+[2026-10-28T15:48:39.369+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+[2026-10-28T15:48:39.391+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO MemoryStore: MemoryStore cleared
+[2026-10-28T15:48:39.392+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO BlockManager: BlockManager stopped
+[2026-10-28T15:48:39.396+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO BlockManagerMaster: BlockManagerMaster stopped
+[2026-10-28T15:48:39.400+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+[2026-10-28T15:48:39.413+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO SparkContext: Successfully stopped SparkContext
+[2026-10-28T15:48:39.550+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO ShutdownHookManager: Shutdown hook called
+[2026-10-28T15:48:39.551+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO ShutdownHookManager: Deleting directory /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015/pyspark-d996a61c-d259-41aa-bb2c-7d7b731942d7
+[2026-10-28T15:48:39.555+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO ShutdownHookManager: Deleting directory /tmp/spark-33709d87-1a29-4acf-b75a-bd56d35792d0
+[2026-10-28T15:48:39.558+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO ShutdownHookManager: Deleting directory /tmp/spark-b0c81c07-4c95-49de-91ab-7f3dea888015
+[2026-10-28T15:48:39.564+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO MetricsSystemImpl: Stopping s3a-file-system metrics system...
+[2026-10-28T15:48:39.565+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO MetricsSystemImpl: s3a-file-system metrics system stopped.
+[2026-10-28T15:48:39.566+0000] {spark_submit.py:641} INFO - 26/10/28 15:48:39 INFO MetricsSystemImpl: s3a-file-system metrics system shutdown complete.
+[2026-10-28T15:48:39.960+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2026-10-28T15:48:39.961+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=dag_wave0_bronze_ingest, task_id=bronze_t24core_company, run_id=manual__2026-10-28T15:43:13+00:00, execution_date=20261028T154313, start_date=20261028T154737, end_date=20261028T154839
+[2026-10-28T15:48:40.039+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2026-10-28T15:48:40.096+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-10-28T15:48:40.099+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

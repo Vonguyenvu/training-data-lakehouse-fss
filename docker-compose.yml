@@ -1,0 +1,190 @@
+name: fss-training
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: docker/airflow/Dockerfile
+  image: fss-training-airflow:2.10.5
+  env_file:
+    - .env
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./sql:/opt/airflow/sql:ro
+    - ./src:/opt/airflow/src:ro
+    - ./schema:/opt/airflow/schema:ro
+    - ./conf/spark:/opt/airflow/spark-conf:ro
+    - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: coollabsio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: amazon/aws-cli:latest
+    depends_on:
+      minio:
+        condition: service_started
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        until aws --endpoint-url http://minio:9000 s3api list-buckets >/dev/null 2>&1; do
+          sleep 2
+        done
+        aws --endpoint-url http://minio:9000 s3api create-bucket --bucket "${MINIO_BUCKET:-warehouse}" || true
+        aws --endpoint-url http://minio:9000 s3api create-bucket --bucket "${MINIO_RAW_BUCKET:-raw}" || true
+
+  nessie:
+    image: projectnessie/nessie:0.76.6
+    environment:
+      QUARKUS_HTTP_PORT: 19120
+      QUARKUS_DATASOURCE_DB_KIND: h2
+      NESSIE_VERSION_STORE_TYPE: IN_MEMORY
+      QUARKUS_OTEL_SDK_DISABLED: "true"
+    ports:
+      - "${NESSIE_PORT:-19120}:19120"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:19120/api/v2/config"]
+      interval: 30s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  trino:
+    image: trinodb/trino:476
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      nessie:
+        condition: service_healthy
+    ports:
+      - "${TRINO_PORT:-8080}:8080"
+    volumes:
+      - ./conf/trino/catalog:/etc/trino/catalog:ro
+      - ./conf/trino/config.properties:/etc/trino/config.properties:ro
+
+  spark-master:
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    env_file:
+      - .env
+    ports:
+      - "${SPARK_MASTER_PORT:-7077}:7077"
+      - "${SPARK_MASTER_UI_PORT:-8081}:8080"
+    volumes:
+      - ./sql:/opt/spark/sql:ro
+      - ./src:/opt/spark/src:ro
+      - ./common:/opt/spark/common:ro
+      - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
+      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+  spark-worker:
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    depends_on:
+      - spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    env_file:
+      - .env
+    volumes:
+      - ./sql:/opt/spark/sql:ro
+      - ./src:/opt/spark/src:ro
+      - ./common:/opt/spark/common:ro
+      - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
+      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+
+  dbt:
+    build:
+      context: ./dbt
+    working_dir: /usr/app
+    command: sleep infinity
+    environment:
+      DBT_PROFILES_DIR: /root/.dbt
+    depends_on:
+      trino:
+        condition: service_started
+    volumes:
+      - ./dbt:/usr/app
+      - ./dbt/profiles.yml:/root/.dbt/profiles.yml:ro
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username "$${AIRFLOW_ADMIN_USERNAME}" \
+          --password "$${AIRFLOW_ADMIN_PASSWORD}" \
+          --firstname Admin --lastname User \
+          --role Admin --email admin@example.local
+    restart: "no"
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "${AIRFLOW_PORT:-8088}:8080"
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-data:
+  minio-data:

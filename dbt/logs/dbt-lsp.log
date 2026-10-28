@@ -1,0 +1,15 @@
+==================== 2026-10-28T02:16:42.042765Z | 00000000-0000-0000-0000-000000000000 ====================
+==================== 2026-10-28T02:16:42.045244Z | c311140e-d7dd-4f0c-8ca8-56b3873146d6 ====================
+02:16:42.046281 [info ]: Starting dbt LSP server
+02:16:42.046506 [info ]: Connecting to LSP client on port 8000
+02:16:42.048911 [info ]: Successfully connected to LSP client
+02:16:42.049290 [info ]: Creating LSP service...
+02:16:42.056018 [info ]: Creating LSP server...
+02:16:42.056037 [info ]: Starting LSP server...
+02:16:47.970752 [info ]: Loading profiles.yml
+02:16:52.563753 [info ]: Loading profiles.yml
+02:16:54.196553 [info ]: Loading profiles.yml
+02:21:44.393635 [info ]: Loading profiles.yml
+02:21:44.869739 [info ]: Loading profiles.yml
+02:23:38.040644 [debug]: Ignoring unsupported LSP notification
+02:25:46.712405 [debug]: Ignoring unsupported LSP notification

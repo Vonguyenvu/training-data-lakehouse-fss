@@ -1,0 +1,13 @@
+fss_training:
+  target: dev
+  outputs:
+    dev:
+      type: trino
+      method: http
+      host: trino
+      port: 8080
+      user: dbt
+      catalog: iceberg
+      schema: silver
+      threads: 2
+      http_scheme: http

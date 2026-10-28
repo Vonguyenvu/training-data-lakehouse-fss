@@ -1,0 +1,213 @@
+[2026-10-28T15:37:45.106+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-10-28T15:37:45.145+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: dag_wave0_bronze_ingest.bronze_flexbo_pgbld_contract_udfield_hist manual__2026-10-28T15:37:20+00:00 [queued]>
+[2026-10-28T15:37:45.156+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: dag_wave0_bronze_ingest.bronze_flexbo_pgbld_contract_udfield_hist manual__2026-10-28T15:37:20+00:00 [queued]>
+[2026-10-28T15:37:45.157+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 2
+[2026-10-28T15:37:45.172+0000] {taskinstance.py:2890} INFO - Executing <Task(SparkSubmitOperator): bronze_flexbo_pgbld_contract_udfield_hist> on 2026-10-28 15:37:20+00:00
+[2026-10-28T15:37:45.181+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70 DeprecationWarning: This process (pid=977) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-10-28T15:37:45.184+0000] {standard_task_runner.py:72} INFO - Started process 980 to run task
+[2026-10-28T15:37:45.182+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'dag_wave0_bronze_ingest', 'bronze_flexbo_pgbld_contract_udfield_hist', 'manual__2026-10-28T15:37:20+00:00', '--job-id', '6', '--raw', '--subdir', 'DAGS_FOLDER/dag_wave0_bronze_ingest.py', '--cfg-path', '/tmp/tmpeep8o5nx']
+[2026-10-28T15:37:45.185+0000] {standard_task_runner.py:105} INFO - Job 6: Subtask bronze_flexbo_pgbld_contract_udfield_hist
+[2026-10-28T15:37:45.254+0000] {task_command.py:467} INFO - Running <TaskInstance: dag_wave0_bronze_ingest.bronze_flexbo_pgbld_contract_udfield_hist manual__2026-10-28T15:37:20+00:00 [running]> on host 9b1695de43a7
+[2026-10-28T15:37:45.414+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data_platform' AIRFLOW_CTX_DAG_ID='dag_wave0_bronze_ingest' AIRFLOW_CTX_TASK_ID='bronze_flexbo_pgbld_contract_udfield_hist' AIRFLOW_CTX_EXECUTION_DATE='2026-10-28T15:37:20+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-10-28T15:37:20+00:00'
+[2026-10-28T15:37:45.417+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2026-10-28T15:37:45.467+0000] {base.py:84} INFO - Retrieving connection 'spark_default'
+[2026-10-28T15:37:45.470+0000] {spark_submit.py:474} INFO - Spark-Submit cmd: spark-submit --master spark://spark-master:7077 --name arrow-spark /opt/***/src/jobs/run_sql.py --sql-file /opt/***/sql/bronze/flexbo_pgbld_contract_udfield_hist.sql --etl-date 2025-01-01
+[2026-10-28T15:37:48.829+0000] {spark_submit.py:641} INFO - :: loading settings :: url = jar:file:/home/***/.local/lib/python3.12/site-packages/pyspark/jars/ivy-2.5.3.jar!/org/apache/ivy/core/settings/ivysettings.xml
+[2026-10-28T15:37:48.996+0000] {spark_submit.py:641} INFO - Ivy Default Cache set to: /home/***/.ivy2/cache
+[2026-10-28T15:37:48.997+0000] {spark_submit.py:641} INFO - The jars for the packages stored in: /home/***/.ivy2/jars
+[2026-10-28T15:37:49.005+0000] {spark_submit.py:641} INFO - org.apache.iceberg#iceberg-spark-runtime-3.5_2.12 added as a dependency
+[2026-10-28T15:37:49.007+0000] {spark_submit.py:641} INFO - org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12 added as a dependency
+[2026-10-28T15:37:49.009+0000] {spark_submit.py:641} INFO - org.apache.hadoop#hadoop-aws added as a dependency
+[2026-10-28T15:37:49.010+0000] {spark_submit.py:641} INFO - :: resolving dependencies :: org.apache.spark#spark-submit-parent-b604864f-ef22-4cdb-967d-d8ef46ac8eb5;1.0
+[2026-10-28T15:37:49.011+0000] {spark_submit.py:641} INFO - confs: [default]
+[2026-10-28T15:37:49.221+0000] {spark_submit.py:641} INFO - found org.apache.iceberg#iceberg-spark-runtime-3.5_2.12;1.6.1 in central
+[2026-10-28T15:37:49.261+0000] {spark_submit.py:641} INFO - found org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12;0.76.6 in central
+[2026-10-28T15:37:49.480+0000] {spark_submit.py:641} INFO - found org.apache.hadoop#hadoop-aws;3.3.4 in central
+[2026-10-28T15:37:49.581+0000] {spark_submit.py:641} INFO - found com.amazonaws#aws-java-sdk-bundle;1.12.262 in central
+[2026-10-28T15:37:49.653+0000] {spark_submit.py:641} INFO - found org.wildfly.openssl#wildfly-openssl;1.0.7.Final in central
+[2026-10-28T15:37:49.719+0000] {spark_submit.py:641} INFO - :: resolution report :: resolve 682ms :: artifacts dl 28ms
+[2026-10-28T15:37:49.720+0000] {spark_submit.py:641} INFO - :: modules in use:
+[2026-10-28T15:37:49.722+0000] {spark_submit.py:641} INFO - com.amazonaws#aws-java-sdk-bundle;1.12.262 from central in [default]
+[2026-10-28T15:37:49.723+0000] {spark_submit.py:641} INFO - org.apache.hadoop#hadoop-aws;3.3.4 from central in [default]
+[2026-10-28T15:37:49.725+0000] {spark_submit.py:641} INFO - org.apache.iceberg#iceberg-spark-runtime-3.5_2.12;1.6.1 from central in [default]
+[2026-10-28T15:37:49.726+0000] {spark_submit.py:641} INFO - org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12;0.76.6 from central in [default]
+[2026-10-28T15:37:49.727+0000] {spark_submit.py:641} INFO - org.wildfly.openssl#wildfly-openssl;1.0.7.Final from central in [default]
+[2026-10-28T15:37:49.729+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:37:49.730+0000] {spark_submit.py:641} INFO - |                  |            modules            ||   artifacts   |
+[2026-10-28T15:37:49.732+0000] {spark_submit.py:641} INFO - |       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+[2026-10-28T15:37:49.733+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:37:49.735+0000] {spark_submit.py:641} INFO - |      default     |   5   |   0   |   0   |   0   ||   5   |   0   |
+[2026-10-28T15:37:49.737+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:37:49.738+0000] {spark_submit.py:641} INFO - :: retrieving :: org.apache.spark#spark-submit-parent-b604864f-ef22-4cdb-967d-d8ef46ac8eb5
+[2026-10-28T15:37:49.739+0000] {spark_submit.py:641} INFO - confs: [default]
+[2026-10-28T15:37:49.744+0000] {spark_submit.py:641} INFO - 0 artifacts copied, 5 already retrieved (0kB/16ms)
+[2026-10-28T15:37:50.518+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:50 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[2026-10-28T15:37:53.052+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SparkContext: Running Spark version 3.5.9
+[2026-10-28T15:37:53.054+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SparkContext: OS info Linux, 6.18.54.1-microsoft-standard-WSL2, amd64
+[2026-10-28T15:37:53.055+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SparkContext: Java version 17.0.21
+[2026-10-28T15:37:53.091+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO ResourceUtils: ==============================================================
+[2026-10-28T15:37:53.092+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO ResourceUtils: No custom resources configured for spark.driver.
+[2026-10-28T15:37:53.093+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO ResourceUtils: ==============================================================
+[2026-10-28T15:37:53.094+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SparkContext: Submitted application: run-sql-flexbo_pgbld_contract_udfield_hist
+[2026-10-28T15:37:53.142+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(memory -> name: memory, amount: 800, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+[2026-10-28T15:37:53.159+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO ResourceProfile: Limiting resource is cpu
+[2026-10-28T15:37:53.164+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO ResourceProfileManager: Added ResourceProfile id: 0
+[2026-10-28T15:37:53.341+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SecurityManager: Changing view acls to: ***
+[2026-10-28T15:37:53.343+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SecurityManager: Changing modify acls to: ***
+[2026-10-28T15:37:53.345+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SecurityManager: Changing view acls groups to:
+[2026-10-28T15:37:53.346+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SecurityManager: Changing modify acls groups to:
+[2026-10-28T15:37:53.349+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: ***; groups with view permissions: EMPTY; users with modify permissions: ***; groups with modify permissions: EMPTY
+[2026-10-28T15:37:53.884+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO Utils: Successfully started service 'sparkDriver' on port 40007.
+[2026-10-28T15:37:53.931+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:53 INFO SparkEnv: Registering MapOutputTracker
+[2026-10-28T15:37:54.030+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkEnv: Registering BlockManagerMaster
+[2026-10-28T15:37:54.069+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+[2026-10-28T15:37:54.070+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+[2026-10-28T15:37:54.075+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+[2026-10-28T15:37:54.119+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-8a988c73-0bc5-482e-8a97-9491406ad0fa
+[2026-10-28T15:37:54.157+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+[2026-10-28T15:37:54.203+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkEnv: Registering OutputCommitCoordinator
+[2026-10-28T15:37:54.533+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+[2026-10-28T15:37:54.647+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+[2026-10-28T15:37:54.663+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO Utils: Successfully started service 'SparkUI' on port 4041.
+[2026-10-28T15:37:54.760+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added JAR file:///opt/spark/jars/ojdbc11.jar at spark://9b1695de43a7:40007/jars/ojdbc11.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.762+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar at spark://9b1695de43a7:40007/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.763+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar at spark://9b1695de43a7:40007/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.764+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar at spark://9b1695de43a7:40007/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.766+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar at spark://9b1695de43a7:40007/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.768+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar at spark://9b1695de43a7:40007/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.770+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar at spark://9b1695de43a7:40007/files/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.772+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO Utils: Copying /home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar to /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad/userFiles-497dd1f2-f474-4d42-a686-089c9ef0fa4b/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar
+[2026-10-28T15:37:54.806+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar at spark://9b1695de43a7:40007/files/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.808+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO Utils: Copying /home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar to /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad/userFiles-497dd1f2-f474-4d42-a686-089c9ef0fa4b/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar
+[2026-10-28T15:37:54.813+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar at spark://9b1695de43a7:40007/files/org.apache.hadoop_hadoop-aws-3.3.4.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.816+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO Utils: Copying /home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar to /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad/userFiles-497dd1f2-f474-4d42-a686-089c9ef0fa4b/org.apache.hadoop_hadoop-aws-3.3.4.jar
+[2026-10-28T15:37:54.822+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO SparkContext: Added file file:///home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar at spark://9b1695de43a7:40007/files/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar with timestamp 1793201873037
+[2026-10-28T15:37:54.824+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:54 INFO Utils: Copying /home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar to /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad/userFiles-497dd1f2-f474-4d42-a686-089c9ef0fa4b/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar
+[2026-10-28T15:37:55.184+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar at spark://9b1695de43a7:40007/files/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar with timestamp 1793201873037
+[2026-10-28T15:37:55.186+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO Utils: Copying /home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar to /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad/userFiles-497dd1f2-f474-4d42-a686-089c9ef0fa4b/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar
+[2026-10-28T15:37:55.331+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://spark-master:7077...
+[2026-10-28T15:37:55.423+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO TransportClientFactory: Successfully created connection to spark-master/172.19.0.3:7077 after 69 ms (0 ms spent in bootstraps)
+[2026-10-28T15:37:55.583+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20261028153755-0007
+[2026-10-28T15:37:55.588+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028153755-0007/0 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:37:55.591+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028153755-0007/0 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:37:55.600+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 40987.
+[2026-10-28T15:37:55.601+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO NettyBlockTransferService: Server created on 9b1695de43a7:40987
+[2026-10-28T15:37:55.603+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+[2026-10-28T15:37:55.620+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 9b1695de43a7, 40987, None)
+[2026-10-28T15:37:55.625+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO BlockManagerMasterEndpoint: Registering block manager 9b1695de43a7:40987 with 434.4 MiB RAM, BlockManagerId(driver, 9b1695de43a7, 40987, None)
+[2026-10-28T15:37:55.629+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 9b1695de43a7, 40987, None)
+[2026-10-28T15:37:55.631+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 9b1695de43a7, 40987, None)
+[2026-10-28T15:37:55.713+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:55 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028153755-0007/0 is now RUNNING
+[2026-10-28T15:37:56.460+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:56 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+[2026-10-28T15:37:57.116+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:57 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
+[2026-10-28T15:37:57.120+0000] {spark_submit.py:641} INFO - 26/10/28 15:37:57 INFO SharedState: Warehouse path is 'file:/opt/***/spark-warehouse'.
+[2026-10-28T15:38:01.898+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:01 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Registered executor NettyRpcEndpointRef(spark-client://Executor) (172.19.0.6:43644) with ID 0,  ResourceProfileId 0
+[2026-10-28T15:38:02.087+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:02 INFO BlockManagerMasterEndpoint: Registering block manager 172.19.0.6:43143 with 300.0 MiB RAM, BlockManagerId(0, 172.19.0.6, 43143, None)
+[2026-10-28T15:38:11.381+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:11 INFO CatalogUtil: Loading custom FileIO implementation: org.apache.iceberg.hadoop.HadoopFileIO
+[2026-10-28T15:38:13.934+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:13 INFO BaseMetastoreTableOperations: Refreshing table metadata from new version: s3a://warehouse/bronze/flexbo_pgbld_contract_udfield_hist_b8c3dc0f-6cbd-4f4f-af6f-ed3ce1ef14a4/metadata/00000-48ddddda-80b6-4a5b-9f93-b7c94a179365.metadata.json
+[2026-10-28T15:38:14.818+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:14 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+[2026-10-28T15:38:14.901+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:14 INFO MetricsSystemImpl: Scheduled Metric snapshot period at 10 second(s).
+[2026-10-28T15:38:14.906+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:14 INFO MetricsSystemImpl: s3a-file-system metrics system started
+[2026-10-28T15:38:18.279+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:18 INFO NessieUtil: loadTableMetadata for 'bronze.flexbo_pgbld_contract_udfield_hist' from location 's3a://warehouse/bronze/flexbo_pgbld_contract_udfield_hist_b8c3dc0f-6cbd-4f4f-af6f-ed3ce1ef14a4/metadata/00000-48ddddda-80b6-4a5b-9f93-b7c94a179365.metadata.json' at 'Branch{name=main, metadata=null, hash=d36f717ded9ec89f9ae49b332b4311f5f094008613dda9b011277346bca662ec}'
+[2026-10-28T15:38:18.307+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:18 INFO BaseMetastoreCatalog: Table loaded by catalog: iceberg.bronze.flexbo_pgbld_contract_udfield_hist
+[2026-10-28T15:38:19.512+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO SparkContext: SparkContext is stopping with exitCode 0.
+[2026-10-28T15:38:19.530+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO SparkUI: Stopped Spark web UI at http://9b1695de43a7:4041
+[2026-10-28T15:38:19.536+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO StandaloneSchedulerBackend: Shutting down all executors
+[2026-10-28T15:38:19.538+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asking each executor to shut down
+[2026-10-28T15:38:19.571+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+[2026-10-28T15:38:19.613+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO MemoryStore: MemoryStore cleared
+[2026-10-28T15:38:19.614+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO BlockManager: BlockManager stopped
+[2026-10-28T15:38:19.670+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO BlockManagerMaster: BlockManagerMaster stopped
+[2026-10-28T15:38:19.677+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+[2026-10-28T15:38:19.710+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:19 INFO SparkContext: Successfully stopped SparkContext
+[2026-10-28T15:38:20.111+0000] {spark_submit.py:641} INFO - Traceback (most recent call last):
+[2026-10-28T15:38:20.112+0000] {spark_submit.py:641} INFO - File "/opt/***/src/jobs/run_sql.py", line 38, in <module>
+[2026-10-28T15:38:20.116+0000] {spark_submit.py:641} INFO - main()
+[2026-10-28T15:38:20.119+0000] {spark_submit.py:641} INFO - File "/opt/***/src/jobs/run_sql.py", line 32, in main
+[2026-10-28T15:38:20.138+0000] {spark_submit.py:641} INFO - spark.sql(statement)
+[2026-10-28T15:38:20.140+0000] {spark_submit.py:641} INFO - File "/home/***/.local/lib/python3.12/site-packages/pyspark/python/lib/pyspark.zip/pyspark/sql/session.py", line 1631, in sql
+[2026-10-28T15:38:20.141+0000] {spark_submit.py:641} INFO - File "/home/***/.local/lib/python3.12/site-packages/pyspark/python/lib/py4j-0.10.9.7-src.zip/py4j/java_gateway.py", line 1322, in __call__
+[2026-10-28T15:38:20.146+0000] {spark_submit.py:641} INFO - File "/home/***/.local/lib/python3.12/site-packages/pyspark/python/lib/pyspark.zip/pyspark/errors/exceptions/captured.py", line 185, in deco
+[2026-10-28T15:38:20.186+0000] {spark_submit.py:641} INFO - pyspark.errors.exceptions.captured.AnalysisException: [INCOMPATIBLE_DATA_FOR_TABLE.CANNOT_SAFELY_CAST] Cannot write incompatible data for the table `iceberg`.`bronze`.`flexbo_pgbld_contract_udfield_hist`: Cannot safely cast `MOV_DATE` "STRING" to "TIMESTAMP".
+[2026-10-28T15:38:20.330+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO ShutdownHookManager: Shutdown hook called
+[2026-10-28T15:38:20.332+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO ShutdownHookManager: Deleting directory /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad/pyspark-b387a344-029f-4c8e-921a-9f4d83641f47
+[2026-10-28T15:38:20.338+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO ShutdownHookManager: Deleting directory /tmp/spark-bbeae638-a6fa-4836-9f1d-d62323a30f57
+[2026-10-28T15:38:20.343+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO ShutdownHookManager: Deleting directory /tmp/spark-9b201b3d-d72e-4548-9bed-cc7e443e72ad
+[2026-10-28T15:38:20.353+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO MetricsSystemImpl: Stopping s3a-file-system metrics system...
+[2026-10-28T15:38:20.356+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO MetricsSystemImpl: s3a-file-system metrics system stopped.
+[2026-10-28T15:38:20.358+0000] {spark_submit.py:641} INFO - 26/10/28 15:38:20 INFO MetricsSystemImpl: s3a-file-system metrics system shutdown complete.
+[2026-10-28T15:38:20.754+0000] {taskinstance.py:3313} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 768, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 734, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 424, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/apache/spark/operators/spark_submit.py", line 177, in execute
+    self._hook.submit(self.application)
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/apache/spark/hooks/spark_submit.py", line 567, in submit
+    raise AirflowException(
+airflow.exceptions.AirflowException: Cannot execute: spark-submit --master spark://spark-master:7077 --name arrow-spark /opt/***/src/jobs/run_sql.py --sql-file /opt/***/sql/bronze/flexbo_pgbld_contract_udfield_hist.sql --etl-date 2025-01-01. Error code is: 1.
+[2026-10-28T15:38:20.769+0000] {taskinstance.py:1226} INFO - Marking task as UP_FOR_RETRY. dag_id=dag_wave0_bronze_ingest, task_id=bronze_flexbo_pgbld_contract_udfield_hist, run_id=manual__2026-10-28T15:37:20+00:00, execution_date=20261028T153720, start_date=20261028T153745, end_date=20261028T153820
+[2026-10-28T15:38:20.833+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2026-10-28T15:38:20.835+0000] {standard_task_runner.py:124} ERROR - Failed to execute job 6 for task bronze_flexbo_pgbld_contract_udfield_hist (Cannot execute: spark-submit --master spark://spark-master:7077 --name arrow-spark /opt/***/src/jobs/run_sql.py --sql-file /opt/***/sql/bronze/flexbo_pgbld_contract_udfield_hist.sql --etl-date 2025-01-01. Error code is: 1.; 980)
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py", line 117, in _start_by_fork
+    ret = args.func(args, dag=self.dag)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/cli_config.py", line 49, in command
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/cli.py", line 116, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 483, in task_run
+    task_return_code = _run_task_by_selected_method(args, _dag, ti)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 256, in _run_task_by_selected_method
+    return _run_raw_task(args, ti)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 341, in _run_raw_task
+    return ti._run_raw_task(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/session.py", line 97, in wrapper
+    return func(*args, session=session, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3006, in _run_raw_task
+    return _run_raw_task(
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 274, in _run_raw_task
+    TaskInstance._execute_task_with_callbacks(
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3161, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3185, in _execute_task
+    return _execute_task(self, context, task_orig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 768, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 734, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 424, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/apache/spark/operators/spark_submit.py", line 177, in execute
+    self._hook.submit(self.application)
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/apache/spark/hooks/spark_submit.py", line 567, in submit
+    raise AirflowException(
+airflow.exceptions.AirflowException: Cannot execute: spark-submit --master spark://spark-master:7077 --name arrow-spark /opt/***/src/jobs/run_sql.py --sql-file /opt/***/sql/bronze/flexbo_pgbld_contract_udfield_hist.sql --etl-date 2025-01-01. Error code is: 1.
+[2026-10-28T15:38:20.862+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2026-10-28T15:38:20.917+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-10-28T15:38:20.920+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

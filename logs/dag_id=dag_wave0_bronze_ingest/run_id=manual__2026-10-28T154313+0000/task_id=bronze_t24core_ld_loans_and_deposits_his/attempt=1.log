@@ -1,0 +1,175 @@
+[2026-10-28T15:50:10.305+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-10-28T15:50:10.376+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: dag_wave0_bronze_ingest.bronze_t24core_ld_loans_and_deposits_his manual__2026-10-28T15:43:13+00:00 [queued]>
+[2026-10-28T15:50:10.413+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: dag_wave0_bronze_ingest.bronze_t24core_ld_loans_and_deposits_his manual__2026-10-28T15:43:13+00:00 [queued]>
+[2026-10-28T15:50:10.419+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 2
+[2026-10-28T15:50:10.454+0000] {taskinstance.py:2890} INFO - Executing <Task(SparkSubmitOperator): bronze_t24core_ld_loans_and_deposits_his> on 2026-10-28 15:43:13+00:00
+[2026-10-28T15:50:10.468+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'dag_wave0_bronze_ingest', 'bronze_t24core_ld_loans_and_deposits_his', 'manual__2026-10-28T15:43:13+00:00', '--job-id', '39', '--raw', '--subdir', 'DAGS_FOLDER/dag_wave0_bronze_ingest.py', '--cfg-path', '/tmp/tmpin_3he78']
+[2026-10-28T15:50:10.473+0000] {standard_task_runner.py:105} INFO - Job 39: Subtask bronze_t24core_ld_loans_and_deposits_his
+[2026-10-28T15:50:10.475+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70 DeprecationWarning: This process (pid=8199) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-10-28T15:50:10.479+0000] {standard_task_runner.py:72} INFO - Started process 8200 to run task
+[2026-10-28T15:50:10.615+0000] {task_command.py:467} INFO - Running <TaskInstance: dag_wave0_bronze_ingest.bronze_t24core_ld_loans_and_deposits_his manual__2026-10-28T15:43:13+00:00 [running]> on host 9b1695de43a7
+[2026-10-28T15:50:10.812+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data_platform' AIRFLOW_CTX_DAG_ID='dag_wave0_bronze_ingest' AIRFLOW_CTX_TASK_ID='bronze_t24core_ld_loans_and_deposits_his' AIRFLOW_CTX_EXECUTION_DATE='2026-10-28T15:43:13+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-10-28T15:43:13+00:00'
+[2026-10-28T15:50:10.814+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2026-10-28T15:50:10.891+0000] {base.py:84} INFO - Retrieving connection 'spark_default'
+[2026-10-28T15:50:10.895+0000] {spark_submit.py:474} INFO - Spark-Submit cmd: spark-submit --master spark://spark-master:7077 --name arrow-spark /opt/***/src/jobs/run_sql.py --sql-file /opt/***/sql/bronze/t24core_ld_loans_and_deposits_his.sql --etl-date 2025-01-01
+[2026-10-28T15:50:15.687+0000] {spark_submit.py:641} INFO - :: loading settings :: url = jar:file:/home/***/.local/lib/python3.12/site-packages/pyspark/jars/ivy-2.5.3.jar!/org/apache/ivy/core/settings/ivysettings.xml
+[2026-10-28T15:50:15.947+0000] {spark_submit.py:641} INFO - Ivy Default Cache set to: /home/***/.ivy2/cache
+[2026-10-28T15:50:15.950+0000] {spark_submit.py:641} INFO - The jars for the packages stored in: /home/***/.ivy2/jars
+[2026-10-28T15:50:15.966+0000] {spark_submit.py:641} INFO - org.apache.iceberg#iceberg-spark-runtime-3.5_2.12 added as a dependency
+[2026-10-28T15:50:15.972+0000] {spark_submit.py:641} INFO - org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12 added as a dependency
+[2026-10-28T15:50:15.978+0000] {spark_submit.py:641} INFO - org.apache.hadoop#hadoop-aws added as a dependency
+[2026-10-28T15:50:15.981+0000] {spark_submit.py:641} INFO - :: resolving dependencies :: org.apache.spark#spark-submit-parent-07670bca-db0d-46a7-8e43-42bc7c092287;1.0
+[2026-10-28T15:50:15.983+0000] {spark_submit.py:641} INFO - confs: [default]
+[2026-10-28T15:50:16.407+0000] {spark_submit.py:641} INFO - found org.apache.iceberg#iceberg-spark-runtime-3.5_2.12;1.6.1 in central
+[2026-10-28T15:50:16.456+0000] {spark_submit.py:641} INFO - found org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12;0.76.6 in central
+[2026-10-28T15:50:16.600+0000] {spark_submit.py:641} INFO - found org.apache.hadoop#hadoop-aws;3.3.4 in central
+[2026-10-28T15:50:16.644+0000] {spark_submit.py:641} INFO - found com.amazonaws#aws-java-sdk-bundle;1.12.262 in central
+[2026-10-28T15:50:16.679+0000] {spark_submit.py:641} INFO - found org.wildfly.openssl#wildfly-openssl;1.0.7.Final in central
+[2026-10-28T15:50:16.774+0000] {spark_submit.py:641} INFO - :: resolution report :: resolve 739ms :: artifacts dl 54ms
+[2026-10-28T15:50:16.798+0000] {spark_submit.py:641} INFO - :: modules in use:
+[2026-10-28T15:50:16.814+0000] {spark_submit.py:641} INFO - com.amazonaws#aws-java-sdk-bundle;1.12.262 from central in [default]
+[2026-10-28T15:50:16.818+0000] {spark_submit.py:641} INFO - org.apache.hadoop#hadoop-aws;3.3.4 from central in [default]
+[2026-10-28T15:50:16.829+0000] {spark_submit.py:641} INFO - org.apache.iceberg#iceberg-spark-runtime-3.5_2.12;1.6.1 from central in [default]
+[2026-10-28T15:50:16.834+0000] {spark_submit.py:641} INFO - org.projectnessie.nessie-integrations#nessie-spark-extensions-3.5_2.12;0.76.6 from central in [default]
+[2026-10-28T15:50:16.842+0000] {spark_submit.py:641} INFO - org.wildfly.openssl#wildfly-openssl;1.0.7.Final from central in [default]
+[2026-10-28T15:50:16.846+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:50:16.848+0000] {spark_submit.py:641} INFO - |                  |            modules            ||   artifacts   |
+[2026-10-28T15:50:16.849+0000] {spark_submit.py:641} INFO - |       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+[2026-10-28T15:50:16.855+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:50:16.858+0000] {spark_submit.py:641} INFO - |      default     |   5   |   0   |   0   |   0   ||   5   |   0   |
+[2026-10-28T15:50:16.867+0000] {spark_submit.py:641} INFO - ---------------------------------------------------------------------
+[2026-10-28T15:50:16.869+0000] {spark_submit.py:641} INFO - :: retrieving :: org.apache.spark#spark-submit-parent-07670bca-db0d-46a7-8e43-42bc7c092287
+[2026-10-28T15:50:16.870+0000] {spark_submit.py:641} INFO - confs: [default]
+[2026-10-28T15:50:16.872+0000] {spark_submit.py:641} INFO - 0 artifacts copied, 5 already retrieved (0kB/45ms)
+[2026-10-28T15:50:17.423+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:17 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[2026-10-28T15:50:20.258+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SparkContext: Running Spark version 3.5.9
+[2026-10-28T15:50:20.259+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SparkContext: OS info Linux, 6.18.54.1-microsoft-standard-WSL2, amd64
+[2026-10-28T15:50:20.260+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SparkContext: Java version 17.0.21
+[2026-10-28T15:50:20.286+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO ResourceUtils: ==============================================================
+[2026-10-28T15:50:20.287+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO ResourceUtils: No custom resources configured for spark.driver.
+[2026-10-28T15:50:20.288+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO ResourceUtils: ==============================================================
+[2026-10-28T15:50:20.289+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SparkContext: Submitted application: run-sql-t24core_ld_loans_and_deposits_his
+[2026-10-28T15:50:20.318+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(memory -> name: memory, amount: 800, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+[2026-10-28T15:50:20.329+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO ResourceProfile: Limiting resource is cpu
+[2026-10-28T15:50:20.330+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO ResourceProfileManager: Added ResourceProfile id: 0
+[2026-10-28T15:50:20.406+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SecurityManager: Changing view acls to: ***
+[2026-10-28T15:50:20.408+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SecurityManager: Changing modify acls to: ***
+[2026-10-28T15:50:20.409+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SecurityManager: Changing view acls groups to:
+[2026-10-28T15:50:20.410+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SecurityManager: Changing modify acls groups to:
+[2026-10-28T15:50:20.410+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: ***; groups with view permissions: EMPTY; users with modify permissions: ***; groups with modify permissions: EMPTY
+[2026-10-28T15:50:20.991+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:20 INFO Utils: Successfully started service 'sparkDriver' on port 38573.
+[2026-10-28T15:50:21.048+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkEnv: Registering MapOutputTracker
+[2026-10-28T15:50:21.129+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkEnv: Registering BlockManagerMaster
+[2026-10-28T15:50:21.172+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+[2026-10-28T15:50:21.173+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+[2026-10-28T15:50:21.179+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+[2026-10-28T15:50:21.240+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-e05fa46b-ed01-408d-9a6a-3db4d16052e2
+[2026-10-28T15:50:21.274+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+[2026-10-28T15:50:21.308+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkEnv: Registering OutputCommitCoordinator
+[2026-10-28T15:50:21.557+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+[2026-10-28T15:50:21.752+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+[2026-10-28T15:50:21.754+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO Utils: Successfully started service 'SparkUI' on port 4041.
+[2026-10-28T15:50:21.770+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added JAR file:///opt/spark/jars/ojdbc11.jar at spark://9b1695de43a7:38573/jars/ojdbc11.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.771+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar at spark://9b1695de43a7:38573/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.772+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar at spark://9b1695de43a7:38573/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.774+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar at spark://9b1695de43a7:38573/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.775+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar at spark://9b1695de43a7:38573/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.776+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added JAR file:///home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar at spark://9b1695de43a7:38573/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.778+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar at spark://9b1695de43a7:38573/files/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.779+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO Utils: Copying /home/***/.ivy2/jars/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar to /tmp/spark-150bf501-762c-4e98-8a42-b4ee72f5b423/userFiles-38c0ef71-d2a1-40a4-80a5-40e777d81be0/org.apache.iceberg_iceberg-spark-runtime-3.5_2.12-1.6.1.jar
+[2026-10-28T15:50:21.841+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar at spark://9b1695de43a7:38573/files/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar with timestamp 1793202620248
+[2026-10-28T15:50:21.842+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:21 INFO Utils: Copying /home/***/.ivy2/jars/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar to /tmp/spark-150bf501-762c-4e98-8a42-b4ee72f5b423/userFiles-38c0ef71-d2a1-40a4-80a5-40e777d81be0/org.projectnessie.nessie-integrations_nessie-spark-extensions-3.5_2.12-0.76.6.jar
+[2026-10-28T15:50:22.172+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:22 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar at spark://9b1695de43a7:38573/files/org.apache.hadoop_hadoop-aws-3.3.4.jar with timestamp 1793202620248
+[2026-10-28T15:50:22.706+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:22 INFO Utils: Copying /home/***/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar to /tmp/spark-150bf501-762c-4e98-8a42-b4ee72f5b423/userFiles-38c0ef71-d2a1-40a4-80a5-40e777d81be0/org.apache.hadoop_hadoop-aws-3.3.4.jar
+[2026-10-28T15:50:24.230+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:22 INFO SparkContext: Added file file:///home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar at spark://9b1695de43a7:38573/files/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar with timestamp 1793202620248
+[2026-10-28T15:50:24.234+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:22 INFO Utils: Copying /home/***/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar to /tmp/spark-150bf501-762c-4e98-8a42-b4ee72f5b423/userFiles-38c0ef71-d2a1-40a4-80a5-40e777d81be0/com.amazonaws_aws-java-sdk-bundle-1.12.262.jar
+[2026-10-28T15:50:27.791+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:27 INFO SparkContext: Added file file:///home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar at spark://9b1695de43a7:38573/files/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar with timestamp 1793202620248
+[2026-10-28T15:50:27.795+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:27 INFO Utils: Copying /home/***/.ivy2/jars/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar to /tmp/spark-150bf501-762c-4e98-8a42-b4ee72f5b423/userFiles-38c0ef71-d2a1-40a4-80a5-40e777d81be0/org.wildfly.openssl_wildfly-openssl-1.0.7.Final.jar
+[2026-10-28T15:50:28.151+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://spark-master:7077...
+[2026-10-28T15:50:28.330+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO TransportClientFactory: Successfully created connection to spark-master/172.19.0.3:7077 after 101 ms (0 ms spent in bootstraps)
+[2026-10-28T15:50:28.574+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20261028155028-0039
+[2026-10-28T15:50:28.582+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/0 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:28.585+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/0 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:28.594+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 38337.
+[2026-10-28T15:50:28.595+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO NettyBlockTransferService: Server created on 9b1695de43a7:38337
+[2026-10-28T15:50:28.598+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+[2026-10-28T15:50:28.615+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 9b1695de43a7, 38337, None)
+[2026-10-28T15:50:28.622+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO BlockManagerMasterEndpoint: Registering block manager 9b1695de43a7:38337 with 434.4 MiB RAM, BlockManagerId(driver, 9b1695de43a7, 38337, None)
+[2026-10-28T15:50:28.627+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 9b1695de43a7, 38337, None)
+[2026-10-28T15:50:28.630+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:28 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 9b1695de43a7, 38337, None)
+[2026-10-28T15:50:29.107+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:29 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+[2026-10-28T15:50:29.436+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:29 INFO SharedState: Setting hive.metastore.warehouse.dir ('null') to the value of spark.sql.warehouse.dir.
+[2026-10-28T15:50:29.440+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:29 INFO SharedState: Warehouse path is 'file:/opt/***/spark-warehouse'.
+[2026-10-28T15:50:34.655+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:34 INFO CatalogUtil: Loading custom FileIO implementation: org.apache.iceberg.hadoop.HadoopFileIO
+[2026-10-28T15:50:35.339+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:35 INFO BaseMetastoreTableOperations: Refreshing table metadata from new version: s3a://warehouse/pg_bronze/t24core_ld_loans_and_deposits_his_a16a42b7-40bd-41c1-a471-f1b62f51aaf6/metadata/00000-c3280e70-3995-4146-a337-5793a031317b.metadata.json
+[2026-10-28T15:50:35.620+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:35 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+[2026-10-28T15:50:35.636+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:35 INFO MetricsSystemImpl: Scheduled Metric snapshot period at 10 second(s).
+[2026-10-28T15:50:35.638+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:35 INFO MetricsSystemImpl: s3a-file-system metrics system started
+[2026-10-28T15:50:38.170+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/0 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/0)
+[2026-10-28T15:50:38.283+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/0 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/0
+[2026-10-28T15:50:38.293+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/1 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.300+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/1 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.308+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/1 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/1)
+[2026-10-28T15:50:38.324+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/1 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/1
+[2026-10-28T15:50:38.326+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/2 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.329+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/2 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.338+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 0 requested
+[2026-10-28T15:50:38.343+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 0
+[2026-10-28T15:50:38.346+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 1 requested
+[2026-10-28T15:50:38.348+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 1
+[2026-10-28T15:50:38.384+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 0 from BlockManagerMaster.
+[2026-10-28T15:50:38.385+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 1 from BlockManagerMaster.
+[2026-10-28T15:50:38.410+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/2 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/2)
+[2026-10-28T15:50:38.412+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/2 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/2
+[2026-10-28T15:50:38.414+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/3 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.416+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 2 from BlockManagerMaster.
+[2026-10-28T15:50:38.417+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 2 requested
+[2026-10-28T15:50:38.419+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 2
+[2026-10-28T15:50:38.422+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/3 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.446+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/3 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/3)
+[2026-10-28T15:50:38.451+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/3 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/3
+[2026-10-28T15:50:38.458+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 3 from BlockManagerMaster.
+[2026-10-28T15:50:38.464+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 3 requested
+[2026-10-28T15:50:38.475+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 3
+[2026-10-28T15:50:38.478+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/4 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.490+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/4 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.510+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/4 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/4)
+[2026-10-28T15:50:38.535+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/4 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/4
+[2026-10-28T15:50:38.540+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 4 from BlockManagerMaster.
+[2026-10-28T15:50:38.547+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 4 requested
+[2026-10-28T15:50:38.548+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 4
+[2026-10-28T15:50:38.556+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/5 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.563+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/5 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.584+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/5 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/5)
+[2026-10-28T15:50:38.590+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/5 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/5
+[2026-10-28T15:50:38.595+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 5 requested
+[2026-10-28T15:50:38.617+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 5 from BlockManagerMaster.
+[2026-10-28T15:50:38.624+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/6 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.645+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/6 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.648+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 5
+[2026-10-28T15:50:38.656+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/6 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/6)
+[2026-10-28T15:50:38.665+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/6 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/6
+[2026-10-28T15:50:38.671+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 6 from BlockManagerMaster.
+[2026-10-28T15:50:38.676+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 6 requested
+[2026-10-28T15:50:38.683+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/7 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.689+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/7 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.691+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 6
+[2026-10-28T15:50:38.694+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/7 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/7)
+[2026-10-28T15:50:38.698+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/7 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/7
+[2026-10-28T15:50:38.702+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/8 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.707+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 7 from BlockManagerMaster.
+[2026-10-28T15:50:38.709+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/8 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.716+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 7 requested
+[2026-10-28T15:50:38.722+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 7
+[2026-10-28T15:50:38.730+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/8 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/8)
+[2026-10-28T15:50:38.735+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/8 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/8
+[2026-10-28T15:50:38.738+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20261028155028-0039/9 on worker-20261028152713-172.19.0.6-34735 (172.19.0.6:34735) with 1 core(s)
+[2026-10-28T15:50:38.743+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Granted executor ID app-20261028155028-0039/9 on hostPort 172.19.0.6:34735 with 1 core(s), 800.0 MiB RAM
+[2026-10-28T15:50:38.745+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 8 requested
+[2026-10-28T15:50:38.751+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 8
+[2026-10-28T15:50:38.754+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 8 from BlockManagerMaster.
+[2026-10-28T15:50:38.789+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20261028155028-0039/9 is now FAILED (java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/9)
+[2026-10-28T15:50:38.793+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend: Executor app-20261028155028-0039/9 removed: java.io.IOException: Failed to create directory /opt/spark/work/app-20261028155028-0039/9
+[2026-10-28T15:50:38.795+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMaster: Removal of executor 9 requested
+[2026-10-28T15:50:38.797+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO BlockManagerMasterEndpoint: Trying to remove executor 9 from BlockManagerMaster.
+[2026-10-28T15:50:38.799+0000] {spark_submit.py:641} INFO - 26/10/28 15:50:38 INFO StandaloneSchedulerBackend$StandaloneDriverEndpoint: Asked to remove non-existent executor 9

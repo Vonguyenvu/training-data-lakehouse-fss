@@ -1,0 +1,15 @@
+name: fss_training
+version: "1.0.0"
+config-version: 2
+
+profile: fss_training
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  fss_training:
+    +materialized: view
