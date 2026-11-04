@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_dbt_models_silver_temp1_exg_rate_sql", "label": "exg_rate.sql", "file_type": "code", "source_file": "dbt/models/silver_temp1/exg_rate.sql", "source_location": null}], "edges": []}

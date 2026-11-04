@@ -1,3 +1,4 @@
+-- Active: 1793162562206@@192.168.26.180@1521
 -- Kiểm tra 28 bảng nguồn có tồn tại trên Oracle hay không.
 -- Kết quả mong đợi: 28 dòng.
 

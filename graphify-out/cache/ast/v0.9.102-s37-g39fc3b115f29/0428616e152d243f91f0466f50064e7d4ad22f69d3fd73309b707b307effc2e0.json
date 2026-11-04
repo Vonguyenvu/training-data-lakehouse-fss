@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_dbt_tests_assert_exg_rate_positive_sql", "label": "assert_exg_rate_positive.sql", "file_type": "code", "source_file": "dbt/tests/assert_exg_rate_positive.sql", "source_location": null}], "edges": []}

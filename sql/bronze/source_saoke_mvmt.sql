@@ -5,8 +5,8 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.source_saoke_mvmt
 SELECT
-    src.`SBV_CODE`,
     src.`TRANS_REF`,
+    CAST(src.`SBV_CODE` AS STRING) AS `SBV_CODE`,
     src.`TXN_DATE`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,

@@ -5,8 +5,8 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.los_app_facility
 SELECT
-    src.`ID`,
-    src.`PRODUCT_ID`,
+    CAST(src.`ID` AS STRING) AS `ID`,
+    CAST(src.`PRODUCT_ID` AS STRING) AS `PRODUCT_ID`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'LOS_APP_FACILITY' AS SRC_STM_CODE

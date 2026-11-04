@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_sql_bronze_smy_stmt_daily_sql", "label": "smy_stmt_daily.sql", "file_type": "code", "source_file": "sql/bronze/smy_stmt_daily.sql", "source_location": null}], "edges": []}

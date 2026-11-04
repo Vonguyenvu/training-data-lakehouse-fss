@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_sql_bronze_t24core_ld_schedule_define_mv_sql", "label": "t24core_ld_schedule_define_mv.sql", "file_type": "code", "source_file": "sql/bronze/t24core_ld_schedule_define_mv.sql", "source_location": null}], "edges": []}

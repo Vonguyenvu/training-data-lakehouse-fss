@@ -14,12 +14,16 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
     AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    AIRFLOW__WEBSERVER__SECRET_KEY: fss-training-local-secret-key
+    AIRFLOW_CONN_SPARK_DEFAULT: '{"conn_type": "spark", "host": "spark://spark-master", "port": 7077}'
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./sql:/opt/airflow/sql:ro
     - ./src:/opt/airflow/src:ro
+    - ./common:/opt/airflow/common:ro
+    - ./tests:/opt/airflow/tests:ro
     - ./schema:/opt/airflow/schema:ro
     - ./conf/spark:/opt/airflow/spark-conf:ro
     - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
@@ -72,15 +76,17 @@ services:
           sleep 2
         done
         aws --endpoint-url http://minio:9000 s3api create-bucket --bucket "${MINIO_BUCKET:-warehouse}" || true
-        aws --endpoint-url http://minio:9000 s3api create-bucket --bucket "${MINIO_RAW_BUCKET:-raw}" || true
 
   nessie:
     image: projectnessie/nessie:0.76.6
     environment:
       QUARKUS_HTTP_PORT: 19120
       QUARKUS_DATASOURCE_DB_KIND: h2
-      NESSIE_VERSION_STORE_TYPE: IN_MEMORY
+      NESSIE_VERSION_STORE_TYPE: ROCKSDB
+      NESSIE_VERSION_STORE_PERSIST_ROCKS_DATABASE_PATH: /deployments/data/nessie-rocksdb
       QUARKUS_OTEL_SDK_DISABLED: "true"
+    volumes:
+      - nessie-data:/deployments/data
     ports:
       - "${NESSIE_PORT:-19120}:19120"
     healthcheck:
@@ -97,6 +103,8 @@ services:
         condition: service_completed_successfully
       nessie:
         condition: service_healthy
+    env_file:
+      - .env
     ports:
       - "${TRINO_PORT:-8080}:8080"
     volumes:
@@ -136,6 +144,48 @@ services:
       - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
 
+  # Engine của dbt (Silver/Gold). Spark local mode riêng -> không tranh core với cụm standalone chạy Bronze.
+  spark-thrift:
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    user: root   # ghi cache ivy (iceberg/nessie/hadoop-aws) và metastore_db cục bộ
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      nessie:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
+    working_dir: /opt/spark/work-dir
+    command:
+      - /opt/spark/sbin/start-thriftserver.sh
+      - --master
+      - local[2]
+      - --driver-memory
+      - 1g
+      - --conf
+      - spark.sql.defaultCatalog=iceberg
+      - --conf
+      - spark.sql.legacy.timeParserPolicy=CORRECTED
+      - --conf
+      - spark.jars.ivy=/root/.ivy2
+      # Thrift Server nạp catalog bằng classloader hệ thống -> jar từ spark.jars.packages phải nằm trên classpath driver.
+      - --conf
+      - spark.driver.extraClassPath=/root/.ivy2/jars/*:/opt/spark/jars/ojdbc11.jar
+      - --hiveconf
+      - hive.server2.thrift.port=10000
+      - --hiveconf
+      - hive.server2.thrift.bind.host=0.0.0.0
+    ports:
+      - "${SPARK_THRIFT_UI_PORT:-4040}:4040"
+    volumes:
+      - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
+      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+      - spark-ivy:/root/.ivy2
+
   dbt:
     build:
       context: ./dbt
@@ -144,7 +194,7 @@ services:
     environment:
       DBT_PROFILES_DIR: /root/.dbt
     depends_on:
-      trino:
+      spark-thrift:
         condition: service_started
     volumes:
       - ./dbt:/usr/app
@@ -188,3 +238,5 @@ services:
 volumes:
   postgres-data:
   minio-data:
+  nessie-data:
+  spark-ivy:

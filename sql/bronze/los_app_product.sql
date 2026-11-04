@@ -5,10 +5,11 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.los_app_product
 SELECT
-    src.`ID`,
+    CAST(src.`ID` AS STRING) AS `ID`,
     src.`PRODUCT_CODE`,
     src.`PRODUCT_NAME`,
-    src.`RECID`,
+    -- Cột có trong mapping Excel nhưng bảng nguồn Oracle không có: nạp NULL.
+    CAST(NULL AS STRING) AS `RECID`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'LOS_APP_PRODUCT' AS SRC_STM_CODE

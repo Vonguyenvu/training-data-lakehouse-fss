@@ -5,6 +5,9 @@ config-version: 2
 profile: fss_training
 
 model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
 target-path: "target"
 clean-targets:
   - "target"
@@ -12,4 +15,16 @@ clean-targets:
 
 models:
   fss_training:
-    +materialized: view
+    +materialized: table
+    # Catalog Iceberg trên Nessie không hỗ trợ VIEW: incremental dùng bảng tạm thay cho view tạm.
+    +views_enabled: false
+    +persist_docs:
+      relation: true
+      columns: true
+    silver_temp1:
+      +tags: ["silver", "silver_temp1"]
+    silver_temp2:
+      +tags: ["silver", "silver_temp2"]
+    gold:
+      +schema: pg_gold
+      +tags: ["gold"]

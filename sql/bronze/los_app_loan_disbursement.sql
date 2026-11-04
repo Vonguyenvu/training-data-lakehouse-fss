@@ -5,11 +5,11 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.los_app_loan_disbursement
 SELECT
-    src.`AMND_STATE`,
-    src.`BOOKING_DATE`,
     src.`EXT_REF_NO_1`,
-    src.`FACILITY_ID`,
+    src.`AMND_STATE`,
     src.`STATUS`,
+    CAST(src.`FACILITY_ID` AS STRING) AS `FACILITY_ID`,
+    src.`BOOKING_DATE`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'LOS_APP_LOAN_DISBURSEMENT' AS SRC_STM_CODE

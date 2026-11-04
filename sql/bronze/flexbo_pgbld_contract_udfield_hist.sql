@@ -6,8 +6,8 @@
 INSERT OVERWRITE iceberg.pg_bronze.flexbo_pgbld_contract_udfield_hist
 SELECT
     src.`CONTRACT_REF_NO`,
+    CAST(src.`CT_KHUYEN_MAI_CHO_VAY` AS STRING) AS `CT_KHUYEN_MAI_CHO_VAY`,
     src.`CTKM2`,
-    src.`CT_KHUYEN_MAI_CHO_VAY`,
     src.`MOV_DATE`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,

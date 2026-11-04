@@ -5,9 +5,9 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.t24core_pd_payment_due_his
 SELECT
-    src.`CURR_NO`,
-    src.`PD_TYPE`,
     src.`RECID`,
+    CAST(src.`CURR_NO` AS STRING) AS `CURR_NO`,
+    CAST(src.`PD_TYPE` AS STRING) AS `PD_TYPE`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'T24CORE_PD_PAYMENT_DUE_HIS' AS SRC_STM_CODE

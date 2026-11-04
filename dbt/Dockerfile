@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
-RUN pip install --no-cache-dir dbt-trino
+# Engine: Spark Thrift Server (service spark-thrift). PyHive dùng pure-sasl, không cần build C.
+RUN pip install --no-cache-dir "dbt-spark[PyHive]"
 
 WORKDIR /usr/app

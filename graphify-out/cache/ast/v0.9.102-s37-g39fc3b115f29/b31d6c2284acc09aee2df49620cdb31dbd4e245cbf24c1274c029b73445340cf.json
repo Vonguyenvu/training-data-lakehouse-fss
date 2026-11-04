@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_dbt_logs_query_log_sql", "label": "query_log.sql", "file_type": "code", "source_file": "dbt/logs/query_log.sql", "source_location": null}], "edges": []}

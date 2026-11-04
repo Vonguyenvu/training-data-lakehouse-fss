@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_sql_bronze_los_app_loan_disbursement_sql", "label": "los_app_loan_disbursement.sql", "file_type": "code", "source_file": "sql/bronze/los_app_loan_disbursement.sql", "source_location": null}], "edges": []}

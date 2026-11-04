@@ -1,0 +1,400 @@
+version: 2
+
+models:
+  - name: ccy
+    description: "Danh mục tiền tệ (sheet Currency) | SCD TYPE 1 | Silver Temp 1"
+    columns:
+      - name: ccy_id
+        description: "Mã duy nhất của loại tiền trên DWH = fn_hash('T24_CURRENCY', ID) [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: ccy_code
+        description: "Mã loại tiền [VARCHAR2(20)]"
+        data_tests: [unique, not_null]
+      - name: ccy_nm
+        description: "Tên loại tiền [VARCHAR2(300)]"
+      - name: numeric_ccy_code
+        description: "Mã tiền tệ dạng số [VARCHAR2(20)]"
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(20)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_CURRENCY"]
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi (ID bị xóa ở nguồn) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: pd
+    description: "Danh mục sản phẩm tín dụng (sheet Product) | SCD TYPE 1 | Silver Temp 1"
+    columns:
+      - name: pd_id
+        description: "Unique key trên DWH = fn_hash('T24_PRODUCT', PRODUCT_CODE) [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: pd_code
+        description: "Mã sản phẩm [VARCHAR2(32)]"
+        data_tests: [unique, not_null]
+      - name: pd_nm
+        description: "Tên sản phẩm [VARCHAR2(255)]"
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(20)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_PRODUCT"]
+      - name: sys_eff_dt
+        description: "Ngày hiệu lực bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hiệu lực bản ghi (mã bị xóa ở nguồn) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày cập nhật bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: ou
+    description: "Danh mục đơn vị / chi nhánh (sheet Organization Unit) | SCD TYPE 1 | Silver Temp 1"
+    columns:
+      - name: ou_id
+        description: "Unique key trên DWH = fn_hash('T24_COMPANY', RECID) [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: ou_code
+        description: "Mã chi nhánh [VARCHAR2(32)]"
+        data_tests: [unique, not_null]
+      - name: ou_nm
+        description: "Tên chi nhánh [VARCHAR2(300)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi (RECID bị xóa ở nguồn) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: empe
+    description: "Danh mục cán bộ / nhân viên (sheet Employee) | SCD TYPE 1 | Silver Temp 1"
+    columns:
+      - name: empe_id
+        description: "Unique key trên DWH = fn_hash('T24_EMPLOYEE', RECID) [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: empe_code
+        description: "Mã nhân viên [VARCHAR2(20)]"
+        data_tests: [unique, not_null]
+      - name: empe_nm
+        description: "Tên nhân viên [VARCHAR2(255)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi (RECID bị xóa ở nguồn) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: lmt
+    description: "Danh mục hạn mức tín dụng (sheet Limit) | SCD TYPE 1 | Silver Temp 1"
+    columns:
+      - name: lmt_id
+        description: "ID của hạn mức = fn_hash('T24_LIMIT', RECID) [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: lmt_code
+        description: "Mã hạn mức [VARCHAR2(32)]"
+        data_tests: [unique, not_null]
+      - name: lmt_dsc
+        description: "Mô tả hạn mức [VARCHAR2(300)]"
+      - name: inr_lmt_amt
+        description: "Số tiền hạn mức nội bộ được cấp [NUMBER(25,5)]"
+      - name: max_tot_lmt
+        description: "Tổng hạn mức tối đa được phê duyệt [NUMBER(25,5)]"
+      - name: onl_lmt_dt
+        description: "Ngày hiệu lực hạn mức trực tuyến [DATE]"
+      - name: lmt_exp_dt
+        description: "Ngày hết hạn hạn mức tín dụng [DATE]"
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(20)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_LIMIT"]
+      - name: sys_eff_dt
+        description: "Ngày hiệu lực bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hiệu lực bản ghi (RECID bị xóa ở nguồn) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày cập nhật bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: cv
+    description: "Danh mục giá trị phân loại LOAN_RSTC_TP, FNC_ST (sheet Classification Value) | SCD TYPE 1 (LOOKUP MASTER) | Silver Temp 1"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cl_scm_code || '|' || cl_code"
+    columns:
+      - name: cl_id
+        description: "Mã duy nhất của CL = fn_hash('T24_CL_LOAN_RSTC_TP' | 'T24_CL_FNC_ST', mã) [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: cl_code
+        description: "Mã phân loại [VARCHAR2(20)]"
+        data_tests: [not_null]
+      - name: cl_dsc
+        description: "Mô tả [VARCHAR2(1000)]"
+      - name: cl_scm_code
+        description: "Nhóm phân loại [VARCHAR2(30)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["LOAN_RSTC_TP", "FNC_ST"]
+      - name: src_stm_code
+        description: "Nguồn dữ liệu [VARCHAR2(20)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_CL_LOAN_RSTC_TP", "T24_CL_FNC_ST"]
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi (mã bị xóa ở nguồn) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: exg_rate
+    description: "Tỷ giá mid theo ngày (sheet Exchange Rate) | SNAPSHOT | Silver Temp 1"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "frst_ccy_code || '|' || CAST(snpst_dt AS VARCHAR)"
+    columns:
+      - name: snpst_dt
+        description: "Ngày dữ liệu [DATE]"
+        data_tests: [not_null]
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(32)]"
+      - name: frst_ccy_code
+        description: "Mã loại tiền tệ gốc [VARCHAR2(20)]"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('ccy')
+                field: ccy_code
+              config:
+                severity: warn
+      - name: scd_ccy_code
+        description: "Mã loại tiền tệ tính tỷ giá [VARCHAR2(20)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["VND"]
+      - name: mid_rate
+        description: "Tỷ giá mid [NUMBER(25,7)]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: ip_elc_adr
+    description: "Địa chỉ liên lạc điện tử của khách hàng (sheet Involved Party Electronic Addre) | SCD TYPE 2 | Silver Temp 1"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cst_id || '|' || elc_adr_tp || '|' || CAST(sys_eff_dt AS VARCHAR)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [cst_id, elc_adr_tp]
+    columns:
+      - name: cst_id
+        description: "Unique key khách hàng trên DWH = fn_hash('T24_CUSTOMER', RECID) [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã khách hàng (CIF) [VARCHAR2(20)]"
+        data_tests: [not_null]
+      - name: elc_adr_tp
+        description: "Loại địa chỉ điện tử (EMAIL / HOME_NUMBER / MOBILE_NUMBER) [VARCHAR2(20)]"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["EMAIL", "HOME_NUMBER", "MOBILE_NUMBER"]
+      - name: elc_adr_val
+        description: "Giá trị địa chỉ liên lạc điện tử [VARCHAR2(100)]"
+        data_tests: [not_null]
+      - name: sys_eff_dt
+        description: "Ngày hiệu lực bản ghi SCD2 [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hiệu lực bản ghi SCD2 (NULL = đang hiệu lực) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày cập nhật bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: ip_pst_adr
+    description: "Địa chỉ bưu chính của khách hàng (sheet Involved Party Postal Address) | SCD TYPE 2 | Silver Temp 1"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cst_id || '|' || pst_adr_tp || '|' || CAST(sys_eff_dt AS VARCHAR)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [cst_id, pst_adr_tp]
+    columns:
+      - name: cst_id
+        description: "Unique key khách hàng trên DWH = fn_hash('T24_CUSTOMER', RECID) [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã khách hàng (CIF) [VARCHAR2(20)]"
+        data_tests: [not_null]
+      - name: pst_adr_tp
+        description: "Loại địa chỉ bưu chính (CURRENT ADDRESS / PERMANENT ADDRESS) [VARCHAR2(20)]"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["CURRENT ADDRESS", "PERMANENT ADDRESS"]
+      - name: pst_adr_val
+        description: "Địa chỉ đầy đủ (ghép các phần, bỏ phần rỗng) [VARCHAR2(100)]"
+      - name: cty_nm
+        description: "Tên quốc gia [VARCHAR2(100)]"
+      - name: prov_nm
+        description: "Tên tỉnh/thành phố [VARCHAR2(100)]"
+      - name: str_nm
+        description: "Số nhà, tên đường [VARCHAR2(100)]"
+      - name: sys_eff_dt
+        description: "Ngày hiệu lực bản ghi SCD2 [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hiệu lực bản ghi SCD2 (NULL = đang hiệu lực) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày cập nhật bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: ip_alt_identn
+    description: "Giấy tờ định danh của khách hàng (sheet Involved Party Alternative Iden) | SCD TYPE 2 | Silver Temp 1"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cst_id || '|' || CAST(sys_eff_dt AS VARCHAR)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [cst_id]
+    columns:
+      - name: cst_id
+        description: "Unique key trên DWH = fn_hash('T24_CUSTOMER', RECID) [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã CIF [VARCHAR2(20)]"
+        data_tests: [not_null]
+      - name: identn_tp_code
+        description: "Loại giấy tờ [VARCHAR2(20)]"
+      - name: identn_issu_dt
+        description: "Ngày cấp giấy tờ [DATE]"
+      - name: identn_expiry_dt
+        description: "Ngày hết hạn giấy tờ [DATE]"
+      - name: issu_plc_code
+        description: "Nơi cấp giấy tờ [VARCHAR2(20)]"
+      - name: identn_nbr
+        description: "Mã giấy tờ [VARCHAR2(100)]"
+        data_tests: [not_null]
+      - name: sys_eff_dt
+        description: "Ngày hiệu lực bản ghi SCD2 [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hiệu lực bản ghi SCD2 (NULL = đang hiệu lực) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày cập nhật bản ghi [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: ar_rate_hist
+    description: "Lịch sử lãi suất hợp đồng (sheet Arrangement Rate History) | SCD TYPE 2 | Silver Temp 1"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || CAST(sys_eff_dt AS VARCHAR)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [ar_id]
+    columns:
+      - name: ar_id
+        description: "Unique key trên DWH = fn_hash('T24_LD_LOANS_AND_DEPOSITS', mã hợp đồng) [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+        data_tests: [not_null]
+      - name: int_rate_variablity_tp_code
+        description: "Loại lãi suất: Fix, float [VARCHAR2(20)]"
+      - name: int_rate_eff_dt
+        description: "Ngày hiệu lực lãi suất [DATE]"
+      - name: eff_rate_pct
+        description: "Giá trị lãi suất [NUMBER(25,7)]"
+      - name: sprd_rate_pct
+        description: "Biên độ lãi suất [NUMBER(25,7)]"
+      - name: pny_rate
+        description: "Lãi phạt penalty rate [NUMBER(25,7)]"
+      - name: odue_int_rate
+        description: "Lãi suất cho quá hạn [NUMBER(25,7)]"
+      - name: mrgn_rate
+        description: "Biên độ thay đổi lãi suất [NUMBER(25,7)]"
+      - name: sys_eff_dt
+        description: "Ngày hiệu lực bản ghi SCD2 [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hiệu lực bản ghi SCD2 (NULL = đang hiệu lực) [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+
+  - name: cust_info_daily
+    description: "Thông tin khách hàng & hợp đồng theo bút toán ngày (sheet CUST_INFO_DAILY) | SNAPSHOT | Silver Temp 1"
+    columns:
+      - name: booking_date
+        description: "Ngày bút toán ghi nhận vào hệ thống = ngày nghiệp vụ của batch [DATE]"
+        data_tests: [not_null]
+      - name: amount_lcy
+        description: "Số tiền quy đổi VND [NUMBER(25,5)]"
+        data_tests: [not_null]
+      - name: version_no
+        description: "Phiên bản hợp đồng FCC lớn nhất (0 nếu không khớp) [NUMBER(10)]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật, partition) [DATE]"
+        data_tests: [not_null]
+
+  - name: sk_lich_tra_no
+    description: "Staging lịch trả nợ kỹ thuật (sheet sk_lich_tra_no) | SNAPSHOT | Silver Temp 1. Grain: dòng PD_PAYMENT_DUE_MV x bút toán STMT_ENTRY trong ngày"
+    columns:
+      - name: recid
+        description: "Mã lịch trả nợ PD (PD_PAYMENT_DUE_MV.RECID) [VARCHAR2(100)]"
+        data_tests: [not_null]
+      - name: pay_type
+        description: "Loại thanh toán [VARCHAR2(100)]"
+      - name: pay_amt_outs
+        description: "Số tiền còn phải trả [NUMBER(25,5)]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật, partition) [DATE]"
+        data_tests: [not_null]

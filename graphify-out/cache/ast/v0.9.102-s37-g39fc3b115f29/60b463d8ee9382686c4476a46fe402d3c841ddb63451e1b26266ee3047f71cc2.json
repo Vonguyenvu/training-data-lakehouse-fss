@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_sql_bronze_t24core_currency_sql", "label": "t24core_currency.sql", "file_type": "code", "source_file": "sql/bronze/t24core_currency.sql", "source_location": null}], "edges": []}

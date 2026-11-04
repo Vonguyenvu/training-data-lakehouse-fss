@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_sql_bronze_flexbo_pgbld_contract_udfield_hist_sql", "label": "flexbo_pgbld_contract_udfield_hist.sql", "file_type": "code", "source_file": "sql/bronze/flexbo_pgbld_contract_udfield_hist.sql", "source_location": null}], "edges": []}

@@ -6,7 +6,7 @@
 INSERT OVERWRITE iceberg.pg_bronze.t24core_dept_acct_officer
 SELECT
     src.`NAME`,
-    src.`RECID`,
+    CAST(src.`RECID` AS STRING) AS `RECID`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'T24CORE_DEPT_ACCT_OFFICER' AS SRC_STM_CODE

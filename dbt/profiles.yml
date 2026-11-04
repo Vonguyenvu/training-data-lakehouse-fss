@@ -2,12 +2,13 @@ fss_training:
   target: dev
   outputs:
     dev:
-      type: trino
-      method: http
-      host: trino
-      port: 8080
+      # Spark Thrift Server, spark.sql.defaultCatalog=iceberg -> schema pg_silver = iceberg.pg_silver
+      type: spark
+      method: thrift
+      host: spark-thrift
+      port: 10000
       user: dbt
-      catalog: iceberg
-      schema: silver
-      threads: 2
-      http_scheme: http
+      schema: pg_silver
+      threads: 1
+      connect_retries: 5
+      connect_timeout: 10

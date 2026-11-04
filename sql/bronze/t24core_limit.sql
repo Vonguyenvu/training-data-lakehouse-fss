@@ -5,12 +5,14 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.t24core_limit
 SELECT
-    src.`EXPIRY_DATE`,
-    src.`INTERNAL_AMOUNT`,
-    src.`LIMIT_PRODUCT`,
-    src.`MAXIMUM_TOTAL`,
-    src.`ONLINE_LIMIT_DATE`,
+    src.`FCC_LIMIT`,
     src.`RECID`,
+    -- Cột có trong mapping Excel nhưng bảng nguồn Oracle không có: nạp NULL.
+    CAST(NULL AS STRING) AS `LIMIT_PRODUCT`,
+    CAST(NULL AS STRING) AS `INTERNAL_AMOUNT`,
+    CAST(NULL AS STRING) AS `MAXIMUM_TOTAL`,
+    CAST(NULL AS STRING) AS `ONLINE_LIMIT_DATE`,
+    CAST(NULL AS STRING) AS `EXPIRY_DATE`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'T24CORE_LIMIT' AS SRC_STM_CODE

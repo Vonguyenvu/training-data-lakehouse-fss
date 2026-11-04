@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_sql_bronze_ebanking_col_udf_value_sql", "label": "ebanking_col_udf_value.sql", "file_type": "code", "source_file": "sql/bronze/ebanking_col_udf_value.sql", "source_location": null}], "edges": []}

@@ -7,8 +7,8 @@ INSERT OVERWRITE iceberg.pg_bronze.ebanking_col_udf_value
 SELECT
     src.`COL_REF`,
     src.`FUNCTION_CODE`,
-    src.`UDF_VALUE`,
     src.`UDF_ID`,
+    src.`UDF_VALUE`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,
     'EBANKING_COL_UDF_VALUE' AS SRC_STM_CODE

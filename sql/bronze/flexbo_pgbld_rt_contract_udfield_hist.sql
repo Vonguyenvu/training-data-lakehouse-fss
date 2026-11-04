@@ -5,8 +5,9 @@
 
 INSERT OVERWRITE iceberg.pg_bronze.flexbo_pgbld_rt_contract_udfield_hist
 SELECT
+    CAST(src.`CO_CAU_NO` AS STRING) AS `CO_CAU_NO`,
     src.`CONTRACT_REF_NO`,
-    src.`CO_CAU_NO`,
+    src.`MOV_DATE`,
     src.`NGAY_HET_COVID19`,
     CAST('${ETL_DATE}' AS DATE) AS ETL_DATE,
     CURRENT_TIMESTAMP() AS INGEST_TMS,

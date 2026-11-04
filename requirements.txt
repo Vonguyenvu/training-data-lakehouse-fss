@@ -2,3 +2,5 @@ minio
 oracledb
 python-dotenv
 pyspark
+pytest
+trino
