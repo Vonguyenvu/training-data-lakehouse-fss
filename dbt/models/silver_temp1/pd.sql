@@ -24,7 +24,7 @@ WITH los AS (
             PARTITION BY TRIM(p.product_code)
             ORDER BY TRY_CAST(p.id AS BIGINT) DESC
         )                    AS rn
-    FROM {{ source('pg_bronze', 'los_app_product') }} AS p
+    FROM {{ ref('los_app_product') }} AS p
     WHERE p.etl_date = {{ etl_date() }}
 ),
 
@@ -32,15 +32,15 @@ pd_code AS (
     SELECT pd_code FROM los
     UNION
     SELECT TRIM(f.san_pham_cho_vay_khcn)
-    FROM {{ source('pg_bronze', 'flexbo_pgb_los_contract_fields_tdate') }} AS f
+    FROM {{ ref('flexbo_pgb_los_contract_fields_tdate') }} AS f
     WHERE f.etl_date = {{ etl_date() }}
     UNION
     SELECT TRIM(f.san_pham_cho_vay_khdn)
-    FROM {{ source('pg_bronze', 'flexbo_pgb_los_contract_fields_tdate') }} AS f
+    FROM {{ ref('flexbo_pgb_los_contract_fields_tdate') }} AS f
     WHERE f.etl_date = {{ etl_date() }}
     UNION
     SELECT TRIM(ld.productgr_code)
-    FROM {{ source('pg_bronze', 't24core_ld_loans_and_deposits') }} AS ld
+    FROM {{ ref('t24core_ld_loans_and_deposits') }} AS ld
     WHERE ld.etl_date = {{ etl_date() }}
 ),
 
@@ -100,10 +100,10 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(pd_id AS VARCHAR)         AS pd_id,
-    CAST(pd_code AS VARCHAR)       AS pd_code,
-    CAST(pd_nm AS VARCHAR)         AS pd_nm,
-    CAST('T24_PRODUCT' AS VARCHAR) AS src_stm_code,
+    CAST(pd_id AS STRING)         AS pd_id,
+    CAST(pd_code AS STRING)       AS pd_code,
+    CAST(pd_nm AS STRING)         AS pd_nm,
+    CAST('T24_PRODUCT' AS STRING) AS src_stm_code,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}               AS sys_udt_dt,

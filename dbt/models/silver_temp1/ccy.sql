@@ -1,5 +1,9 @@
-_DT = ETL_DATE lần đầu xuất hiện (giữ nguyên khi cập nhật),
-      _EXP_DT = ETL_DATE khi ID biến mất khỏi nguồn (NULL lại nếu xuất hiện trở lại),
+{#-
+    PG_SILVER.CCY — sheet 'Currency', SCD TYPE 1 (khuôn chuẩn cho SCD1).
+    Khóa T24 của bảng CURRENCY là CURRENCY_CODE.
+    Mỗi lần chạy chỉ MERGE các dòng mới / thay đổi / bị xóa ở nguồn:
+      SYS_EFF_DT = ETL_DATE lần đầu xuất hiện (giữ nguyên khi cập nhật),
+      SYS_EXP_DT = ETL_DATE khi ID biến mất khỏi nguồn (NULL lại nếu xuất hiện trở lại),
       SYS_UDT_DT = ETL_DATE lần thay đổi gần nhất.
 -#}
 {{ config(
@@ -15,7 +19,7 @@ WITH src AS (
         TRIM(cur.currency_code)                            AS ccy_code,
         TRIM(cur.ccy_name)                                 AS ccy_nm,
         TRIM(cur.numeric_ccy_code)                         AS numeric_ccy_code
-    FROM {{ source('pg_bronze', 't24core_currency') }} AS cur
+    FROM {{ ref('t24core_currency') }} AS cur
     WHERE cur.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(cur.currency_code), '') IS NOT NULL
 ),
@@ -67,11 +71,11 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(ccy_id AS VARCHAR)           AS ccy_id,
-    CAST(ccy_code AS VARCHAR)         AS ccy_code,
-    CAST(ccy_nm AS VARCHAR)           AS ccy_nm,
-    CAST(numeric_ccy_code AS VARCHAR) AS numeric_ccy_code,
-    CAST('T24_CURRENCY' AS VARCHAR)   AS src_stm_code,
+    CAST(ccy_id AS STRING)           AS ccy_id,
+    CAST(ccy_code AS STRING)         AS ccy_code,
+    CAST(ccy_nm AS STRING)           AS ccy_nm,
+    CAST(numeric_ccy_code AS STRING) AS numeric_ccy_code,
+    CAST('T24_CURRENCY' AS STRING)   AS src_stm_code,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}                  AS sys_udt_dt,

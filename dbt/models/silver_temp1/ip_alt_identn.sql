@@ -13,7 +13,7 @@
 
 WITH cus AS (
     SELECT c.*
-    FROM {{ source('pg_bronze', 't24core_customer') }} AS c
+    FROM {{ ref('t24core_customer') }} AS c
     WHERE c.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(c.recid), '') IS NOT NULL
 ),
@@ -61,11 +61,13 @@ closed AS (
     WHERE c.sys_eff_dt < {{ etl_date() }}
       AND (
             (s.cst_id IS NULL AND EXISTS (SELECT 1 FROM cus))
-         OR s.identn_tp_code IS DISTINCT FROM c.identn_tp_code
-         OR s.identn_issu_dt IS DISTINCT FROM c.identn_issu_dt
-         OR s.identn_expiry_dt IS DISTINCT FROM c.identn_expiry_dt
-         OR s.issu_plc_code IS DISTINCT FROM c.issu_plc_code
-         OR s.identn_nbr IS DISTINCT FROM c.identn_nbr
+         OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
+                s.identn_tp_code IS DISTINCT FROM c.identn_tp_code
+            OR  s.identn_issu_dt IS DISTINCT FROM c.identn_issu_dt
+            OR  s.identn_expiry_dt IS DISTINCT FROM c.identn_expiry_dt
+            OR  s.issu_plc_code IS DISTINCT FROM c.issu_plc_code
+            OR  s.identn_nbr IS DISTINCT FROM c.identn_nbr
+            ))
       )
 ),
 
@@ -84,13 +86,13 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(cst_id AS VARCHAR)         AS cst_id,
-    CAST(cst_code AS VARCHAR)       AS cst_code,
-    CAST(identn_tp_code AS VARCHAR) AS identn_tp_code,
+    CAST(cst_id AS STRING)         AS cst_id,
+    CAST(cst_code AS STRING)       AS cst_code,
+    CAST(identn_tp_code AS STRING) AS identn_tp_code,
     CAST(identn_issu_dt AS DATE)    AS identn_issu_dt,
     CAST(identn_expiry_dt AS DATE)  AS identn_expiry_dt,
-    CAST(issu_plc_code AS VARCHAR)  AS issu_plc_code,
-    CAST(identn_nbr AS VARCHAR)     AS identn_nbr,
+    CAST(issu_plc_code AS STRING)  AS issu_plc_code,
+    CAST(identn_nbr AS STRING)     AS identn_nbr,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}                AS sys_udt_dt,

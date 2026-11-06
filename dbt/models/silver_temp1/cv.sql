@@ -18,14 +18,14 @@
 
 WITH loan_rstc_tp AS (
     SELECT DISTINCT TRIM(ud.co_cau_no) AS cl_code
-    FROM {{ source('pg_bronze', 'flexbo_pgbld_rt_contract_udfield_hist') }} AS ud
+    FROM {{ ref('flexbo_pgbld_rt_contract_udfield_hist') }} AS ud
     WHERE ud.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(ud.co_cau_no), '') IS NOT NULL
 ),
 
 fnc_st AS (
-    SELECT DISTINCT CAST(CAST(TRY_CAST(TRIM(cust.asset_class) AS DECIMAL(20, 10)) AS INTEGER) AS VARCHAR) AS cl_code
-    FROM {{ source('pg_bronze', 't24core_customer') }} AS cust
+    SELECT DISTINCT CAST(CAST(TRY_CAST(TRIM(cust.asset_class) AS DECIMAL(20, 10)) AS INTEGER) AS STRING) AS cl_code
+    FROM {{ ref('t24core_customer') }} AS cust
     WHERE cust.etl_date = {{ etl_date() }}
       AND TRY_CAST(TRIM(cust.asset_class) AS DECIMAL(20, 10)) IS NOT NULL
 ),
@@ -103,11 +103,11 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(cl_id AS VARCHAR)        AS cl_id,
-    CAST(cl_code AS VARCHAR)      AS cl_code,
-    CAST(cl_dsc AS VARCHAR)       AS cl_dsc,
-    CAST(cl_scm_code AS VARCHAR)  AS cl_scm_code,
-    CAST(src_stm_code AS VARCHAR) AS src_stm_code,
+    CAST(cl_id AS STRING)        AS cl_id,
+    CAST(cl_code AS STRING)      AS cl_code,
+    CAST(cl_dsc AS STRING)       AS cl_dsc,
+    CAST(cl_scm_code AS STRING)  AS cl_scm_code,
+    CAST(src_stm_code AS STRING) AS src_stm_code,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}              AS sys_udt_dt,

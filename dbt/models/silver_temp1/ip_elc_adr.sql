@@ -20,7 +20,7 @@
 
 WITH cus AS (
     SELECT c.*
-    FROM {{ source('pg_bronze', 't24core_customer') }} AS c
+    FROM {{ ref('t24core_customer') }} AS c
     WHERE c.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(c.recid), '') IS NOT NULL
 ),
@@ -66,7 +66,9 @@ closed AS (
     WHERE c.sys_eff_dt < {{ etl_date() }}
       AND (
             (s.cst_id IS NULL AND EXISTS (SELECT 1 FROM cus))
-         OR s.elc_adr_val IS DISTINCT FROM c.elc_adr_val
+         OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
+                s.elc_adr_val IS DISTINCT FROM c.elc_adr_val
+            ))
       )
 ),
 
@@ -85,10 +87,10 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(cst_id AS VARCHAR)      AS cst_id,
-    CAST(cst_code AS VARCHAR)    AS cst_code,
-    CAST(elc_adr_tp AS VARCHAR)  AS elc_adr_tp,
-    CAST(elc_adr_val AS VARCHAR) AS elc_adr_val,
+    CAST(cst_id AS STRING)      AS cst_id,
+    CAST(cst_code AS STRING)    AS cst_code,
+    CAST(elc_adr_tp AS STRING)  AS elc_adr_tp,
+    CAST(elc_adr_val AS STRING) AS elc_adr_val,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}             AS sys_udt_dt,

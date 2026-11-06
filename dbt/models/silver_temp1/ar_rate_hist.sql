@@ -25,7 +25,7 @@ WITH td AS (
         TRIM(d.contract_ref_no)                                   AS contract_ref_no,
         TRY_CAST(SUBSTR(TRIM(d.mov_date), 1, 10) AS DATE)         AS mov_date,
         TRY_CAST(TRIM(d.bien_do_thay_doi_ls_theo_hdtd) AS DECIMAL(25, 7)) AS mrgn_rate
-    FROM {{ source('pg_bronze', 'flexbo_pgb_los_contract_fields_tdate') }} AS d
+    FROM {{ ref('flexbo_pgb_los_contract_fields_tdate') }} AS d
     WHERE d.etl_date = {{ etl_date() }}
 ),
 
@@ -39,7 +39,7 @@ ld AS (
         TRY_CAST(TRIM(a.pe_rate) AS DECIMAL(25, 7))               AS pny_rate,
         TRY_CAST(TRIM(a.ps_rate) AS DECIMAL(25, 7))               AS odue_int_rate,
         {{ t24_date("COALESCE(NULLIF(TRIM(a.orig_val_date), ''), a.value_date)") }} AS val_dt
-    FROM {{ source('pg_bronze', 't24core_ld_loans_and_deposits') }} AS a
+    FROM {{ ref('t24core_ld_loans_and_deposits') }} AS a
     WHERE a.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(a.recid), '') IS NOT NULL
 ),
@@ -55,7 +55,7 @@ ldh_all AS (
         MAX(CASE WHEN TRIM(h.record_status) = 'REVE' THEN 1 ELSE 0 END) OVER (
             PARTITION BY SPLIT_PART(TRIM(h.recid), ';', 1)
         )                                                         AS has_reve
-    FROM {{ source('pg_bronze', 't24core_ld_loans_and_deposits_his') }} AS h
+    FROM {{ ref('t24core_ld_loans_and_deposits_his') }} AS h
     WHERE h.etl_date = {{ etl_date() }}
       AND NULLIF(SPLIT_PART(TRIM(h.recid), ';', 1), '') IS NOT NULL
 ),
@@ -87,7 +87,7 @@ pd AS (
         SUBSTR(TRIM(p.recid), 3, 12)                              AS ar_code,
         MAX(TRY_CAST(TRIM(p.pe_rate) AS DECIMAL(25, 7)))          AS pny_rate,
         MAX(TRY_CAST(TRIM(p.ps_rate) AS DECIMAL(25, 7)))          AS odue_int_rate
-    FROM {{ source('pg_bronze', 't24core_pd_payment_due') }} AS p
+    FROM {{ ref('t24core_pd_payment_due') }} AS p
     WHERE p.etl_date = {{ etl_date() }}
       AND NULLIF(SUBSTR(TRIM(p.recid), 3, 12), '') IS NOT NULL
     GROUP BY 1
@@ -139,13 +139,15 @@ closed AS (
     WHERE c.sys_eff_dt < {{ etl_date() }}
       AND (
             (s.ar_id IS NULL AND EXISTS (SELECT 1 FROM ld))
-         OR s.int_rate_variablity_tp_code IS DISTINCT FROM c.int_rate_variablity_tp_code
-         OR s.int_rate_eff_dt IS DISTINCT FROM c.int_rate_eff_dt
-         OR s.eff_rate_pct IS DISTINCT FROM c.eff_rate_pct
-         OR s.sprd_rate_pct IS DISTINCT FROM c.sprd_rate_pct
-         OR s.pny_rate IS DISTINCT FROM c.pny_rate
-         OR s.odue_int_rate IS DISTINCT FROM c.odue_int_rate
-         OR s.mrgn_rate IS DISTINCT FROM c.mrgn_rate
+         OR (s.ar_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
+                s.int_rate_variablity_tp_code IS DISTINCT FROM c.int_rate_variablity_tp_code
+            OR  s.int_rate_eff_dt IS DISTINCT FROM c.int_rate_eff_dt
+            OR  s.eff_rate_pct IS DISTINCT FROM c.eff_rate_pct
+            OR  s.sprd_rate_pct IS DISTINCT FROM c.sprd_rate_pct
+            OR  s.pny_rate IS DISTINCT FROM c.pny_rate
+            OR  s.odue_int_rate IS DISTINCT FROM c.odue_int_rate
+            OR  s.mrgn_rate IS DISTINCT FROM c.mrgn_rate
+            ))
       )
 ),
 
@@ -164,9 +166,9 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(ar_id AS VARCHAR)                       AS ar_id,
-    CAST(ar_code AS VARCHAR)                     AS ar_code,
-    CAST(int_rate_variablity_tp_code AS VARCHAR) AS int_rate_variablity_tp_code,
+    CAST(ar_id AS STRING)                       AS ar_id,
+    CAST(ar_code AS STRING)                     AS ar_code,
+    CAST(int_rate_variablity_tp_code AS STRING) AS int_rate_variablity_tp_code,
     CAST(int_rate_eff_dt AS DATE)                AS int_rate_eff_dt,
     CAST(eff_rate_pct AS DECIMAL(25, 7))         AS eff_rate_pct,
     CAST(sprd_rate_pct AS DECIMAL(25, 7))        AS sprd_rate_pct,

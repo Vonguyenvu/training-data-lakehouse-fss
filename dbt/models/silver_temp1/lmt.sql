@@ -23,7 +23,7 @@ WITH src AS (
         TRY_CAST(TRIM(l.maximum_total) AS DECIMAL(25, 5))     AS max_tot_lmt,
         {{ t24_date('l.online_limit_date') }}                 AS onl_lmt_dt,
         {{ t24_date('l.expiry_date') }}                       AS lmt_exp_dt
-    FROM {{ source('pg_bronze', 't24core_limit') }} AS l
+    FROM {{ ref('t24core_limit') }} AS l
     WHERE l.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(l.recid), '') IS NOT NULL
 ),
@@ -78,14 +78,14 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(lmt_id AS VARCHAR)              AS lmt_id,
-    CAST(lmt_code AS VARCHAR)            AS lmt_code,
-    CAST(lmt_dsc AS VARCHAR)             AS lmt_dsc,
+    CAST(lmt_id AS STRING)              AS lmt_id,
+    CAST(lmt_code AS STRING)            AS lmt_code,
+    CAST(lmt_dsc AS STRING)             AS lmt_dsc,
     CAST(inr_lmt_amt AS DECIMAL(25, 5))  AS inr_lmt_amt,
     CAST(max_tot_lmt AS DECIMAL(25, 5))  AS max_tot_lmt,
     CAST(onl_lmt_dt AS DATE)             AS onl_lmt_dt,
     CAST(lmt_exp_dt AS DATE)             AS lmt_exp_dt,
-    CAST('T24_LIMIT' AS VARCHAR)         AS src_stm_code,
+    CAST('T24_LIMIT' AS STRING)         AS src_stm_code,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}                     AS sys_udt_dt,

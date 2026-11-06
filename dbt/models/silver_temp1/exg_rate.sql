@@ -3,13 +3,12 @@
     Theo 3 khối trong sheet: tỷ giá hiện hành (CURRENCY, curr_no = 999999) và lịch sử (CURRENCY_HIS)
     có DATE_TIME trước ngày batch; mỗi loại tiền lấy bản mới nhất, ưu tiên curr_no lớn nhất.
     Trên PG_BRONZE: ID = CURRENCY_CODE ('USD', lịch sử dạng 'USD;123'), MID_REVAL_RATE có thể đa giá trị '#'.
-    Chạy lại cùng ngày sẽ thay thế partition ETL_DATE đó (delete+insert).
+    Chạy lại cùng ngày sẽ thay thế partition ETL_DATE đó (insert_overwrite).
 -#}
 {{ config(
     materialized='incremental',
-    incremental_strategy='delete+insert',
-    unique_key='etl_date',
-    properties={"partitioning": "ARRAY['etl_date']"},
+    incremental_strategy='insert_overwrite',
+    partition_by=['etl_date'],
     on_schema_change='fail'
 ) }}
 
@@ -24,7 +23,7 @@ WITH cur AS (
             PARTITION BY TRIM(cur.currency_code)
             ORDER BY {{ t24_datetime('cur.date_time') }} DESC
         )                                                                           AS rn
-    FROM {{ source('pg_bronze', 't24core_currency') }} AS cur
+    FROM {{ ref('t24core_currency') }} AS cur
     WHERE cur.etl_date = {{ etl_date() }}
       AND {{ t24_datetime('cur.date_time') }} < {{ etl_date() }} + INTERVAL '1' DAY
 ),
@@ -40,7 +39,7 @@ cur_his AS (
             PARTITION BY SPLIT_PART(ch.currency_code, ';', 1)
             ORDER BY {{ t24_datetime('ch.date_time') }} DESC
         )                                                                           AS rn
-    FROM {{ source('pg_bronze', 't24core_currency_his') }} AS ch
+    FROM {{ ref('t24core_currency_his') }} AS ch
     WHERE ch.etl_date = {{ etl_date() }}
       AND {{ t24_datetime('ch.date_time') }} < {{ etl_date() }} + INTERVAL '1' DAY
 ),
@@ -58,9 +57,9 @@ cur_main AS (
 
 SELECT
     {{ etl_date() }}                          AS snpst_dt,
-    CAST('T24_CURRENCY' AS VARCHAR)           AS src_stm_code,
-    CAST(frst_ccy_code AS VARCHAR)            AS frst_ccy_code,
-    CAST(scd_ccy_code AS VARCHAR)             AS scd_ccy_code,
+    CAST('T24_CURRENCY' AS STRING)           AS src_stm_code,
+    CAST(frst_ccy_code AS STRING)            AS frst_ccy_code,
+    CAST(scd_ccy_code AS STRING)             AS scd_ccy_code,
     CAST(mid_reval_rate AS DECIMAL(25, 7))    AS mid_rate,
     {{ etl_date() }}                          AS etl_date
 FROM cur_main

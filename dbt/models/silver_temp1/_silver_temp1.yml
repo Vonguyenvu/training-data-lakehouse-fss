@@ -182,7 +182,7 @@ models:
     data_tests:
       - unique:
           arguments:
-            column_name: "frst_ccy_code || '|' || CAST(snpst_dt AS VARCHAR)"
+            column_name: "frst_ccy_code || '|' || CAST(snpst_dt AS STRING)"
     columns:
       - name: snpst_dt
         description: "Ngày dữ liệu [DATE]"
@@ -216,7 +216,7 @@ models:
     data_tests:
       - unique:
           arguments:
-            column_name: "cst_id || '|' || elc_adr_tp || '|' || CAST(sys_eff_dt AS VARCHAR)"
+            column_name: "cst_id || '|' || elc_adr_tp || '|' || CAST(sys_eff_dt AS STRING)"
       - scd2_one_open_row:
           arguments:
             key_columns: [cst_id, elc_adr_tp]
@@ -253,7 +253,7 @@ models:
     data_tests:
       - unique:
           arguments:
-            column_name: "cst_id || '|' || pst_adr_tp || '|' || CAST(sys_eff_dt AS VARCHAR)"
+            column_name: "cst_id || '|' || pst_adr_tp || '|' || CAST(sys_eff_dt AS STRING)"
       - scd2_one_open_row:
           arguments:
             key_columns: [cst_id, pst_adr_tp]
@@ -295,7 +295,7 @@ models:
     data_tests:
       - unique:
           arguments:
-            column_name: "cst_id || '|' || CAST(sys_eff_dt AS VARCHAR)"
+            column_name: "cst_id || '|' || CAST(sys_eff_dt AS STRING)"
       - scd2_one_open_row:
           arguments:
             key_columns: [cst_id]
@@ -333,7 +333,7 @@ models:
     data_tests:
       - unique:
           arguments:
-            column_name: "ar_id || '|' || CAST(sys_eff_dt AS VARCHAR)"
+            column_name: "ar_id || '|' || CAST(sys_eff_dt AS STRING)"
       - scd2_one_open_row:
           arguments:
             key_columns: [ar_id]

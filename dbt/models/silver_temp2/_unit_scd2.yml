@@ -1,0 +1,112 @@
+version: 2
+
+# Unit test macro scd2 (dbt unit_tests: dữ liệu giả, không đọc/ghi bảng thật).
+# Chạy: dbt test --select "test_type:unit"
+# Output kiểm tra = các dòng model gửi vào MERGE (phiên bản mới + dòng bị đóng), chưa phải bảng sau merge.
+# cst_id = md5('T24_CUSTOMER' || RECID): C1 5a3b…, C2 b7e7…, C3 25d4…, C4 50a6…, C5 a494…, C6 8278…, C7 394d…
+
+unit_tests:
+  - name: scd2_incremental_changes
+    description: >
+      Ngày 2026-11-06, bảng đích đang có C1..C5, C7. Kỳ vọng:
+      C1 không đổi -> không ra dòng; C2 đổi nghề -> đóng bản cũ + mở bản mới;
+      C3 biến mất khỏi nguồn -> đóng; C4 chỉ có bản đã đóng, xuất hiện lại -> mở bản mới;
+      C5 mở hôm nay (chạy lại cùng ngày) và đổi -> chỉ ra bản mới (merge ghi đè), không đóng;
+      C6 mới -> mở; C7 cột NULL ở cả 2 phía -> coi là không đổi (so sánh <=>).
+      Dòng nguồn ngày khác và khối CORP bị lọc.
+    model: idv_emp_st
+    overrides:
+      macros:
+        is_incremental: true
+      vars:
+        etl_date: "2026-11-06"
+    given:
+      - input: ref('t24core_customer')
+        rows:
+          - {recid: C1, khoi: INDIV, employment_status: A, occupation: O1, etl_date: "2026-11-06"}
+          - {recid: C2, khoi: INDIV, employment_status: B, occupation: O1, etl_date: "2026-11-06"}
+          - {recid: C3, khoi: INDIV, employment_status: A, occupation: O1, etl_date: "2026-11-05"}
+          - {recid: C4, khoi: INDIV, employment_status: A, occupation: O1, etl_date: "2026-11-06"}
+          - {recid: C5, khoi: INDIV, employment_status: B, occupation: O1, etl_date: "2026-11-06"}
+          - {recid: C6, khoi: INDIV, employment_status: A, occupation: O1, etl_date: "2026-11-06"}
+          - {recid: C7, khoi: INDIV, employment_status: A, etl_date: "2026-11-06"}
+          - {recid: C8, khoi: CORP, employment_status: A, occupation: O1, etl_date: "2026-11-06"}
+      - input: this
+        rows:
+          - {cst_id: 5a3b6601d0b367223f9c2fcb3e355f5e, cst_code: C1, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+          - {cst_id: b7e7f49c50df08e2398633450884d9b6, cst_code: C2, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+          - {cst_id: 25d4bc3a104f798b039b2ac01494a297, cst_code: C3, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+          - {cst_id: 50a615ac9b625f2582736d36e719f126, cst_code: C4, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-10-01", sys_exp_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+          - {cst_id: a494d1d256b705d2e2e420a05314cb30, cst_code: C5, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-06", sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+          - {cst_id: 394dbae5712c593dfe8580d2d5ce988b, cst_code: C7, idv_emp_st_code: A, sys_eff_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+    expect:
+      rows:
+        - {cst_id: b7e7f49c50df08e2398633450884d9b6, cst_code: C2, idv_emp_st_code: B, ocp_code: O1, sys_eff_dt: "2026-11-06", sys_exp_dt: null, sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+        - {cst_id: 50a615ac9b625f2582736d36e719f126, cst_code: C4, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-06", sys_exp_dt: null, sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+        - {cst_id: a494d1d256b705d2e2e420a05314cb30, cst_code: C5, idv_emp_st_code: B, ocp_code: O1, sys_eff_dt: "2026-11-06", sys_exp_dt: null, sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+        - {cst_id: 8278aaabe207b1bfafff402fe6f754d5, cst_code: C6, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-06", sys_exp_dt: null, sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+        - {cst_id: b7e7f49c50df08e2398633450884d9b6, cst_code: C2, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-01", sys_exp_dt: "2026-11-06", sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+        - {cst_id: 25d4bc3a104f798b039b2ac01494a297, cst_code: C3, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-01", sys_exp_dt: "2026-11-06", sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+
+  - name: scd2_empty_source_closes_nothing
+    description: Nguồn không có dữ liệu ngày chạy (Bronze chưa nạp) -> không đóng dòng nào.
+    model: idv_emp_st
+    overrides:
+      macros:
+        is_incremental: true
+      vars:
+        etl_date: "2026-11-06"
+    given:
+      - input: ref('t24core_customer')
+        rows:
+          - {recid: C1, khoi: INDIV, employment_status: A, occupation: O1, etl_date: "2026-11-05"}
+      - input: this
+        rows:
+          - {cst_id: 5a3b6601d0b367223f9c2fcb3e355f5e, cst_code: C1, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+    expect:
+      rows: []
+
+  - name: scd2_first_load_opens_all
+    description: Lần chạy đầu (bảng chưa có) -> mọi khóa mở với sys_eff_dt = etl_date.
+    model: idv_emp_st
+    overrides:
+      macros:
+        is_incremental: false
+      vars:
+        etl_date: "2026-11-06"
+    given:
+      - input: ref('t24core_customer')
+        rows:
+          - {recid: C1, khoi: INDIV, employment_status: A, occupation: O1, etl_date: "2026-11-06"}
+    expect:
+      rows:
+        - {cst_id: 5a3b6601d0b367223f9c2fcb3e355f5e, cst_code: C1, idv_emp_st_code: A, ocp_code: O1, sys_eff_dt: "2026-11-06", sys_exp_dt: null, sys_udt_dt: "2026-11-06", etl_date: "2026-11-06"}
+
+  - name: scd2_composite_key_customer_change
+    description: >
+      Khóa ghép (ar_id, cst_id): hợp đồng LD1 đổi khách hàng C1 -> C2 ngày 2026-11-06.
+      Kỳ vọng cặp (LD1, C1) bị đóng (biến mất khỏi nguồn), cặp (LD1, C2) mở mới; không có 2 dòng mở cho cùng cặp.
+      ar_id LD1 = 2785…
+    model: ar_x_ip_rltnp
+    overrides:
+      macros:
+        is_incremental: true
+      vars:
+        etl_date: "2026-11-06"
+    given:
+      - input: ref('t24core_ld_loans_and_deposits')
+        rows:
+          - {recid: LD1, customer_id: C2, inputter: U1, etl_date: "2026-11-06"}
+      - input: ref('t24core_ld_loans_and_deposits_his')
+        rows: []
+      - input: ref('flexbo_pgb_los_contract_fields_tdate')
+        rows: []
+      - input: ref('t24core_pd_payment_due')
+        rows: []
+      - input: this
+        rows:
+          - {src_stm_code: T24_LD_LOANS_AND_DEPOSITS, ar_id: 2785147ef4f46c1bc056d82ea20ba38f, ar_code: LD1, cst_id: 5a3b6601d0b367223f9c2fcb3e355f5e, cst_code: C1, maker_ofcr: U1, sys_eff_dt: "2026-11-01", sys_udt_dt: "2026-11-01", etl_date: "2026-11-01"}
+    expect:
+      rows:
+        - {ar_id: 2785147ef4f46c1bc056d82ea20ba38f, cst_id: b7e7f49c50df08e2398633450884d9b6, cst_code: C2, maker_ofcr: U1, sys_eff_dt: "2026-11-06", sys_exp_dt: null}
+        - {ar_id: 2785147ef4f46c1bc056d82ea20ba38f, cst_id: 5a3b6601d0b367223f9c2fcb3e355f5e, cst_code: C1, maker_ofcr: U1, sys_eff_dt: "2026-11-01", sys_exp_dt: "2026-11-06"}

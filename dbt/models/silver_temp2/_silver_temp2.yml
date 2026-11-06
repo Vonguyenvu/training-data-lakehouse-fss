@@ -1,0 +1,1130 @@
+version: 2
+
+models:
+  - name: cst
+    description: "Khách hàng (sheet Customer) | SCD TYPE 1 | Silver Temp 2"
+    columns:
+      - name: cst_id
+        description: "Unique key trên DWH [CHAR(32)]"
+        data_tests: [unique, not_null]
+      - name: cst_code
+        description: "Mã CIF [VARCHAR2(20)]"
+      - name: cst_grp_code
+        description: "mã Khối quản lý khách hàng [VARCHAR2(20)]"
+      - name: frst_ou_code
+        description: "Chi nhánh mở [VARCHAR2(20)]"
+      - name: ou_code
+        description: "Mã chi nhánh mở CIF [VARCHAR2(20)]"
+      - name: maker_ofcr_code
+        description: "Mã nhân viên hạch toán [VARCHAR2(20)]"
+      - name: chker_ofcr_code
+        description: "Mã nhân viên hạch toán thứ 2 [VARCHAR2(20)]"
+      - name: refr_code
+        description: "Mã người tham chiếu/giới thiệu [VARCHAR2(40)]"
+      - name: sctr_code
+        description: "Mã phân loại hình khách hàng [VARCHAR2(40)]"
+      - name: shrt_nm
+        description: "Tên viết tắt khách hàng [VARCHAR2(255)]"
+      - name: cst_nm
+        description: "Tên khách hàng đầy đủ [VARCHAR2(255)]"
+      - name: opn_dt
+        description: "Ngày khách hàng liên hệ/mở CIF [DATE]"
+      - name: empe_code
+        description: "Mã nhân viên quản lý / giới thiệu [VARCHAR2(20)]"
+      - name: str_addr
+        description: "Địa chỉ đường phố gốc trên CIF [VARCHAR2(100)]"
+      - name: trgt_code
+        description: "Mã phân khúc khách hàng mục tiêu [VARCHAR2(20)]"
+      - name: src_dt_tm
+        description: "Thời gian cập nhật bản ghi nguồn [DATE]"
+      - name: ctr_tmpl_code
+        description: "Mã biểu mẫu hợp đồng chuẩn [VARCHAR2(100)]"
+      - name: crs_sell_rm_code
+        description: "Mã nhân sự bán chéo sản phẩm [VARCHAR2(100)]"
+      - name: cst_tp_code
+        description: "Loại khách hàng (theo phân khúc Sector) [VARCHAR2(40)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: idv_prfl
+    description: "Hồ sơ khách hàng cá nhân (sheet Individual Profile) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cst_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [cst_id]
+    columns:
+      - name: cst_id
+        description: "Unique key trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã CIF [VARCHAR2(20)]"
+      - name: cst_lcs_code
+        description: "Trạng thái bản ghi [VARCHAR2(20)]"
+      - name: aml_chk_f
+        description: "Liên quan tới hệ thống Phòng Chống rửa tiền [VARCHAR2(20)]"
+      - name: aml_rslt
+        description: "Liên quan tới hệ thống Phòng Chống rửa tiền [VARCHAR2(100)]"
+      - name: cst_fnc_st_code
+        description: "Nhóm nợ khách hàng Core tính [VARCHAR2(20)]"
+      - name: ou_code
+        description: "Mã chi nhánh quản lý khách hàng [VARCHAR2(20)]"
+      - name: cst_st_code
+        description: "Trạng thái hiện tại của khách hàng [VARCHAR2(20)]"
+      - name: inn_bnkg_f
+        description: "Dịch vụ Internet banking khách hàng giao tiếp [VARCHAR2(20)]"
+      - name: kyc_cnl_code
+        description: "Kênh thực hiện KYC [VARCHAR2(20)]"
+      - name: vss_code
+        description: "Mã bảo hiểm xã hội [VARCHAR2(40)]"
+      - name: mbl_bnkg_f
+        description: "Dịch vụ sử dụng sản phẩm mobile banking [VARCHAR2(20)]"
+      - name: cty_of_ctzn_code
+        description: "Quốc tịch [VARCHAR2(40)]"
+      - name: jnt_lby_f
+        description: "Nợ liên đới [VARCHAR2(20)]"
+      - name: tax_identn_nbr
+        description: "Mã số thuế [VARCHAR2(100)]"
+      - name: vip_f
+        description: "Đánh dấu khách hàng ưu tiên [VARCHAR2(20)]"
+      - name: gnd
+        description: "Giới tính [VARCHAR2(20)]"
+      - name: idy_lv1_cl_code
+        description: "Mã ngành nghê kinh tế cha [VARCHAR2(20)]"
+      - name: idy_lv2_cl_code
+        description: "Ngành nghề kinh tế [VARCHAR2(20)]"
+      - name: dob
+        description: "Ngày sinh khách hàng cá nhân [DATE]"
+      - name: vip_tp_code
+        description: "Phân hạng khách hàng ưu tiên (VIP) [VARCHAR2(20)]"
+      - name: vip_eff_dt
+        description: "Ngày hiệu lực phân hạng khách hàng VIP [DATE]"
+      - name: bsn_rgst_eff_dt
+        description: "Ngày phát hành hóa đơn [DATE]"
+      - name: mb_cr_st
+        description: "Trạng thái quan hệ tín dụng MB [VARCHAR2(20)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: idv_emp_st
+    description: "Tình trạng việc làm khách hàng cá nhân (sheet Individual Employment Status) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cst_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [cst_id]
+    columns:
+      - name: cst_id
+        description: "Unique key trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã CIF [VARCHAR2(20)]"
+      - name: idv_emp_st_code
+        description: "Trạng thái khách hàng [VARCHAR2(20)]"
+      - name: anul_incm
+        description: "Thu nhập theo tháng [NUMBER(25,5)]"
+      - name: ocp_code
+        description: "Nghề nghiệp của khách hàng [VARCHAR2(100)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: org_prfl
+    description: "Hồ sơ khách hàng tổ chức (sheet Organization Profile) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "cst_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [cst_id]
+    columns:
+      - name: cst_id
+        description: "Unique key trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã CIF [VARCHAR2(20)]"
+      - name: cst_lcs_code
+        description: "Trạng thái bản ghi [VARCHAR2(20)]"
+      - name: cst_fnc_st_code
+        description: "Nhóm nợ khách hàng Core tính [VARCHAR2(20)]"
+      - name: estb_dt
+        description: "Ngày thành lập doanh nghiệp [DATE]"
+      - name: ou_code
+        description: "Mã chi nhánh quản lý khách hàng [VARCHAR2(20)]"
+      - name: cst_st_code
+        description: "Trạng thái hiện tại của khách hàng [VARCHAR2(20)]"
+      - name: idy_cl_code
+        description: "Mã ngành nghề đăng ký kinh doanh [VARCHAR2(40)]"
+      - name: inn_bnkg_f
+        description: "Dịch vụ Internet banking khách hàng giao tiếp [VARCHAR2(20)]"
+      - name: mbl_bnkg_f
+        description: "Dịch vụ sử dụng sản phẩm mobile banking [VARCHAR2(20)]"
+      - name: jnt_lby_f
+        description: "Nợ liên đới [VARCHAR2(20)]"
+      - name: tax_identn_nbr
+        description: "Mã số thuế [VARCHAR2(100)]"
+      - name: vip_f
+        description: "Đánh dấu khách hàng ưu tiên [VARCHAR2(20)]"
+      - name: idy_lv1_cl_code
+        description: "Mã ngành nghê kinh tế cha [VARCHAR2(20)]"
+      - name: idy_lv2_cl_code
+        description: "Ngành nghề kinh tế [VARCHAR2(20)]"
+      - name: bsn_rgst_nbr
+        description: "Số giấy phép đăng ký kinh doanh [VARCHAR2(40)]"
+      - name: bsn_rgst_eff_dt
+        description: "Ngày cấp giấy phép ĐKKD / phát hành hóa đơn [DATE]"
+      - name: vip_tp_code
+        description: "Phân hạng khách hàng ưu tiên (VIP) [VARCHAR2(20)]"
+      - name: vip_eff_dt
+        description: "Ngày hiệu lực phân hạng khách hàng VIP [DATE]"
+      - name: kyc_cnl_code
+        description: "Kênh thực hiện KYC [VARCHAR2(20)]"
+      - name: gen_dir_plc
+        description: "Nơi sinh Tổng giám đốc / người đại diện pháp luật [VARCHAR2(100)]"
+      - name: dir_dob
+        description: "Ngày sinh Giám đốc / người đại diện pháp luật [DATE]"
+      - name: cntct_prsn
+        description: "Họ tên người liên hệ chính KHDN [VARCHAR2(40)]"
+      - name: cntct_prsn_phn
+        description: "Số điện thoại người liên hệ chính KHDN [VARCHAR2(100)]"
+      - name: aml_rslt
+        description: "Kết quả sàng lọc phòng chống rửa tiền (AML) [VARCHAR2(100)]"
+      - name: aml_chk_f
+        description: "Cờ kiểm tra phòng chống rửa tiền (AML) [VARCHAR2(20)]"
+      - name: mb_cr_st
+        description: "Trạng thái quan hệ tín dụng MB [VARCHAR2(20)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: loan_ar
+    description: "Hợp đồng vay (LD / LD_HIS / PD) (sheet Loan Arrangement) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [ar_id]
+    columns:
+      - name: src_stm_code
+        description: "Mã hệ thống nguồn dữ liệu [VARCHAR2(40)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_LD_LOANS_AND_DEPOSITS", "T24_LD_LOANS_AND_DEPOSITS_HIS", "T24_PD_PAYMENT_DUE"]
+      - name: ar_id
+        description: "Unique key trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+      - name: fcc_ar_code
+        description: "Mã hợp đồng FlexCube [VARCHAR2(40)]"
+      - name: orig_amt_fcy
+        description: "Giá trị phê duyệt [NUMBER(25,5)]"
+      - name: chker_ofcr_code
+        description: "Mã người phê duyệt [VARCHAR2(20)]"
+      - name: pd_cgy_code
+        description: "Mã phân loại sản phẩm [VARCHAR2(20)]"
+      - name: frst_ou_code
+        description: "Mã chi nhánh quản lý đầu tiên [VARCHAR2(20)]"
+      - name: ppr_ctr_nbr
+        description: "Mã hồ sơ [VARCHAR2(100)]"
+      - name: ccy_code
+        description: "Loại tiền [VARCHAR2(20)]"
+      - name: cst_code
+        description: "Mã khách hàng [VARCHAR2(20)]"
+      - name: cst_id
+        description: "Mã khách hàng [CHAR(32)]"
+      - name: dsbr_amt_fcy
+        description: "Số tiền thực tế giải ngân [NUMBER(25,5)]"
+      - name: exg_rate_to_lcl_ccy
+        description: "Tỷ giá quy đổi [NUMBER(25,7)]"
+      - name: fcc_lmt_code
+        description: "Mã hạn mức trên Flexcube [VARCHAR2(20)]"
+      - name: mat_dt
+        description: "Ngày đáo hạn hợp đồng [DATE]"
+      - name: maker_ofcr_code
+        description: "ID người nhập liệu [VARCHAR2(20)]"
+      - name: lmt_code
+        description: "Mã tham chiếu hạn mức [VARCHAR2(32)]"
+      - name: lmt_id
+        description: "Mã tham chiếu hạn mức [CHAR(32)]"
+      - name: term_code
+        description: "Kỳ hạn [VARCHAR2(20)]"
+      - name: los_ctr_nbr
+        description: "Số hồ sơ [VARCHAR2(40)]"
+      - name: refrrer_ofcr_code
+        description: "ID nhân viên giới thiệu [VARCHAR2(20)]"
+      - name: val_dt
+        description: "Ngày hiệu lực đầu tiên của hợp đồng [DATE]"
+      - name: pd_code
+        description: "Mã nhóm sản phẩm [VARCHAR2(20)]"
+      - name: ar_pps_tp_code
+        description: "Mã mục đích vay [VARCHAR2(40)]"
+      - name: ar_pps_grp_code
+        description: "Mã nhóm mục đích vay [VARCHAR2(40)]"
+      - name: eff_dt
+        description: "Ngày hiệu lực hợp đồng [DATE]"
+      - name: fcc_val_dt
+        description: "Ngày ghi nhận [DATE]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: loan_ar_prfl
+    description: "Hồ sơ bổ sung hợp đồng vay (LD / LD_HIS / PD) (sheet Loan Arrangement Profile) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [ar_id]
+    columns:
+      - name: src_stm_code
+        description: "Mã hệ thống nguồn dữ liệu [VARCHAR2(40)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_LD_LOANS_AND_DEPOSITS", "T24_LD_LOANS_AND_DEPOSITS_HIS", "T24_PD_PAYMENT_DUE"]
+      - name: ar_id
+        description: "Unique key trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+      - name: int_lqd_ar_code
+        description: "Tài khoản thanh toán lãi [VARCHAR2(40)]"
+      - name: int_lqd_ar_id
+        description: "ID Tài khoản thanh toán lãi [CHAR(32)]"
+      - name: pnp_lqd_ar_code
+        description: "Tài khoản thanh toán gốc [VARCHAR2(40)]"
+      - name: pnp_lqd_ar_id
+        description: "ID Tài khoản thanh toán gốc [CHAR(32)]"
+      - name: ar_lcs_tp_code
+        description: "Trạng thái [VARCHAR2(40)]"
+      - name: ou_code
+        description: "Mã chi nhánh quản lý hiện tại [VARCHAR2(32)]"
+      - name: mand_repymt
+        description: "Giá trị UDF [VARCHAR2(20)]"
+      - name: nbr_of_dbt_rstc
+        description: "Giá trị tương ứng với từng trường [NUMBER(22)]"
+      - name: scr_tp
+        description: "Giá trị tương ứng với từng trường [VARCHAR2(20)]"
+      - name: car_ap_code
+        description: "Mã hồ sơ đăng ký vay vốn [VARCHAR2(40)]"
+      - name: los_ctr_code
+        description: "mã hợp đồng vay [VARCHAR2(40)]"
+      - name: los_ctr_id
+        description: "mã hồ sơ trên LOS [VARCHAR2(20)]"
+      - name: dbt_wvr_f
+        description: "Đánh dấu cơ cấu miễn giảm [VARCHAR2(20)]"
+      - name: ar_pps_by_idy
+        description: "Mục đích vay theo ngành kinh tế [VARCHAR2(20)]"
+      - name: ar_pps_by_pd
+        description: "Mục đích vay theo sản phẩm [VARCHAR2(20)]"
+      - name: dsbr_prpsl_ofcr
+        description: "Cán bộ đề xuất giải ngân [VARCHAR2(40)]"
+      - name: dsbr_prpsl_mgr
+        description: "Người đề xuất giải ngân [VARCHAR2(40)]"
+      - name: mgt_ofcr
+        description: "Cán bộ quản lý khoản vay [VARCHAR2(40)]"
+      - name: mgt_mgr
+        description: "Người quản lý khoản vay [VARCHAR2(40)]"
+      - name: aprv_ahr
+        description: "Cấp phê duyệt giải ngân [VARCHAR2(1000)]"
+      - name: chker_ofcr
+        description: "Mã người phê duyệt [VARCHAR2(40)]"
+      - name: maker_ofcr
+        description: "ID người nhập liệu [VARCHAR2(40)]"
+      - name: refrrer_ofcr
+        description: "ID nhân viên giới thiệu [VARCHAR2(40)]"
+      - name: prom_prgm
+        description: "Mã chương trình KM cho vay [VARCHAR2(20)]"
+      - name: prom_prgm_2
+        description: "Mã CTKM2 [VARCHAR2(20)]"
+      - name: dbt_rstc_tp_code
+        description: "Cơ cấu nợ [VARCHAR2(20)]"
+      - name: covid19_rstc_compl_dt
+        description: "Ngày hết covid/ Ngày hết hạn cơ cấu [DATE]"
+      - name: gl_itm_code
+        description: "Mã hạch toán theo SBV [VARCHAR2(20)]"
+      - name: gl_itm_id
+        description: "ID Mã hạch toán theo SBV [CHAR(32)]"
+      - name: fnc_st_code
+        description: "Nhóm nợ hợp đồng [VARCHAR2(20)]"
+      - name: bds_tt11
+        description: "Phân loại bất động sản theo Thông tư 11 [VARCHAR2(20)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: ar_x_ip_rltnp
+    description: "Quan hệ hợp đồng - khách hàng (sheet Arrangement x Involved Party) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || cst_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [ar_id, cst_id]
+    columns:
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(40)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_LD_LOANS_AND_DEPOSITS", "T24_LD_LOANS_AND_DEPOSITS_HIS", "T24_PD_PAYMENT_DUE"]
+      - name: ar_id
+        description: "Unique key hợp đồng trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+      - name: cst_id
+        description: "ID khách hàng trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: cst_code
+        description: "Mã khách hàng [VARCHAR2(20)]"
+      - name: maker_ofcr
+        description: "ID người nhập liệu [VARCHAR2(40)]"
+      - name: chker_ofcr
+        description: "Mã người phê duyệt [VARCHAR2(40)]"
+      - name: refrrer_ofcr
+        description: "ID nhân viên giới thiệu [VARCHAR2(40)]"
+      - name: dsbr_prpsl_ofcr
+        description: "Cán bộ đề xuất giải ngân [VARCHAR2(40)]"
+      - name: dsbr_prpsl_mgr
+        description: "Người đề xuất giải ngân [VARCHAR2(40)]"
+      - name: mgt_ofcr
+        description: "Cán bộ quản lý khoản vay [VARCHAR2(40)]"
+      - name: mgt_mgr
+        description: "Người quản lý khoản vay [VARCHAR2(40)]"
+      - name: aprv_ahr
+        description: "Cấp phê duyệt giải ngân [VARCHAR2(1000)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: ar_avy_shd_itm
+    description: "Lịch hoạt động hợp đồng (sheet Arrangement Activity Schedule I) | SCD TYPE 2 | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_avy_shd_id || '|' || CAST(sys_eff_dt AS STRING)"
+      - scd2_one_open_row:
+          arguments:
+            key_columns: [ar_avy_shd_id]
+    columns:
+      - name: ar_avy_shd_id
+        description: "ID duy nhất của mã số dòng lịch  trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_avy_shd_code
+        description: "Mã số dòng lịch trên hệ thống nguồn [VARCHAR2(32)]"
+      - name: ar_avy_shd_tp
+        description: "Phân loại của dòng lịch hợp đồng [VARCHAR2(32)]"
+      - name: ar_id
+        description: "ID duy nhất của hợp đồng trên DWH [CHAR(32)]"
+      - name: ar_code
+        description: "Mã của hợp đồng gốc [VARCHAR2(32)]"
+      - name: pbl_amt_tp
+        description: "Phân loại tiền cần thanh toán trong kỳ bill tương ứng (PS/PE/LD,..) [VARCHAR2(20)]"
+      - name: pbl_amt_lcy
+        description: "Số tiền cần thanh toán quy đổi trong kỳ bill tương ứng [NUMBER(25,5)]"
+      - name: pbl_amt_fcy
+        description: "Số tiền cần thanh toán nguyên tệ trong kỳ bill tương ứng [NUMBER(25,5)]"
+      - name: exg_rate
+        description: "Tỷ giá thực hiện [NUMBER(25,7)]"
+      - name: ccy_code
+        description: "Mã loại tiền [VARCHAR2(20)]"
+      - name: eff_mat_dt
+        description: "Ngày hiệu lực của dòng lịch [DATE]"
+      - name: f_last_od_dt
+        description: "Cờ hợp đồng có đang tồn tại kỳ trả nợ quá hạn gần nhất hay không [NUMBER(1)]"
+      - name: last_od_dt
+        description: "Ngày đến hạn của kỳ trả nợ gần nhất đã chuyển sang quá hạn [DATE]"
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(32)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24CORE_STMT_ENTRY"]
+      - name: cst_id
+        description: "ID duy nhất của khách hàng liên quan trên DWH [CHAR(32)]"
+      - name: cst_code
+        description: "Mã số khách hàng [VARCHAR2(32)]"
+      - name: sys_eff_dt
+        description: "Ngày bản ghi lần đầu tiên vào hệ thống [DATE]"
+        data_tests: [not_null]
+      - name: sys_exp_dt
+        description: "Ngày hết hạn của bản ghi [DATE]"
+      - name: sys_udt_dt
+        description: "Ngày update dữ liệu gần nhất [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: ar_bal
+    description: "Số dư hợp đồng (1 dòng sao kê CRB) (sheet Arrangement Balance) | SNAPSHOT | Silver Temp 2"
+    columns:
+      - name: rcvb_amt_lcy
+        description: "Số tiền dự thu [NUMBER(25,5)]"
+      - name: cls_bal_lcy
+        description: "Dư Nợ quy đổi [NUMBER(25,5)]"
+      - name: mud_code
+        description: "Mã phân hệ: LD, MD, AC, PD [VARCHAR2(20)]"
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+      - name: ar_id
+        description: "ID hợp đồng trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ast_tp_code
+        description: "Loại dư nợ, hạch toán [VARCHAR2(20)]"
+      - name: pd_cgy_code
+        description: "Mã phân loại sản phẩm [VARCHAR2(20)]"
+      - name: ou_code
+        description: "Mã chi nhánh hạch toán [VARCHAR2(20)]"
+      - name: ccy_code
+        description: "Loại tiền [VARCHAR2(20)]"
+      - name: cst_code
+        description: "Mã khách hàng [VARCHAR2(20)]"
+      - name: cst_id
+        description: "ID khách hàng trên DWH [CHAR(32)]"
+      - name: ar_term_tp_code
+        description: "Mã nhóm kỳ hạn [VARCHAR2(20)]"
+      - name: gl_itm_code
+        description: "Mã hạch toán theo SBV [VARCHAR2(20)]"
+      - name: gl_itm_id
+        description: "ID Mã hạch toán theo SBV [CHAR(32)]"
+      - name: sub_pd_code
+        description: "Mã sản phẩm con [VARCHAR2(20)]"
+      - name: cdr_dt
+        description: "Ngày giao dịch [DATE]"
+        data_tests: [not_null]
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: ar_dlq_smy
+    description: "Tổng hợp quá hạn hợp đồng (sheet Arrangement Delinquency Summary) | SNAPSHOT | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || CAST(etl_date AS STRING)"
+    columns:
+      - name: cdr_dt
+        description: "Ngày dữ liệu [DATE]"
+        data_tests: [not_null]
+      - name: ar_id
+        description: "ID của hợp đồng [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+      - name: orig_ar_id
+        description: "ID của hợp đồng gốc [CHAR(32)]"
+      - name: orig_ar_code
+        description: "Mã hợp đồng gốc [VARCHAR2(40)]"
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(32)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_PD_PAYMENT_DUE_HIS_MV"]
+      - name: pnp_past_due_dt
+        description: "Ngày quá hạn gốc [DATE]"
+      - name: int_past_due_dt
+        description: "Ngày quá hạn lãi [DATE]"
+      - name: pnp_ars
+        description: "Số tiền quá hạn gốc [NUMBER(25,5)]"
+      - name: int_ars
+        description: "Số tiền quá hạn lãi [NUMBER(25,5)]"
+      - name: addition_dys_in_ars
+        description: "Số ngày quá hạn chuyển đổi [NUMBER(22)]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: ast_ar_int_smy
+    description: "Tổng hợp lãi hợp đồng tài sản (sheet Asset Arrangement Interest Summ) | SNAPSHOT | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || CAST(etl_date AS STRING)"
+    columns:
+      - name: cdr_dt
+        description: "Ngày dữ liệu [DATE]"
+        data_tests: [not_null]
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(32)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["SAOKE_CRB"]
+      - name: ar_id
+        description: "ID hợp đồng [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(40)]"
+      - name: orig_ar_id
+        description: "ID hợp đồng gốc [CHAR(32)]"
+      - name: orig_ar_code
+        description: "Mã hợp đồng gốc [VARCHAR2(40)]"
+      - name: tot_acr_int_amt_fcy
+        description: "Lãi dự thu [NUMBER(32,5)]"
+      - name: tot_int_paid_amt_fcy
+        description: "Lãi đã trả [NUMBER(32,5)]"
+      - name: tot_int_due_amt_fcy
+        description: "Lãi phải trả đến hạn [NUMBER(32,5)]"
+      - name: tot_int_odue_amt_fcy
+        description: "Lãi phải trả quá hạn [NUMBER(32,5)]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: ar_tvr_smy
+    description: "Tổng hợp doanh số hợp đồng (sheet Arrangement Turnover Summary) | SNAPSHOT | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "ar_id || '|' || CAST(etl_date AS STRING)"
+    columns:
+      - name: cdr_dt
+        description: "Ngày dữ liệu [DATE]"
+        data_tests: [not_null]
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(32)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["SAOKE_CRB"]
+      - name: ar_id
+        description: "ID hợp đồng [CHAR(32)]"
+        data_tests: [not_null]
+      - name: ar_code
+        description: "Mã hợp đồng [VARCHAR2(32)]"
+      - name: orig_ar_id
+        description: "ID hợp đồng gốc [CHAR(32)]"
+      - name: orig_ar_code
+        description: "Mã hợp đồng gốc [VARCHAR2(40)]"
+      - name: cls_bal_fcy
+        description: "Dư nợ còn lại nguyên tệ [NUMBER(32,5)]"
+      - name: cls_bal_lcy
+        description: "Dư nợ còn lại quy đổi [NUMBER(32,5)]"
+      - name: tot_recbl_pnp_amt_fcy
+        description: "Tổng dư nợ gốc có thể thu được [NUMBER(32,5)]"
+      - name: tot_due_pnp_amt_fcy
+        description: "Tổng dư nợ gốc đến hạn [NUMBER(32,5)]"
+      - name: tot_odue_pnp_amt_fcy
+        description: "Tổng dư nợ gốc quá hạn [NUMBER(32,5)]"
+      - name: dsbr_amt_ltd_fcy
+        description: "Tổng giá trị giải ngân từ trước đến nay [NUMBER(32,5)]"
+      - name: db_amt_in_day_fcy
+        description: "Số tiền ghi nợ trong ngày [NUMBER(32,5)]"
+      - name: nbr_of_db_in_day
+        description: "Số giao dịch ghi nợ trong ngày [NUMBER(32,5)]"
+      - name: cr_amt_in_day_fcy
+        description: "Số tiền ghi có trong ngày [NUMBER(32,5)]"
+      - name: nbr_of_cr_in_day
+        description: "Số giao dịch ghi có trong ngày [NUMBER(32,5)]"
+      - name: db_amt_in_mo_fcy
+        description: "Số tiền ghi nợ trong tháng [NUMBER(32,5)]"
+      - name: nbr_of_db_in_mo
+        description: "Số giao dịch ghi nợ trong tháng [NUMBER(32,5)]"
+      - name: cr_amt_in_mo_fcy
+        description: "Số tiền ghi có trong tháng [NUMBER(32,5)]"
+      - name: nbr_of_cr_in_mo
+        description: "Số giao dịch ghi có trong tháng [NUMBER(32,5)]"
+      - name: db_amt_in_yr_fcy
+        description: "Số tiền ghi nợ trong năm [NUMBER(32,5)]"
+      - name: nbr_of_db_in_yr
+        description: "Số giao dịch ghi nợ trong năm [NUMBER(32,5)]"
+      - name: cr_amt_in_yr_fcy
+        description: "Số tiền ghi có trong năm [NUMBER(32,5)]"
+      - name: nbr_of_cr_in_yr
+        description: "Số giao dịch ghi có trong năm [NUMBER(32,5)]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: saoke_tindung
+    description: "Sao kê tín dụng (1 hợp đồng LD) (sheet SAOKE_TINDUNG) | SNAPSHOT | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "id || '|' || CAST(etl_date AS STRING)"
+    columns:
+      - name: internet_banking_service
+        description: "Dịch vụ Internet banking khách hàng giao tiếp [VARCHAR2(100)]"
+      - name: khoi
+        description: "mã Khối quản lý khách hàng [VARCHAR2(100)]"
+      - name: kyc_channel
+        description: "Kênh thực hiện KYC [VARCHAR2(100)]"
+      - name: ma_bhxh
+        description: "Mã bảo hiểm xã hội [VARCHAR2(100)]"
+      - name: mau_hd
+        description: "Mã biểu mẫu hợp đồng chuẩn áp dụng cho khách hàng [VARCHAR2(100)]"
+      - name: mb_cr_stt
+        description: "Trạng thái quan hệ tín dụng của khách hàng tại ngân hàng [VARCHAR2(100)]"
+      - name: mb_industry
+        description: "Ngành nghề kinh tế [VARCHAR2(100)]"
+      - name: mb_rm_bancheo
+        description: "Mã nhân sự bán chéo sản phẩm [VARCHAR2(100)]"
+      - name: mobile_banking_service
+        description: "Dịch vụ sử dụng sản phẩm mobile banking [VARCHAR2(100)]"
+      - name: mobile_number
+        description: "Số điện thoại di động [VARCHAR2(100)]"
+      - name: nat_id_exp_date
+        description: "Ngày hêt hạn CC [DATE]"
+      - name: nat_id_iss_date
+        description: "Ngày cấp Căn cước [DATE]"
+      - name: nat_id_iss_plc
+        description: "Nơi cấp Căn cước [VARCHAR2(100)]"
+      - name: nat_id_type
+        description: "Loại căn cước [VARCHAR2(100)]"
+      - name: national_id
+        description: "Số giấy tờ định danh quốc gia (CCCD/CMND) [VARCHAR2(100)]"
+      - name: nationality
+        description: "Quốc tịch [VARCHAR2(100)]"
+      - name: net_monthly_in
+        description: "Thu nhập theo tháng [NUMBER(25,5)]"
+      - name: no_lien_doi
+        description: "Nợ liên đới [VARCHAR2(100)]"
+      - name: occupation
+        description: "Nghề nghiệp của khách hàng [VARCHAR2(100)]"
+      - name: open_company
+        description: "Chi nhánh mở [VARCHAR2(100)]"
+      - name: phone_cont_per
+        description: "Số điện thoại của người liên hệ chính - KH tổ chức [VARCHAR2(100)]"
+      - name: cus_recid
+        description: "Mã CIF [VARCHAR2(100)]"
+      - name: referred_by
+        description: "Mã người tham chiếu/giới thiệu [VARCHAR2(100)]"
+      - name: resid_province
+        description: "Tỉnh/thành phố nơi cư trú [VARCHAR2(100)]"
+      - name: residence
+        description: "Quốc gia cư trú [VARCHAR2(100)]"
+      - name: second_officer
+        description: "Mã nhân viên hạch toán thứ 2 [VARCHAR2(100)]"
+      - name: sector
+        description: "Mã phân loại hình khách hàng [VARCHAR2(100)]"
+      - name: short_name
+        description: "Tên viết tắt khách hàng [VARCHAR2(255)]"
+      - name: street
+        description: "Tên đường theo địa chỉ [VARCHAR2(255)]"
+      - name: target
+        description: "Mã phân khúc đối tượng khách hàng mục tiêu (Target Code) [VARCHAR2(100)]"
+      - name: tax_serial
+        description: "Mã số thuế [VARCHAR2(100)]"
+      - name: txn_date
+        description: "Ngày giao dịch / ngày cập nhật dữ liệu khách hàng [DATE]"
+      - name: vat_inv_date
+        description: "Ngày phát hành hóa đơn [DATE]"
+      - name: vat_inv_serial
+        description: "Số seri hóa đơn [VARCHAR2(100)]"
+      - name: vip_customer
+        description: "Đánh dấu khách hàng ưu tiên [VARCHAR2(100)]"
+      - name: vn_full_name
+        description: "Tên khách hàng đầy đủ [VARCHAR2(255)]"
+      - name: vn_gender
+        description: "Giới tính [VARCHAR2(100)]"
+      - name: vn_street
+        description: "Tên đường theo địa chỉ [VARCHAR2(255)]"
+      - name: vn_town
+        description: "Tên thành phố theo địa chỉ [VARCHAR2(255)]"
+      - name: name
+        description: "Tên nhân viên hạch toán [VARCHAR2(255)]"
+      - name: dao_recid
+        description: "Mã nhân viên hạch toán thứ 2 [VARCHAR2(100)]"
+      - name: acc_fcc
+        description: "Mã hợp đồng FlexCube [VARCHAR2(100)]"
+      - name: amount
+        description: "Dự nợ hợp đồng [NUMBER(25,5)]"
+      - name: approve_amount
+        description: "Giá trị phê duyệt [NUMBER(25,5)]"
+      - name: authoriser
+        description: "Mã người phê duyệt [VARCHAR2(100)]"
+      - name: category
+        description: "Mã phân loại sản phẩm [VARCHAR2(100)]"
+      - name: co_code
+        description: "Mã chi nhánh quản lý hiện tại [VARCHAR2(100)]"
+      - name: commit_action
+        description: "Trường COMMIT_ACTION của bảng nguồn T24CORE.LD_LOANS_AND_DEPOSITS [VARCHAR2(100)]"
+      - name: cra_ld
+        description: "Số hồ sơ giải ngân [VARCHAR2(100)]"
+      - name: curr_no
+        description: "Version bản ghi hiện tại [NUMBER(10)]"
+      - name: currency
+        description: "Loại tiền [VARCHAR2(100)]"
+      - name: customer_id
+        description: "Mã khách hàng [VARCHAR2(100)]"
+      - name: date_time
+        description: "Ngày nhập liệu Core [DATE]"
+      - name: drawdown_net_amt
+        description: "Số tiền thực tế giải ngân [NUMBER(25,5)]"
+      - name: excg_rate
+        description: "Tỷ giá quy đổi [NUMBER(13,7)]"
+      - name: fcc_limit
+        description: "Mã hạn mức trên Flexcube [VARCHAR2(100)]"
+      - name: fin_mat_date
+        description: "Ngày đáo hạn hợp đồng [DATE]"
+      - name: id
+        description: "Thay = trường RECID [VARCHAR2(100)]"
+        data_tests: [not_null]
+      - name: inputter
+        description: "ID người nhập liệu [VARCHAR2(100)]"
+      - name: int_liq_acct
+        description: "Tài khoản thanh toán lãi [VARCHAR2(100)]"
+      - name: int_rate_type
+        description: "Loại lãi suất : Fix , float [VARCHAR2(20)]"
+      - name: int_value_date
+        description: "Ngày hiệu lực lãi suất [DATE]"
+      - name: interest_rate
+        description: "Giá trị lãi suất [NUMBER(13,7)]"
+      - name: interest_spread
+        description: "Biên độ lãi suất [NUMBER(13,7)]"
+      - name: limit_reference
+        description: "Mã tham chiếu hạn mức [VARCHAR2(100)]"
+      - name: loc_term
+        description: "Kỳ hạn [VARCHAR2(100)]"
+      - name: los_fac_code
+        description: "Số hồ sơ [VARCHAR2(100)]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: saoke_giaingan
+    description: "Sao kê giải ngân (1 dòng sao kê CRB) (sheet Saoke_GIAINGAN) | SNAPSHOT | Silver Temp 2"
+    columns:
+      - name: narrative
+        description: "Mô tả bút toán [VARCHAR2(255)]"
+      - name: orig_amount_lcy
+        description: "Giá trị hạch toán ban đầu quy đổi [NUMBER(25,5)]"
+      - name: original_acct
+        description: "Số tài khoản hạch toán ban đầu [VARCHAR2(100)]"
+      - name: original_amount
+        description: "Giá trị hạch toán ban đầu nguyên tệ [NUMBER(25,5)]"
+      - name: original_ccy
+        description: "Loại tiền giao dịch ban đầu [VARCHAR2(100)]"
+      - name: original_exch_rate
+        description: "Tỷ giá quy đổi cho loại tiền ban đầu [NUMBER(13,7)]"
+      - name: our_reference
+        description: "Ma tham chieu [VARCHAR2(100)]"
+      - name: outstanding_bal
+        description: "Dư nợ tín dụng của hợp đồng ( OUR_REFERENCE) [NUMBER(25,5)]"
+      - name: override
+        description: "Cờ cảnh báo [VARCHAR2(100)]"
+      - name: process_forward
+        description: "Cờ xử lý chuyển tiếp bút toán hạch toán (Process Forward) [VARCHAR2(100)]"
+      - name: processing_date
+        description: "Trường PROCESSING_DATE của bảng nguồn SMY.STMT_DAILY [DATE]"
+      - name: product_category
+        description: "Loại sản phẩm hạch toán [VARCHAR2(100)]"
+      - name: stmt_recid
+        description: "Mã giao dịch, Unique ID [VARCHAR2(100)]"
+      - name: record_status
+        description: "Trạng Thái bản ghi [VARCHAR2(100)]"
+      - name: repayment_amt
+        description: "Số tiền thu nợ [NUMBER(25,5)]"
+      - name: repayment_date
+        description: "Ngày thu [DATE]"
+      - name: repayment_type
+        description: "Loại thu nợ [VARCHAR2(100)]"
+      - name: stmt_entry_id
+        description: "Trường STMT_ENTRY_ID của bảng nguồn SMY.STMT_DAILY [VARCHAR2(100)]"
+      - name: stmt_no
+        description: "Trường STMT_NO của bảng nguồn SMY.STMT_DAILY [VARCHAR2(100)]"
+      - name: suspense_category
+        description: "Mã Category phân loại bút toán bị treo [VARCHAR2(100)]"
+      - name: suspnse_value_date
+        description: "Ngày bút toán treo [DATE]"
+      - name: system_id
+        description: "Mã phân hệ [VARCHAR2(100)]"
+      - name: their_reference
+        description: "Trường THEIR_REFERENCE của bảng nguồn SMY.STMT_DAILY [VARCHAR2(100)]"
+      - name: trans_reference
+        description: "Trường TRANS_REFERENCE của bảng nguồn SMY.STMT_DAILY [VARCHAR2(100)]"
+      - name: transaction_code
+        description: "Mã giao dịch [VARCHAR2(100)]"
+      - name: stmt_txn_date
+        description: "Trường TXN_DATE của bảng nguồn SMY.STMT_DAILY [DATE]"
+      - name: value_date
+        description: "Ngay Hieu luc but toan [DATE]"
+      - name: acc_fcc
+        description: "Mã hợp đồng FlexCube [VARCHAR2(100)]"
+      - name: amount_cur
+        description: "Số tiền dự thu [NUMBER(25,5)]"
+      - name: amount_lcy
+        description: "Dư Nợ quy đổi [NUMBER(25,5)]"
+      - name: app_code
+        description: "Mã phân hệ: LD, MD, AC, PD [VARCHAR2(100)]"
+      - name: app_id
+        description: "Mã hợp đồng [VARCHAR2(100)]"
+        data_tests: [not_null]
+      - name: asset_class
+        description: "Nhóm nợ khách hàng Core tính [VARCHAR2(100)]"
+      - name: asset_type
+        description: "Loại dư nợ, hạch toán [VARCHAR2(100)]"
+      - name: categ_code
+        description: "Mã phân loại sản phẩm [VARCHAR2(100)]"
+      - name: co_code
+        description: "Mã chi nhánh hạch toán [VARCHAR2(100)]"
+      - name: curr
+        description: "Loại tiền [VARCHAR2(100)]"
+      - name: cus_id
+        description: "Mã khách hàng [VARCHAR2(100)]"
+      - name: date
+        description: "Ngày giao dịch YYYYMMDD [DATE]"
+      - name: loc_term
+        description: "Trường LOC_TERM của bảng nguồn SOURCE.SAOKE_CRB [VARCHAR2(100)]"
+      - name: mat_date
+        description: "Ngày đáo hạn hợp đồng [DATE]"
+      - name: sbv_code
+        description: "Mã hạch toán theo SBV [VARCHAR2(100)]"
+      - name: sub_pro
+        description: "Mã sản phẩm con [VARCHAR2(100)]"
+      - name: txn_date
+        description: "Ngày giao dịch [DATE]"
+      - name: val_date
+        description: "Ngày hiệu lực hợp đồng [DATE]"
+      - name: mvmt_sbv_code
+        description: "Mã hạch toán theo SBV [VARCHAR2(100)]"
+      - name: trans_ref
+        description: "Mã tham chiếu giao dịch [VARCHAR2(100)]"
+      - name: mvmt_txn_date
+        description: "Ngày thực hiện giao dịch [DATE]"
+      - name: company_name
+        description: "Tên chi nhánh [VARCHAR2(255)]"
+      - name: comp_recid
+        description: "Mã chi nhánh [VARCHAR2(100)]"
+      - name: account_officer
+        description: "Mã nhân viên hạch toán [VARCHAR2(100)]"
+      - name: active_status
+        description: "Trạng thái bản ghi [VARCHAR2(100)]"
+      - name: aml_check
+        description: "Liên quan tới hệ thống Phòng Chống rửa tiền [VARCHAR2(100)]"
+      - name: aml_result
+        description: "Liên quan tới hệ thống Phòng Chống rửa tiền [VARCHAR2(100)]"
+      - name: bdate_legal
+        description: "Ngày sinh của người đại diện theo pháp luật [DATE]"
+      - name: bday_director
+        description: "Ngày sinh giám đốc công ty [DATE]"
+      - name: birth_incorp_date
+        description: "Ngày thành lập doanh nghiệp [DATE]"
+      - name: cus_co_code
+        description: "Mã chi nhánh quản lý khách hàng [VARCHAR2(100)]"
+      - name: company_book
+        description: "Mã chi nhánh mở CIF [VARCHAR2(100)]"
+      - name: contact_date
+        description: "Ngày khách hàng liên hệ/mở CIF [DATE]"
+      - name: contact_person
+        description: "Họ tên người liên hệ của khách hàng doanh nghiệp [VARCHAR2(100)]"
+      - name: country
+        description: "Tên quốc gia nơi cư trú / đặt trụ sở [VARCHAR2(100)]"
+      - name: cu_eff_date
+        description: "Ngày hiệu lực phân hạng khách hàng VIP [DATE]"
+      - name: cus_ind_parent
+        description: "Mã ngành nghê kinh tế cha [VARCHAR2(100)]"
+      - name: customer_status
+        description: "Trạng thái hiện tại của khách hàng [VARCHAR2(100)]"
+      - name: date_time
+        description: "Ngày giờ bản ghi nhập liệu [DATE]"
+      - name: email_address
+        description: "Địa chỉ emai [VARCHAR2(255)]"
+      - name: employment_status
+        description: "Mã tình trạng việc làm của khách hàng cá nhân [VARCHAR2(100)]"
+      - name: estab_lic_code
+        description: "Số giấy phép thành lập / đăng ký kinh doanh [VARCHAR2(100)]"
+      - name: ffb_type
+        description: "Phân hạng khách hàng ưu tiên (VIP Type) [VARCHAR2(100)]"
+      - name: gen_dir_plc
+        description: "Nơi sinh / quốc tịch của Tổng giám đốc / người đại diện [VARCHAR2(100)]"
+      - name: home_number
+        description: "Số điện thoại nhà tiêng [VARCHAR2(100)]"
+      - name: industry
+        description: "Mã ngành nghề đăng ký kinh doanh [VARCHAR2(100)]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]
+
+  - name: pst_entr
+    description: "Bút toán (sheet Posting Entry) | TXN | Silver Temp 2"
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "pst_entr_id || '|' || CAST(etl_date AS STRING)"
+    columns:
+      - name: pst_entr_id
+        description: "ID duy nhất của đối tượng trên DWH [CHAR(32)]"
+        data_tests: [not_null]
+      - name: src_stm_code
+        description: "Mã nguồn dữ liệu [VARCHAR2(40)]"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["T24_STMT_ENTRY"]
+      - name: pst_entr_nbr
+        description: "Mã bút toán hạch toán [VARCHAR2(32)]"
+      - name: txn_id
+        description: "ID của giao dịch của bút toán trên DWH [CHAR(32)]"
+      - name: txn_nbr
+        description: "Số giao dịch [VARCHAR2(20)]"
+      - name: acg_cr_db_f
+        description: "Cờ đánh dấu ghi nợ/ghi có [VARCHAR2(20)]"
+      - name: txn_code
+        description: "Phân loại mã giao dịch [VARCHAR2(20)]"
+      - name: pst_dt
+        description: "Ngày phát sinh bút toán [DATE]"
+      - name: pst_entr_amt_fcy
+        description: "Số tiền của bút toán nguyên tệ [NUMBER(25,5)]"
+      - name: pst_entr_amt_lcy
+        description: "Số tiền của bút toán quy đổi [NUMBER(25,5)]"
+      - name: ccy_code
+        description: "Mã loại tiền [VARCHAR2(20)]"
+      - name: val_dt
+        description: "Ngày hiệu lực của bút toán [DATE]"
+      - name: exg_rate
+        description: "Tỷ giá thực hiện [NUMBER(25,7)]"
+      - name: ou_code
+        description: "Chi nhánh hạch toán [VARCHAR2(32)]"
+      - name: ac_nbr
+        description: "Số tài khoản liên quan [VARCHAR2(40)]"
+      - name: ar_code
+        description: "Số hợp đồng liên quan [VARCHAR2(40)]"
+      - name: ar_id
+        description: "ID hợp đồng duy nhất liên quan trên DWH [CHAR(32)]"
+      - name: cst_id
+        description: "ID duy nhất của khách hàng liên quan trên DWH [CHAR(32)]"
+      - name: cst_nbr
+        description: "Mã số khách hàng [VARCHAR2(20)]"
+      - name: acg_pd_cgy
+        description: "Loại sản phẩm hạch toán [VARCHAR2(20)]"
+      - name: pst_entr_dsc
+        description: "Mô tả bút toán [VARCHAR2(4000)]"
+      - name: consol_key
+        description: "Consol key của bút toán STMT [VARCHAR2(1000)]"
+      - name: mod_code
+        description: "Mã phân hệ giao dịch [VARCHAR2(20)]"
+      - name: pst_entr_cmpt
+        description: "Phân loại thành phần giao dịch bút toán [VARCHAR2(20)]"
+      - name: acg_dt
+        description: "Ngày hạch toán của bút toán [DATE]"
+      - name: ac_id
+        description: "ID tài khoản hạch toán trên DWH [CHAR(32)]"
+      - name: bal_tp
+        description: "Loại bút toán [VARCHAR2(20)]"
+      - name: card_nbr
+        description: "Số thẻ [VARCHAR2(40)]"
+      - name: cmmt_actn
+        description: "Trường kỹ thuật đánh dấu bản ghi IUD [VARCHAR2(20)]"
+      - name: cmmt_tms
+        description: "Thời gian ghi nhận thay đổi bản ghi trên hệ thống [TIMESTAMP]"
+      - name: cgy_pd_code
+        description: "Mã Category phân loại bút toán [VARCHAR2(20)]"
+      - name: crn_nbr
+        description: "Trường kỹ thuật, đánh dấu version thay đổi bút toán [NUMBER(22)]"
+      - name: cyc_fwd
+        description: "Chu kỳ [DATE]"
+      - name: dt_tm
+        description: "Trường kỹ thuật, ghi nhận thời gian sửa đổi [DATE]"
+      - name: dept_code
+        description: "Mã đơn vị hạch toán [VARCHAR2(20)]"
+      - name: drn_ac
+        description: "Tài khoản ghi nhận số tiền rút [VARCHAR2(20)]"
+      - name: inr_cgy
+        description: "Mã Category nội bộ [VARCHAR2(20)]"
+      - name: lcl_refr
+        description: "Trường multivalue - đa nghĩa của T24 [VARCHAR2(20)]"
+      - name: orig_amt_lcy
+        description: "Giá trị hạch toán ban đầu quy đổi [NUMBER(25,5)]"
+      - name: orig_ac
+        description: "Số tài khoản hạch toán ban đầu [VARCHAR2(20)]"
+      - name: orig_amt
+        description: "Giá trị hạch toán ban đầu nguyên tệ [NUMBER(25,5)]"
+      - name: orig_ccy
+        description: "Loại tiền giao dịch ban đầu [VARCHAR2(20)]"
+      - name: orig_exg_rate
+        description: "Tỷ giá quy đổi cho loại tiền ban đầu [NUMBER(25,7)]"
+      - name: otsnd_bal
+        description: "Dư nợ tín dụng của hợp đồng ( OUR_REFERENCE) [NUMBER(25,5)]"
+      - name: ovrd
+        description: "Ghi đè [VARCHAR2(20)]"
+      - name: pcs_fwd
+        description: "Tiến trình [VARCHAR2(20)]"
+      - name: rcrd_st
+        description: "Trạng Thái bản ghi [VARCHAR2(20)]"
+      - name: repymt_amt
+        description: "Số tiền thu nợ [NUMBER(25,5)]"
+      - name: repymt_dt
+        description: "Ngày thu [DATE]"
+      - name: repymt_tp
+        description: "Loại thu nợ [VARCHAR2(20)]"
+      - name: susp_cgy
+        description: "Mã Category phân loại bút toán bị treo [VARCHAR2(20)]"
+      - name: susp_val_dt
+        description: "Ngày bút toán treo [DATE]"
+      - name: etl_date
+        description: "Ngày batch ETL ghi bản ghi (cột kỹ thuật) [DATE]"
+        data_tests: [not_null]

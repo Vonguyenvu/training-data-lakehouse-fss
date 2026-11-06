@@ -18,7 +18,7 @@ WITH src AS (
         {{ fn_hash('T24_EMPLOYEE', 'empe.recid') }} AS empe_id,
         TRIM(empe.recid)                             AS empe_code,
         TRIM(empe.name)                              AS empe_nm
-    FROM {{ source('pg_bronze', 't24core_dept_acct_officer') }} AS empe
+    FROM {{ ref('t24core_dept_acct_officer') }} AS empe
     WHERE empe.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(empe.recid), '') IS NOT NULL
 ),
@@ -69,9 +69,9 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(empe_id AS VARCHAR)   AS empe_id,
-    CAST(empe_code AS VARCHAR) AS empe_code,
-    CAST(empe_nm AS VARCHAR)   AS empe_nm,
+    CAST(empe_id AS STRING)   AS empe_id,
+    CAST(empe_code AS STRING) AS empe_code,
+    CAST(empe_nm AS STRING)   AS empe_nm,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}           AS sys_udt_dt,

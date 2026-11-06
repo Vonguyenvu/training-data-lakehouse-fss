@@ -18,7 +18,7 @@ WITH src AS (
         {{ fn_hash('T24_COMPANY', 'ou.recid') }} AS ou_id,
         TRIM(ou.recid)                            AS ou_code,
         TRIM(ou.company_name)                     AS ou_nm
-    FROM {{ source('pg_bronze', 't24core_company') }} AS ou
+    FROM {{ ref('t24core_company') }} AS ou
     WHERE ou.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(ou.recid), '') IS NOT NULL
 ),
@@ -69,9 +69,9 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(ou_id AS VARCHAR)   AS ou_id,
-    CAST(ou_code AS VARCHAR) AS ou_code,
-    CAST(ou_nm AS VARCHAR)   AS ou_nm,
+    CAST(ou_id AS STRING)   AS ou_id,
+    CAST(ou_code AS STRING) AS ou_code,
+    CAST(ou_nm AS STRING)   AS ou_nm,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}         AS sys_udt_dt,

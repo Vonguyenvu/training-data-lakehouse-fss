@@ -16,11 +16,20 @@ clean-targets:
 models:
   fss_training:
     +materialized: table
-    # Catalog Iceberg trên Nessie không hỗ trợ VIEW: incremental dùng bảng tạm thay cho view tạm.
-    +views_enabled: false
+    # Engine Spark (Thrift Server), catalog mặc định iceberg (Nessie). Nessie không hỗ trợ VIEW lâu dài;
+    # incremental của dbt-spark chỉ dùng temporary view trong phiên -> không ảnh hưởng.
+    +file_format: iceberg
     +persist_docs:
       relation: true
       columns: true
+    bronze:
+      # Mirror Oracle 1:1; chạy lại cùng ETL_DATE chỉ ghi đè partition đó (partitionOverwriteMode=dynamic).
+      +schema: pg_bronze
+      +tags: ["bronze"]
+      +materialized: incremental
+      +incremental_strategy: insert_overwrite
+      +partition_by: ["ETL_DATE"]
+      +on_schema_change: fail
     silver_temp1:
       +tags: ["silver", "silver_temp1"]
       +pre-hook: "{{ scd_backdate() }}"   # chặn / tua bảng SCD khi chạy ETL_DATE cũ (macros/scd_backdate.sql)

@@ -6,6 +6,6 @@
 {% macro fn_hash(prefix, column) -%}
     CASE
         WHEN NULLIF(TRIM({{ column }}), '') IS NULL THEN NULL
-        ELSE LOWER(TO_HEX(MD5(TO_UTF8(CONCAT('{{ prefix }}', TRIM({{ column }}))))))
+        ELSE md5(CONCAT('{{ prefix }}', TRIM({{ column }})))  {#- Spark md5: hex chữ thường trên byte UTF-8 -#}
     END
 {%- endmacro %}

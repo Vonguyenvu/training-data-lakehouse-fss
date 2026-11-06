@@ -26,7 +26,7 @@ WITH cus AS (
         NULLIF(TRIM(c.street), '')                AS street,
         NULLIF(TRIM(c.resid_province), '')        AS resid_province,
         NULLIF(TRIM(c.residence), '')             AS residence
-    FROM {{ source('pg_bronze', 't24core_customer') }} AS c
+    FROM {{ ref('t24core_customer') }} AS c
     WHERE c.etl_date = {{ etl_date() }}
       AND NULLIF(TRIM(c.recid), '') IS NOT NULL
 ),
@@ -75,10 +75,12 @@ closed AS (
     WHERE c.sys_eff_dt < {{ etl_date() }}
       AND (
             (s.cst_id IS NULL AND EXISTS (SELECT 1 FROM cus))
-         OR s.pst_adr_val IS DISTINCT FROM c.pst_adr_val
-         OR s.cty_nm IS DISTINCT FROM c.cty_nm
-         OR s.prov_nm IS DISTINCT FROM c.prov_nm
-         OR s.str_nm IS DISTINCT FROM c.str_nm
+         OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
+                s.pst_adr_val IS DISTINCT FROM c.pst_adr_val
+            OR  s.cty_nm IS DISTINCT FROM c.cty_nm
+            OR  s.prov_nm IS DISTINCT FROM c.prov_nm
+            OR  s.str_nm IS DISTINCT FROM c.str_nm
+            ))
       )
 ),
 
@@ -97,13 +99,13 @@ final AS (
 {% endif %}
 
 SELECT
-    CAST(cst_id AS VARCHAR)      AS cst_id,
-    CAST(cst_code AS VARCHAR)    AS cst_code,
-    CAST(pst_adr_tp AS VARCHAR)  AS pst_adr_tp,
-    CAST(pst_adr_val AS VARCHAR) AS pst_adr_val,
-    CAST(cty_nm AS VARCHAR)      AS cty_nm,
-    CAST(prov_nm AS VARCHAR)     AS prov_nm,
-    CAST(str_nm AS VARCHAR)      AS str_nm,
+    CAST(cst_id AS STRING)      AS cst_id,
+    CAST(cst_code AS STRING)    AS cst_code,
+    CAST(pst_adr_tp AS STRING)  AS pst_adr_tp,
+    CAST(pst_adr_val AS STRING) AS pst_adr_val,
+    CAST(cty_nm AS STRING)      AS cty_nm,
+    CAST(prov_nm AS STRING)     AS prov_nm,
+    CAST(str_nm AS STRING)      AS str_nm,
     sys_eff_dt,
     sys_exp_dt,
     {{ etl_date() }}             AS sys_udt_dt,
