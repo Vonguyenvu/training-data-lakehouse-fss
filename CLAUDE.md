@@ -41,6 +41,9 @@ docker compose exec airflow-scheduler airflow dags trigger wave0_bronze_ingest -
 # dbt (Silver)
 docker compose exec dbt dbt run  --select ccy --vars '{etl_date: 2026-10-29}'
 docker compose exec dbt dbt test --select ccy
+# Backdate (macro scd_backdate): ngày đầu thêm backdate: true (tua SCD2 về trước ngày đó), rồi replay TĂNG DẦN tới ngày mới nhất
+docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-03, biz_date: 2025-10-07, backdate: true}'
+docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-04, biz_date: 2025-10-08}'   # ... tới ngày mới nhất
 docker compose exec dbt dbt ls --select ccy+              # model phía sau bị ảnh hưởng
 docker compose exec dbt dbt ls --select +ccy              # upstream
 # Test Python (chạy trong container Airflow; tests mount read-only)

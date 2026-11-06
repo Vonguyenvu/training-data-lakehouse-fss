@@ -23,8 +23,10 @@ models:
       columns: true
     silver_temp1:
       +tags: ["silver", "silver_temp1"]
+      +pre-hook: "{{ scd_backdate() }}"   # chặn / tua bảng SCD khi chạy ETL_DATE cũ (macros/scd_backdate.sql)
     silver_temp2:
       +tags: ["silver", "silver_temp2"]
+      +pre-hook: "{{ scd_backdate() }}"
     gold:
       +schema: pg_gold
       +tags: ["gold"]
