@@ -9,7 +9,7 @@ Nguyên tắc: **Oracle / dữ liệu Bronze là sự thật**; chỗ lệch đ�
 
 | Thiết kế (Excel) | Thực tế dự án | Lý do |
 |---|---|---|
-| Silver/Gold là `sql/silver_temp*/*.sql` chạy Spark | Model dbt-trino trong `dbt/models/<silver_temp1\|silver_temp2\|gold>/` | Quyết định dự án; incremental/merge, test, lineage có sẵn |
+| Bronze/Silver/Gold là file `sql/*.sql` chạy Spark (`INSERT OVERWRITE`) | Model dbt (`dbt/models/<bronze\|silver_temp1\|silver_temp2\|gold>/`), thực thi trên Spark qua Thrift Server (dbt-spark) | Logic tập trung ở dbt: incremental/merge, test, lineage Oracle → Bronze → Silver; Spark vẫn là engine |
 | Docstring DAG ghi `dag_wave0_bronze_ingest` | dag_id thật là `wave0_bronze_ingest` | Docstring sai |
 | — | Nessie không hỗ trợ VIEW → `views_enabled: false`, không dùng `materialized='view'` | Giới hạn catalog |
 | Excel dùng `${ETL_DATE}` cho cả ngày batch lẫn ngày nghiệp vụ | Tách `etl_date()` (partition Bronze) và `biz_date()` (BOOKING_DATE / MOV_DATE / PREV_SCHED_DATE), mặc định bằng nhau | Bronze là bản chụp toàn bộ: dữ liệu nghiệp vụ chỉ có 2025-09 → 2026-02, còn ETL_DATE là 2026-10/11 → điều kiện `BOOKING_DATE = ETL_DATE` trả 0 dòng |
@@ -88,6 +88,32 @@ Excel ghi mọi cột ngày là `TO_DATE(x, 'YYYYMMDD')`, số là `CAST(x AS DE
 - `T24CORE_PD_PAYMENT_DUE_MV`: không có khóa duy nhất kể cả `(RECID, PAY_TYPE)` (157 cặp / 261 dòng).
 - `T24CORE_LD_SCHEDULE_DEFINE_MV`: 26.277 dòng / 26.275 CONTRACT_ID.
 - 2 partition Bronze hiện có (2026-10-29, 2026-11-03) giống hệt nhau → chưa quan sát được thay đổi SCD thực tế.
+
+## 4b. Silver Temp 2 — từng bảng (2026-11-04)
+
+| Bảng | Excel | Thực tế / đã làm | Lý do |
+|---|---|---|---|
+| SCD2 (idv_prfl, idv_emp_st, org_prfl, loan_ar, ar_avy_shd_itm) | Viết tay từng bảng | Macro `scd2` | Bảng 30–100+ cột |
+| `ar_avy_shd_itm` | SCD2 đóng dòng khi RECID biến mất | `close_missing=false` | Nguồn chỉ là bút toán 1 ngày → bút toán ngày trước luôn "biến mất" |
+| `cst`, `idv_prfl`, `org_prfl`, `pst_entr` | So mã SECTOR / ASSET_CLASS / CATEGORY trực tiếp | Macro `t24_code` (`'1602.0000000000'` → `'1602'`) | Số Oracle lưu dạng chuỗi có phần thập phân |
+| `ar_dlq_smy` | Join PD theo `a.RECID = b.RECID` | `SUBSTR(a.RECID,1,14) = b.RECID` | RECID HIS_MV có hậu tố `;n` → không bao giờ khớp |
+| `pst_entr`, `ar_avy_shd_itm` | Join PD_PAYMENT_DUE_MV trực tiếp | 1 dòng / contract_id (DATE_TIME mới nhất) | PD_MV không có khóa duy nhất → nhân bút toán |
+| `saoke_giaingan` | Join SAOKE_MVMT trực tiếp | 1 dòng / TRANS_REF (SBV_CODE nhỏ nhất) | 391 dòng / 38 TRANS_REF |
+| `saoke_tindung` | Cột `ID` của LD | `COALESCE(ID, RECID)` | Oracle LD không có cột ID → bảng mất mã hợp đồng |
+| `saoke_tindung` | `DATE_TIME` dạng `YYYYMMDD` | `t24_datetime` | Thực tế yyMMddHHmm |
+| `loan_ar` | `FRST_OU_CODE` = FIRST_VALUE trong LD | Trên LD ∪ LD_HIS | Theo ghi chú sheet; LD chỉ 1 dòng / hợp đồng |
+| `loan_ar` | PD trùng RECID; `MAX(APPROVE_AMOUNT)` trên chuỗi | CURR_NO lớn nhất; MAX trên số | 8.038 dòng / 2.739 RECID; MAX chuỗi sai thứ tự |
+| `loan_ar_prfl` | Join e / g (UDFIELD_HIST) trực tiếp, "tránh dup" để ngỏ | 1 dòng / hợp đồng (MOV_DATE mới nhất) | g: 166.019 dòng / 3.642 hợp đồng |
+| `loan_ar_prfl` | Join SAOKE_MVMT "distinct TRANS_REF, SBV_CODE" | 1 dòng / TRANS_REF (MIN SBV_CODE LIKE '39%') | 702 dòng / 38 TRANS_REF → vẫn nhân dòng nếu chỉ distinct |
+| `loan_ar_prfl` | `b` join bằng OR (CONTRACT_INFOR theo ACC_FCC / LIMIT_INFOR theo FCC_LIMIT) | 2 left join, ưu tiên CONTRACT_INFOR | OR join có thể ra 2 dòng / hợp đồng |
+| `loan_ar_prfl` | `NGAY_HET_COVID19`, `SO_LAN_CO_CAU` | `dd/MM/yyyy`; số Oracle `0E-10` → DECIMAL | Định dạng Bronze thực tế |
+| `ar_x_ip_rltnp` | Khóa AR_ID | Khóa SCD2 (AR_ID, CST_ID); bỏ dòng CST_ID NULL; bỏ join d1 nhánh PD (không lấy cột) | Quan hệ cần đủ 2 đầu |
+| `ar_tvr_smy` | Transform cột TOT_ODUE_PNP_AMT_FCY → NBR_OF_DB_IN_YR trượt 1 dòng so với Cột đích | Map theo tên: TOT_ODUE = dlq.PNP_ARS, DSBR_AMT_LTD = COALESCE(la.DSBR_AMT_FCY, la.ORIG_AMT_FCY), còn lại = stmt.<cùng tên> | Lỗi sheet |
+| `ar_tvr_smy` | `ACG_CR_DB_F = 'D'/'C'` | So ký tự đầu (PST_ENTR thực tế `DEBIT`/`CREDIT`) | Nếu so nguyên chuỗi → 0 bút toán |
+| `ar_tvr_smy` | MTD/YTD từ PST_ENTR | Đọc mọi partition PST_ENTR ≤ ETL_DATE, 1 dòng / PST_ENTR_ID (partition mới nhất) | PST_ENTR là TXN theo ngày |
+| Bảng SNAPSHOT/TXN | `= ${ETL_DATE}` | `biz_date()` truyền qua conf DAG | Oracle là dữ liệu mẫu 2025 |
+
+Dữ liệu không khớp: `ar_tvr_smy` — CRB chỉ có 2 hợp đồng PD, không có trong AR_DLQ_SMY → TOT_ODUE = 0; PST_ENTR số tiền đều 0. `loan_ar_prfl` — CONTRACT_UDFIELD_HIST rỗng → PROM_PRGM chỉ từ MB_MG_SAVING_MULTI; CAR_APPLICATION_CODE trống. `saoke_giaingan` — SMY_STMT_DAILY mã 402 và COMPANY (CRB.CO_CODE rỗng với LD/PD) 0 khớp; `idv_emp_st` — 3 cột nguồn không có trên Oracle.
 
 ## 5. Ràng buộc vận hành (không có trong Excel)
 
