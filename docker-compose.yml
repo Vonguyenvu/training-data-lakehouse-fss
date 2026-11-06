@@ -15,18 +15,15 @@ x-airflow-common: &airflow-common
     AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
     AIRFLOW__WEBSERVER__SECRET_KEY: fss-training-local-secret-key
-    AIRFLOW_CONN_SPARK_DEFAULT: '{"conn_type": "spark", "host": "spark://spark-master", "port": 7077}'
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
-    - ./sql:/opt/airflow/sql:ro
     - ./src:/opt/airflow/src:ro
     - ./common:/opt/airflow/common:ro
     - ./tests:/opt/airflow/tests:ro
     - ./schema:/opt/airflow/schema:ro
-    - ./conf/spark:/opt/airflow/spark-conf:ro
-    - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
+    - ./dbt:/opt/airflow/dbt:ro   # DAG chạy dbt (target/log ghi ra /tmp)
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     postgres:
@@ -115,6 +112,7 @@ services:
     build:
       context: .
       dockerfile: docker/spark/Dockerfile
+    image: fss-training-spark:3.5.9
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
     env_file:
       - .env
@@ -132,59 +130,57 @@ services:
     build:
       context: .
       dockerfile: docker/spark/Dockerfile
+    image: fss-training-spark:3.5.9
     depends_on:
       - spark-master
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     env_file:
       - .env
+    # work dir (log + file của executor) và shuffle/spill nằm trên ổ dữ liệu thay vì lớp ghi container (ổ /).
+    environment:
+      SPARK_WORKER_DIR: /opt/spark/work
+      SPARK_LOCAL_DIRS: /opt/spark/local
+      SPARK_WORKER_OPTS: >-
+        -Dspark.worker.cleanup.enabled=true
+        -Dspark.worker.cleanup.interval=1800
+        -Dspark.worker.cleanup.appDataTtl=86400
     volumes:
       - ./sql:/opt/spark/sql:ro
       - ./src:/opt/spark/src:ro
       - ./common:/opt/spark/common:ro
       - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+      - ./.spark/worker-work:/opt/spark/work
+      - ./.spark/worker-local:/opt/spark/local
 
-  # Engine của dbt (Silver/Gold). Spark local mode riêng -> không tranh core với cụm standalone chạy Bronze.
+  # Engine thực thi của dbt cho cả pipeline (Bronze/Silver/Gold): driver ở đây, executor trên spark-worker.
   spark-thrift:
     build:
       context: .
       dockerfile: docker/spark/Dockerfile
-    user: root   # ghi cache ivy (iceberg/nessie/hadoop-aws) và metastore_db cục bộ
+    image: fss-training-spark:3.5.9
+    user: root   # metastore_db cục bộ (chỉ cho namespace Hive mặc định, không chứa dữ liệu)
+    hostname: spark-thrift
     depends_on:
       minio-init:
         condition: service_completed_successfully
       nessie:
         condition: service_healthy
+      spark-master:
+        condition: service_started
     env_file:
       - .env
     environment:
-      SPARK_NO_DAEMONIZE: "true"
+      SPARK_LOCAL_DIRS: /opt/spark/local
     working_dir: /opt/spark/work-dir
-    command:
-      - /opt/spark/sbin/start-thriftserver.sh
-      - --master
-      - local[2]
-      - --driver-memory
-      - 1g
-      - --conf
-      - spark.sql.defaultCatalog=iceberg
-      - --conf
-      - spark.sql.legacy.timeParserPolicy=CORRECTED
-      - --conf
-      - spark.jars.ivy=/root/.ivy2
-      # Thrift Server nạp catalog bằng classloader hệ thống -> jar từ spark.jars.packages phải nằm trên classpath driver.
-      - --conf
-      - spark.driver.extraClassPath=/root/.ivy2/jars/*:/opt/spark/jars/ojdbc11.jar
-      - --hiveconf
-      - hive.server2.thrift.port=10000
-      - --hiveconf
-      - hive.server2.thrift.bind.host=0.0.0.0
+    command: ["bash", "/opt/spark/start-thrift.sh"]
     ports:
       - "${SPARK_THRIFT_UI_PORT:-4040}:4040"
     volumes:
       - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
-      - spark-ivy:/root/.ivy2
+      - ./docker/spark/start-thrift.sh:/opt/spark/start-thrift.sh:ro
+      - ./.spark/thrift-local:/opt/spark/local
 
   dbt:
     build:
@@ -239,4 +235,3 @@ volumes:
   postgres-data:
   minio-data:
   nessie-data:
-  spark-ivy:

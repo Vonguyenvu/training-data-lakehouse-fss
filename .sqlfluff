@@ -1,0 +1,5 @@
+[sqlfluff]
+dialect = sparksql
+templater = jinja
+# Model dbt có CAST/fn_hash dài trên 1 dòng — bỏ luật độ dài dòng.
+exclude_rules = LT05
