@@ -7,13 +7,11 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from airflow import DAG
-from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
+from dbt_command import BIZ_DATE, ETL_DATE, dbt
 from src.config.bronze_tables import BRONZE_TABLES
-
-_RUN_SQL = "/opt/airflow/src/jobs/run_sql.py"
-_ETL_DATE = "{{ dag_run.conf.get('etl_date', ds) }}"
-_ENV = {"SPARK_CONF_DIR": "/opt/airflow/spark-conf"}
 
 with DAG(
     dag_id="wave0_bronze_ingest",
@@ -24,32 +22,30 @@ with DAG(
     max_active_tasks=2,
     tags=["wave0", "bronze"],
     doc_md="""
-## Wave 0 — Oracle → Iceberg Bronze (one-time full load)
+## Wave 0 — Oracle → Iceberg Bronze → kích hoạt Wave 1 Silver Temp 1
 
-`create_tables` chạy `schema/bronze.sql`, sau đó 28 task chạy `sql/bronze/*.sql` song song.
-Trigger thủ công:
+Mỗi bảng là 1 model dbt `dbt/models/bronze/<target_name>.sql`, thực thi trên Spark Thrift Server
+(service `spark-thrift`, executor trên `spark-worker`). Chạy lại cùng `etl_date` chỉ ghi đè partition đó.
+Xong 28 bảng -> `dbt test` tầng Bronze -> trigger `wave1_silver_temp1` cùng `etl_date`.
 ```bash
-airflow dags trigger dag_wave0_bronze_ingest --conf '{"etl_date": "2025-01-01"}'
+airflow dags trigger wave0_bronze_ingest --conf '{"etl_date": "2026-11-04"}'
+# Bảng SNAPSHOT/TXN lọc theo ngày nghiệp vụ: thêm "biz_date": "2025-10-07" (Oracle là dữ liệu mẫu 2025)
 ```
     """,
 ) as dag:
-    create_tables = SparkSubmitOperator(
-        task_id="create_tables",
-        application=_RUN_SQL,
-        conn_id="spark_default",
-        application_args=["--sql-file", "/opt/airflow/schema/bronze.sql", "--etl-date", _ETL_DATE],
-        env_vars=_ENV,
-    )
-
-    for tbl in BRONZE_TABLES:
-        load = SparkSubmitOperator(
+    loads = [
+        BashOperator(
             task_id=f"bronze_{tbl.task_id}",
-            application=_RUN_SQL,
-            conn_id="spark_default",
-            application_args=[
-                "--sql-file", f"/opt/airflow/sql/bronze/{tbl.target_name}.sql",
-                "--etl-date", _ETL_DATE,
-            ],
-            env_vars=_ENV,
+            bash_command=dbt("run", tbl.target_name, tbl.target_name),
         )
-        create_tables >> load
+        for tbl in BRONZE_TABLES
+    ]
+    test = BashOperator(
+        task_id="test_bronze", bash_command=dbt("test", "bronze", "test_bronze")
+    )
+    trigger_silver = TriggerDagRunOperator(
+        task_id="trigger_wave1_silver_temp1",
+        trigger_dag_id="wave1_silver_temp1",
+        conf={"etl_date": ETL_DATE, "biz_date": BIZ_DATE},
+    )
+    loads >> test >> trigger_silver

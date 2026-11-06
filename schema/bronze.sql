@@ -1,8 +1,8 @@
-﻿-- Spark SQL / Iceberg DDL cho 28 bảng PG_BRONZE (iceberg.pg_bronze.*).
+-- Spark SQL / Iceberg DDL cho 28 bảng PG_BRONZE (iceberg.pg_bronze.*).
 -- Cột sinh theo schema Spark JDBC đọc từ Oracle (mirror 1:1 bảng nguồn).
 -- Mọi cột dữ liệu lưu STRING (raw); ép kiểu DATE/NUMBER thực hiện ở Silver Temp 1.
 -- Cột có trong mapping Excel nhưng bảng nguồn không có vẫn được khai báo (giá trị NULL).
--- Chạy một lần trước khi nạp dữ liệu.
+-- KHÔNG chạy: dbt (dbt/models/bronze) tự tạo bảng. File giữ làm DDL tham chiếu cho tests/check_bronze.
 
 CREATE NAMESPACE IF NOT EXISTS iceberg.pg_bronze;
 

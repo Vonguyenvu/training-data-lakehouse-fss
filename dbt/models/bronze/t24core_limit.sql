@@ -1,0 +1,13 @@
+{#- Nguồn Oracle PG_T24CORE.LIMIT -> iceberg.pg_bronze.t24core_limit (mirror 1:1, mọi cột STRING). -#}
+SELECT
+    src.`FCC_LIMIT`,
+    src.`RECID`,
+    CAST(NULL AS STRING) AS `LIMIT_PRODUCT`,
+    CAST(NULL AS STRING) AS `INTERNAL_AMOUNT`,
+    CAST(NULL AS STRING) AS `MAXIMUM_TOTAL`,
+    CAST(NULL AS STRING) AS `ONLINE_LIMIT_DATE`,
+    CAST(NULL AS STRING) AS `EXPIRY_DATE`,
+    {{ etl_date() }} AS ETL_DATE,
+    CURRENT_TIMESTAMP() AS INGEST_TMS,
+    'T24CORE_LIMIT' AS SRC_STM_CODE
+FROM {{ source('oracle_t24core', 'LIMIT') }} AS src

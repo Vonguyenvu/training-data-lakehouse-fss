@@ -36,7 +36,7 @@ def ddl_columns() -> dict[str, list[tuple[str, str]]]:
 
 
 def sql_file(tbl: BronzeTable) -> str:
-    return (PROJECT_ROOT / "sql" / "bronze" / f"{tbl.target_name}.sql").read_text(encoding="utf-8-sig")
+    return (PROJECT_ROOT / "dbt" / "models" / "bronze" / f"{tbl.target_name}.sql").read_text(encoding="utf-8-sig")
 
 
 def oracle_columns(oracle: OracleConnection, tbl: BronzeTable) -> list[str]:

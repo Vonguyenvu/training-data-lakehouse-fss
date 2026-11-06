@@ -1,0 +1,27 @@
+{#- Nguồn Oracle PG_T24CORE.PD_PAYMENT_DUE_HIS_MV -> iceberg.pg_bronze.t24core_pd_payment_due_his_mv (mirror 1:1, mọi cột STRING). -#}
+SELECT
+    src.`RECID`,
+    src.`PAY_TYPE`,
+    src.`ACC_FCC`,
+    src.`CATEGORY`,
+    src.`CREDIT_STATUS`,
+    src.`CURR_NO`,
+    src.`DATE_TIME`,
+    src.`FLAG_STATUS`,
+    src.`PAY_AMT_OUTS`,
+    src.`PAYMENT_DTE_DUE`,
+    src.`PD_TYPE`,
+    src.`RECORD_STATUS`,
+    src.`REPAID_AMT`,
+    src.`CUSTOMER`,
+    src.`CO_CODE`,
+    src.`REPAYMENT_ACCT`,
+    src.`FINAL_DUE_DATE`,
+    src.`ORIGINAL_MAT`,
+    src.`APPROVE_AMOUNT`,
+    src.`PENALTY_RATE`,
+    src.`PE_RATE`,
+    {{ etl_date() }} AS ETL_DATE,
+    CURRENT_TIMESTAMP() AS INGEST_TMS,
+    'T24CORE_PD_PAYMENT_DUE_HIS_MV' AS SRC_STM_CODE
+FROM {{ source('oracle_t24core', 'PD_PAYMENT_DUE_HIS_MV') }} AS src
