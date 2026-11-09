@@ -7,19 +7,24 @@
     `guard`: CTE dùng để kiểm tra "nguồn có dữ liệu" (mặc định src).
     `close_missing=false`: nguồn chỉ là lát cắt theo ngày (vd bút toán BOOKING_DATE = ngày chạy) -> key vắng mặt
     không có nghĩa là bị xóa, chỉ đóng dòng khi giá trị đổi.
+    `compare_exclude`: cột không dùng để phát hiện thay đổi (vẫn ghi ra). DIM Gold truyền ['dim_key']: DIM_KEY tính từ
+    SYS_UDT_DT của Silver, đổi cả khi Silver đổi cột không có trong DIM (hoặc SCD1 bị ghi lại khi replay backdate)
+    -> nếu so cả DIM_KEY sẽ sinh phiên bản thừa cùng giá trị.
     Phải chạy ETL_DATE tăng dần.
 -#}
-{% macro scd2(keys, guard='src', close_missing=true) -%}
+{% macro scd2(keys, guard='src', close_missing=true, compare_exclude=[]) -%}
 {%- set sys_cols = ['sys_eff_dt', 'sys_exp_dt', 'sys_udt_dt', 'etl_date'] -%}
 {% if is_incremental() %}
 {#- unit test: `this` là CTE fixture, không introspect được -> lấy cột từ bảng thật của model được test (phải đã build). -#}
 {%- set col_rel = this if model.resource_type != 'unit_test'
       else api.Relation.create(schema=model.schema, identifier=model.tested_node_unique_id.split('.')[-1]) -%}
 {%- set all_cols = adapter.get_columns_in_relation(col_rel) | map(attribute='name') | map('lower') | reject('in', sys_cols) | list -%}
-{%- set attrs = all_cols | reject('in', keys) | list -%}
+{%- set attrs = all_cols | reject('in', keys) | reject('in', compare_exclude) | list -%}
 {%- set diff -%}NOT ({% for a in attrs %}{{ 'AND ' if not loop.first }}s.{{ a }} <=> c.{{ a }} {% else %}TRUE{% endfor %}){%- endset -%}
 , cur AS (
-    SELECT * FROM {{ this }} WHERE sys_exp_dt IS NULL
+    SELECT *
+    FROM {{ this }}
+    WHERE sys_exp_dt IS NULL
 ),
 
 new_ver AS (

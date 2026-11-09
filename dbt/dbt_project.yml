@@ -39,3 +39,4 @@ models:
     gold:
       +schema: pg_gold
       +tags: ["gold"]
+      +pre-hook: "{{ scd_backdate() }}"   # DIM là SCD2 (merge) như Silver
