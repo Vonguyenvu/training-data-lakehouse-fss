@@ -1,5 +1,21 @@
 [sqlfluff]
 dialect = sparksql
 templater = jinja
-# Model dbt có CAST/fn_hash dài trên 1 dòng — bỏ luật độ dài dòng.
-exclude_rules = LT05
+# LT05: CAST/fn_hash dài trên 1 dòng. RF06: Bronze bắt buộc bọc backtick tên cột Oracle.
+# CP02: Bronze giữ tên cột Oracle UPPERCASE, Silver lowercase.
+exclude_rules = LT05, RF06, CP02
+
+[sqlfluff:indentation]
+# Khối {% if is_incremental() %} ... {% endif %} không tạo thêm 1 mức thụt lề.
+template_blocks_indent = False
+
+[sqlfluff:templater:jinja]
+# Nạp macro dự án (etl_date, fn_hash, scd2, ...) để SQLFluff render được model; thiếu thì SQL hỏng -> báo indent sai hàng loạt.
+load_macros_from_path = dbt/macros
+apply_dbt_builtins = True
+
+[sqlfluff:templater:jinja:macros]
+# Bản rút gọn chỉ để lint (ghi đè macro thật): bản thật cần run_started_at / đọc cột bảng đích, SQLFluff không có.
+etl_date = {% macro etl_date() %}DATE '2026-11-03'{% endmacro %}
+biz_date = {% macro biz_date() %}DATE '2025-10-07'{% endmacro %}
+scd2 = {% macro scd2(keys, guard='src', close_missing=true) %}, final AS (SELECT * FROM src) SELECT * FROM final{% endmacro %}

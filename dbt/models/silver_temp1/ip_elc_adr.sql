@@ -21,55 +21,68 @@
 WITH cus AS (
     SELECT c.*
     FROM {{ ref('t24core_customer') }} AS c
-    WHERE c.etl_date = {{ etl_date() }}
-      AND NULLIF(TRIM(c.recid), '') IS NOT NULL
+    WHERE
+        c.etl_date = {{ etl_date() }}
+        AND NULLIF(TRIM(c.recid), '') IS NOT NULL
 ),
 
 src AS (
-    SELECT {{ fn_hash('T24_CUSTOMER', 'recid') }} AS cst_id, TRIM(recid) AS cst_code,
-           'EMAIL' AS elc_adr_tp, TRIM(email_address) AS elc_adr_val
-    FROM cus WHERE NULLIF(TRIM(email_address), '') IS NOT NULL
+    SELECT
+        {{ fn_hash('T24_CUSTOMER', 'recid') }} AS cst_id, TRIM(recid) AS cst_code,
+        'EMAIL' AS elc_adr_tp, TRIM(email_address) AS elc_adr_val
+    FROM cus
+    WHERE NULLIF(TRIM(email_address), '') IS NOT NULL
     UNION ALL
-    SELECT {{ fn_hash('T24_CUSTOMER', 'recid') }}, TRIM(recid),
-           'HOME_NUMBER', TRIM(home_number)
-    FROM cus WHERE NULLIF(TRIM(home_number), '') IS NOT NULL
+    SELECT
+        {{ fn_hash('T24_CUSTOMER', 'recid') }}, TRIM(recid),
+        'HOME_NUMBER', TRIM(home_number)
+    FROM cus
+    WHERE NULLIF(TRIM(home_number), '') IS NOT NULL
     UNION ALL
-    SELECT {{ fn_hash('T24_CUSTOMER', 'recid') }}, TRIM(recid),
-           'MOBILE_NUMBER', TRIM(mobile_number)
-    FROM cus WHERE NULLIF(TRIM(mobile_number), '') IS NOT NULL
+    SELECT
+        {{ fn_hash('T24_CUSTOMER', 'recid') }}, TRIM(recid),
+        'MOBILE_NUMBER', TRIM(mobile_number)
+    FROM cus
+    WHERE NULLIF(TRIM(mobile_number), '') IS NOT NULL
 ),
 
 {% if is_incremental() %}
 cur AS (
-    SELECT * FROM {{ this }} WHERE sys_exp_dt IS NULL
+    SELECT *
+    FROM {{ this }}
+    WHERE sys_exp_dt IS NULL
 ),
 
 new_ver AS (
     -- Key mới, key xuất hiện lại (không còn dòng mở) hoặc giá trị đổi.
-    SELECT s.cst_id, s.cst_code, s.elc_adr_tp, s.elc_adr_val,
-           {{ etl_date() }}   AS sys_eff_dt,
-           CAST(NULL AS DATE) AS sys_exp_dt
+    SELECT
+        s.cst_id, s.cst_code, s.elc_adr_tp, s.elc_adr_val,
+        {{ etl_date() }} AS sys_eff_dt,
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src AS s
     LEFT JOIN cur AS c ON c.cst_id = s.cst_id AND c.elc_adr_tp = s.elc_adr_tp
-    WHERE c.cst_id IS NULL
-       OR s.elc_adr_val IS DISTINCT FROM c.elc_adr_val
+    WHERE
+        c.cst_id IS NULL
+        OR s.elc_adr_val IS DISTINCT FROM c.elc_adr_val
 ),
 
 closed AS (
     -- Đóng dòng đang mở khi giá trị đổi, hoặc key biến mất (chỉ khi partition nguồn có dữ liệu).
     -- sys_eff_dt = ETL_DATE (chạy lại cùng ngày) không đóng: new_ver ghi đè chính dòng đó.
-    SELECT c.cst_id, c.cst_code, c.elc_adr_tp, c.elc_adr_val,
-           c.sys_eff_dt,
-           {{ etl_date() }} AS sys_exp_dt
+    SELECT
+        c.cst_id, c.cst_code, c.elc_adr_tp, c.elc_adr_val,
+        c.sys_eff_dt,
+        {{ etl_date() }} AS sys_exp_dt
     FROM cur AS c
     LEFT JOIN src AS s ON s.cst_id = c.cst_id AND s.elc_adr_tp = c.elc_adr_tp
-    WHERE c.sys_eff_dt < {{ etl_date() }}
-      AND (
+    WHERE
+        c.sys_eff_dt < {{ etl_date() }}
+        AND (
             (s.cst_id IS NULL AND EXISTS (SELECT 1 FROM cus))
-         OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
+            OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
                 s.elc_adr_val IS DISTINCT FROM c.elc_adr_val
             ))
-      )
+        )
 ),
 
 final AS (
@@ -79,20 +92,21 @@ final AS (
 )
 {% else %}
 final AS (
-    SELECT src.*,
-           {{ etl_date() }}   AS sys_eff_dt,
-           CAST(NULL AS DATE) AS sys_exp_dt
+    SELECT
+        src.*,
+        {{ etl_date() }} AS sys_eff_dt,
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src
 )
 {% endif %}
 
 SELECT
-    CAST(cst_id AS STRING)      AS cst_id,
-    CAST(cst_code AS STRING)    AS cst_code,
-    CAST(elc_adr_tp AS STRING)  AS elc_adr_tp,
+    CAST(cst_id AS STRING) AS cst_id,
+    CAST(cst_code AS STRING) AS cst_code,
+    CAST(elc_adr_tp AS STRING) AS elc_adr_tp,
     CAST(elc_adr_val AS STRING) AS elc_adr_val,
     sys_eff_dt,
     sys_exp_dt,
-    {{ etl_date() }}             AS sys_udt_dt,
-    {{ etl_date() }}             AS etl_date
+    {{ etl_date() }} AS sys_udt_dt,
+    {{ etl_date() }} AS etl_date
 FROM final

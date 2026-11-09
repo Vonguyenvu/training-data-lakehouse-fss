@@ -23,7 +23,7 @@ WITH los AS (
         ROW_NUMBER() OVER (
             PARTITION BY TRIM(p.product_code)
             ORDER BY TRY_CAST(p.id AS BIGINT) DESC
-        )                    AS rn
+        ) AS rn
     FROM {{ ref('los_app_product') }} AS p
     WHERE p.etl_date = {{ etl_date() }}
 ),
@@ -63,12 +63,13 @@ changed AS (
     SELECT
         s.pd_id, s.pd_code, s.pd_nm,
         COALESCE(t.sys_eff_dt, {{ etl_date() }}) AS sys_eff_dt,
-        CAST(NULL AS DATE)                       AS sys_exp_dt
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src AS s
     LEFT JOIN tgt AS t ON s.pd_id = t.pd_id
-    WHERE t.pd_id IS NULL
-       OR t.sys_exp_dt IS NOT NULL
-       OR s.pd_nm IS DISTINCT FROM t.pd_nm
+    WHERE
+        t.pd_id IS NULL
+        OR t.sys_exp_dt IS NOT NULL
+        OR s.pd_nm IS DISTINCT FROM t.pd_nm
 ),
 
 deleted AS (
@@ -79,9 +80,10 @@ deleted AS (
         {{ etl_date() }} AS sys_exp_dt
     FROM tgt AS t
     LEFT JOIN src AS s ON s.pd_id = t.pd_id
-    WHERE s.pd_id IS NULL
-      AND t.sys_exp_dt IS NULL
-      AND EXISTS (SELECT 1 FROM src)
+    WHERE
+        s.pd_id IS NULL
+        AND t.sys_exp_dt IS NULL
+        AND EXISTS (SELECT 1 FROM src)
 ),
 
 final AS (
@@ -93,19 +95,19 @@ final AS (
 final AS (
     SELECT
         pd_id, pd_code, pd_nm,
-        {{ etl_date() }}   AS sys_eff_dt,
+        {{ etl_date() }} AS sys_eff_dt,
         CAST(NULL AS DATE) AS sys_exp_dt
     FROM src
 )
 {% endif %}
 
 SELECT
-    CAST(pd_id AS STRING)         AS pd_id,
-    CAST(pd_code AS STRING)       AS pd_code,
-    CAST(pd_nm AS STRING)         AS pd_nm,
+    CAST(pd_id AS STRING) AS pd_id,
+    CAST(pd_code AS STRING) AS pd_code,
+    CAST(pd_nm AS STRING) AS pd_nm,
     CAST('T24_PRODUCT' AS STRING) AS src_stm_code,
     sys_eff_dt,
     sys_exp_dt,
-    {{ etl_date() }}               AS sys_udt_dt,
-    {{ etl_date() }}               AS etl_date
+    {{ etl_date() }} AS sys_udt_dt,
+    {{ etl_date() }} AS etl_date
 FROM final

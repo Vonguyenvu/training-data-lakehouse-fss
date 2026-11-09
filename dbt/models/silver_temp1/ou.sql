@@ -16,11 +16,12 @@
 WITH src AS (
     SELECT
         {{ fn_hash('T24_COMPANY', 'ou.recid') }} AS ou_id,
-        TRIM(ou.recid)                            AS ou_code,
-        TRIM(ou.company_name)                     AS ou_nm
+        TRIM(ou.recid) AS ou_code,
+        TRIM(ou.company_name) AS ou_nm
     FROM {{ ref('t24core_company') }} AS ou
-    WHERE ou.etl_date = {{ etl_date() }}
-      AND NULLIF(TRIM(ou.recid), '') IS NOT NULL
+    WHERE
+        ou.etl_date = {{ etl_date() }}
+        AND NULLIF(TRIM(ou.recid), '') IS NOT NULL
 ),
 
 {% if is_incremental() %}
@@ -32,12 +33,13 @@ changed AS (
     SELECT
         s.ou_id, s.ou_code, s.ou_nm,
         COALESCE(t.sys_eff_dt, {{ etl_date() }}) AS sys_eff_dt,
-        CAST(NULL AS DATE)                       AS sys_exp_dt
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src AS s
     LEFT JOIN tgt AS t ON s.ou_id = t.ou_id
-    WHERE t.ou_id IS NULL
-       OR t.sys_exp_dt IS NOT NULL
-       OR s.ou_nm IS DISTINCT FROM t.ou_nm
+    WHERE
+        t.ou_id IS NULL
+        OR t.sys_exp_dt IS NOT NULL
+        OR s.ou_nm IS DISTINCT FROM t.ou_nm
 ),
 
 deleted AS (
@@ -48,9 +50,10 @@ deleted AS (
         {{ etl_date() }} AS sys_exp_dt
     FROM tgt AS t
     LEFT JOIN src AS s ON s.ou_id = t.ou_id
-    WHERE s.ou_id IS NULL
-      AND t.sys_exp_dt IS NULL
-      AND EXISTS (SELECT 1 FROM src)
+    WHERE
+        s.ou_id IS NULL
+        AND t.sys_exp_dt IS NULL
+        AND EXISTS (SELECT 1 FROM src)
 ),
 
 final AS (
@@ -62,18 +65,18 @@ final AS (
 final AS (
     SELECT
         ou_id, ou_code, ou_nm,
-        {{ etl_date() }}   AS sys_eff_dt,
+        {{ etl_date() }} AS sys_eff_dt,
         CAST(NULL AS DATE) AS sys_exp_dt
     FROM src
 )
 {% endif %}
 
 SELECT
-    CAST(ou_id AS STRING)   AS ou_id,
+    CAST(ou_id AS STRING) AS ou_id,
     CAST(ou_code AS STRING) AS ou_code,
-    CAST(ou_nm AS STRING)   AS ou_nm,
+    CAST(ou_nm AS STRING) AS ou_nm,
     sys_eff_dt,
     sys_exp_dt,
-    {{ etl_date() }}         AS sys_udt_dt,
-    {{ etl_date() }}         AS etl_date
+    {{ etl_date() }} AS sys_udt_dt,
+    {{ etl_date() }} AS etl_date
 FROM final

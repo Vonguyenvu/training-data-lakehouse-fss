@@ -14,34 +14,36 @@
 
 WITH cur AS (
     SELECT
-        TRIM(cur.currency_code)                                                     AS frst_ccy_code,
-        'VND'                                                                       AS scd_ccy_code,
+        TRIM(cur.currency_code) AS frst_ccy_code,
+        'VND' AS scd_ccy_code,
         COALESCE(TRY_CAST({{ t24_multi_value('cur.mid_reval_rate') }} AS DECIMAL(13, 7)), 1) AS mid_reval_rate,
-        {{ t24_datetime('cur.date_time') }}                                         AS date_time_value,
-        999999                                                                      AS curr_no,
+        {{ t24_datetime('cur.date_time') }} AS date_time_value,
+        999999 AS curr_no,
         RANK() OVER (
             PARTITION BY TRIM(cur.currency_code)
             ORDER BY {{ t24_datetime('cur.date_time') }} DESC
-        )                                                                           AS rn
+        ) AS rn
     FROM {{ ref('t24core_currency') }} AS cur
-    WHERE cur.etl_date = {{ etl_date() }}
-      AND {{ t24_datetime('cur.date_time') }} < {{ etl_date() }} + INTERVAL '1' DAY
+    WHERE
+        cur.etl_date = {{ etl_date() }}
+        AND {{ t24_datetime('cur.date_time') }} < {{ etl_date() }} + INTERVAL '1' DAY
 ),
 
 cur_his AS (
     SELECT
-        SPLIT_PART(ch.currency_code, ';', 1)                                        AS frst_ccy_code,
-        'VND'                                                                       AS scd_ccy_code,
+        SPLIT_PART(ch.currency_code, ';', 1) AS frst_ccy_code,
+        'VND' AS scd_ccy_code,
         COALESCE(TRY_CAST({{ t24_multi_value('ch.mid_reval_rate') }} AS DECIMAL(13, 7)), 1) AS mid_reval_rate,
-        {{ t24_datetime('ch.date_time') }}                                          AS date_time_value,
-        TRY_CAST(ch.curr_no AS INTEGER)                                             AS curr_no,
+        {{ t24_datetime('ch.date_time') }} AS date_time_value,
+        TRY_CAST(ch.curr_no AS INTEGER) AS curr_no,
         RANK() OVER (
             PARTITION BY SPLIT_PART(ch.currency_code, ';', 1)
             ORDER BY {{ t24_datetime('ch.date_time') }} DESC
-        )                                                                           AS rn
+        ) AS rn
     FROM {{ ref('t24core_currency_his') }} AS ch
-    WHERE ch.etl_date = {{ etl_date() }}
-      AND {{ t24_datetime('ch.date_time') }} < {{ etl_date() }} + INTERVAL '1' DAY
+    WHERE
+        ch.etl_date = {{ etl_date() }}
+        AND {{ t24_datetime('ch.date_time') }} < {{ etl_date() }} + INTERVAL '1' DAY
 ),
 
 cur_main AS (
@@ -49,18 +51,22 @@ cur_main AS (
         frst_ccy_code, scd_ccy_code, mid_reval_rate, date_time_value,
         RANK() OVER (PARTITION BY frst_ccy_code ORDER BY curr_no DESC) AS rnk
     FROM (
-        SELECT * FROM cur WHERE rn = 1
+        SELECT *
+        FROM cur
+        WHERE rn = 1
         UNION ALL
-        SELECT * FROM cur_his WHERE rn = 1
+        SELECT *
+        FROM cur_his
+        WHERE rn = 1
     )
 )
 
 SELECT
-    {{ etl_date() }}                          AS snpst_dt,
-    CAST('T24_CURRENCY' AS STRING)           AS src_stm_code,
-    CAST(frst_ccy_code AS STRING)            AS frst_ccy_code,
-    CAST(scd_ccy_code AS STRING)             AS scd_ccy_code,
-    CAST(mid_reval_rate AS DECIMAL(25, 7))    AS mid_rate,
-    {{ etl_date() }}                          AS etl_date
+    {{ etl_date() }} AS snpst_dt,
+    CAST('T24_CURRENCY' AS STRING) AS src_stm_code,
+    CAST(frst_ccy_code AS STRING) AS frst_ccy_code,
+    CAST(scd_ccy_code AS STRING) AS scd_ccy_code,
+    CAST(mid_reval_rate AS DECIMAL(25, 7)) AS mid_rate,
+    {{ etl_date() }} AS etl_date
 FROM cur_main
 WHERE rnk = 1

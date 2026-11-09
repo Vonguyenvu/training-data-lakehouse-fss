@@ -23,18 +23,20 @@
 WITH stmt AS (
     SELECT s.*
     FROM {{ ref('smy_stmt_daily') }} AS s
-    WHERE s.etl_date = {{ etl_date() }}
-      AND {{ t24_date('s.booking_date') }} = {{ biz_date() }}
+    WHERE
+        s.etl_date = {{ etl_date() }}
+        AND {{ t24_date('s.booking_date') }} = {{ biz_date() }}
 ),
 
 m AS (
     SELECT *
     FROM (
-        SELECT x.*,
-               ROW_NUMBER() OVER (
-                   PARTITION BY TRIM(x.contract_ref_no)
-                   ORDER BY TRY_CAST(TRIM(x.version_no) AS DECIMAL(10)) DESC
-               ) AS rn
+        SELECT
+            x.*,
+            ROW_NUMBER() OVER (
+                PARTITION BY TRIM(x.contract_ref_no)
+                ORDER BY TRY_CAST(TRIM(x.version_no) AS DECIMAL(10)) DESC
+            ) AS rn
         FROM {{ ref('flexbo_pgb_ldtb_contract_master') }} AS x
         WHERE x.etl_date = {{ etl_date() }}
     )
@@ -44,8 +46,9 @@ m AS (
 td AS (
     SELECT x.*
     FROM {{ ref('flexbo_pgb_los_contract_fields_tdate') }} AS x
-    WHERE x.etl_date = {{ etl_date() }}
-      AND TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) = {{ biz_date() }}
+    WHERE
+        x.etl_date = {{ etl_date() }}
+        AND TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) = {{ biz_date() }}
 ),
 
 udf AS (
@@ -57,14 +60,16 @@ udf AS (
 udf_h AS (
     SELECT *
     FROM (
-        SELECT x.*,
-               ROW_NUMBER() OVER (
-                   PARTITION BY TRIM(x.contract_ref_no)
-                   ORDER BY TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) DESC
-               ) AS rn
+        SELECT
+            x.*,
+            ROW_NUMBER() OVER (
+                PARTITION BY TRIM(x.contract_ref_no)
+                ORDER BY TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) DESC
+            ) AS rn
         FROM {{ ref('flexbo_pgbld_contract_udfield_hist') }} AS x
-        WHERE x.etl_date = {{ etl_date() }}
-          AND TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) <= {{ biz_date() }}
+        WHERE
+            x.etl_date = {{ etl_date() }}
+            AND TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) <= {{ biz_date() }}
     )
     WHERE rn = 1
 ),
@@ -72,14 +77,16 @@ udf_h AS (
 rt_h AS (
     SELECT *
     FROM (
-        SELECT x.*,
-               ROW_NUMBER() OVER (
-                   PARTITION BY TRIM(x.contract_ref_no)
-                   ORDER BY TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) DESC
-               ) AS rn
+        SELECT
+            x.*,
+            ROW_NUMBER() OVER (
+                PARTITION BY TRIM(x.contract_ref_no)
+                ORDER BY TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) DESC
+            ) AS rn
         FROM {{ ref('flexbo_pgbld_rt_contract_udfield_hist') }} AS x
-        WHERE x.etl_date = {{ etl_date() }}
-          AND TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) <= {{ biz_date() }}
+        WHERE
+            x.etl_date = {{ etl_date() }}
+            AND TRY_CAST(SUBSTR(TRIM(x.mov_date), 1, 10) AS DATE) <= {{ biz_date() }}
     )
     WHERE rn = 1
 ),
@@ -87,16 +94,18 @@ rt_h AS (
 col_udf AS (
     SELECT x.*
     FROM {{ ref('ebanking_col_udf_value') }} AS x
-    WHERE x.etl_date = {{ etl_date() }}
-      AND TRIM(x.udf_id) = 'NHANNO_BATBUOC'
+    WHERE
+        x.etl_date = {{ etl_date() }}
+        AND TRIM(x.udf_id) = 'NHANNO_BATBUOC'
 ),
 
 ld_los AS (
     SELECT x.*
     FROM {{ ref('los_app_loan_disbursement') }} AS x
-    WHERE x.etl_date = {{ etl_date() }}
-      AND TRIM(x.amnd_state) = 'F'
-      AND TRIM(x.status) IN ('A', 'U')
+    WHERE
+        x.etl_date = {{ etl_date() }}
+        AND TRIM(x.amnd_state) = 'F'
+        AND TRIM(x.status) IN ('A', 'U')
 ),
 
 fac AS (
@@ -112,77 +121,77 @@ pd_los AS (
 )
 
 SELECT
-    CAST(TRIM(col_udf.col_ref) AS STRING)                                   AS col_ref,
-    CAST(TRIM(col_udf.function_code) AS STRING)                             AS function_code,
-    CAST(TRIM(col_udf.udf_value) AS STRING)                                 AS udf_value,
-    CAST(TRIM(udf.contract_ref_no) AS STRING)                               AS udf_map_contract_ref_no,
-    CAST(TRIM(udf.field_name) AS STRING)                                    AS field_name,
-    CAST(TRIM(udf.field_val) AS STRING)                                     AS field_val,
-    TRY_CAST(SUBSTR(TRIM(m.booking_date), 1, 10) AS DATE)                    AS fcc_booking_date,
-    CAST(TRIM(m.contract_ref_no) AS STRING)                                 AS fcc_contract_ref_no,
-    COALESCE(TRY_CAST(TRIM(m.version_no) AS DECIMAL(10, 0)), 0)              AS version_no,
-    CAST(TRIM(td.can_bo_de_xuat_gn) AS STRING)                              AS can_bo_de_xuat_gn,
-    CAST(TRIM(td.car_application_code) AS STRING)                           AS car_application_code,
-    CAST(TRIM(td.contract_ref_no) AS STRING)                                AS los_td_contract_ref_no,
-    CAST(TRIM(td.los_contract_code) AS STRING)                              AS los_contract_code,
-    CAST(TRIM(td.mdvay_nkt) AS STRING)                                      AS mdvay_nkt,
-    CAST(TRIM(td.mdvay_sp) AS STRING)                                       AS mdvay_sp,
-    TRY_CAST(SUBSTR(TRIM(td.mov_date), 1, 10) AS DATE)                       AS los_td_mov_date,
-    CAST(TRIM(td.tt_pp_de_xuat_gn) AS STRING)                               AS tt_pp_de_xuat_gn,
-    CAST(TRIM(udf_h.contract_ref_no) AS STRING)                             AS udfh_contract_ref_no,
-    CAST(TRIM(udf_h.ct_khuyen_mai_cho_vay) AS STRING)                       AS ct_khuyen_mai_cho_vay,
-    CAST(TRIM(udf_h.ctkm2) AS STRING)                                       AS ctkm2,
-    TRY_CAST(SUBSTR(TRIM(udf_h.mov_date), 1, 10) AS DATE)                    AS udfh_mov_date,
-    CAST(TRIM(rt_h.co_cau_no) AS STRING)                                    AS co_cau_no,
-    CAST(TRIM(rt_h.contract_ref_no) AS STRING)                              AS rth_contract_ref_no,
+    CAST(TRIM(col_udf.col_ref) AS STRING) AS col_ref,
+    CAST(TRIM(col_udf.function_code) AS STRING) AS function_code,
+    CAST(TRIM(col_udf.udf_value) AS STRING) AS udf_value,
+    CAST(TRIM(udf.contract_ref_no) AS STRING) AS udf_map_contract_ref_no,
+    CAST(TRIM(udf.field_name) AS STRING) AS field_name,
+    CAST(TRIM(udf.field_val) AS STRING) AS field_val,
+    TRY_CAST(SUBSTR(TRIM(m.booking_date), 1, 10) AS DATE) AS fcc_booking_date,
+    CAST(TRIM(m.contract_ref_no) AS STRING) AS fcc_contract_ref_no,
+    COALESCE(TRY_CAST(TRIM(m.version_no) AS DECIMAL(10, 0)), 0) AS version_no,
+    CAST(TRIM(td.can_bo_de_xuat_gn) AS STRING) AS can_bo_de_xuat_gn,
+    CAST(TRIM(td.car_application_code) AS STRING) AS car_application_code,
+    CAST(TRIM(td.contract_ref_no) AS STRING) AS los_td_contract_ref_no,
+    CAST(TRIM(td.los_contract_code) AS STRING) AS los_contract_code,
+    CAST(TRIM(td.mdvay_nkt) AS STRING) AS mdvay_nkt,
+    CAST(TRIM(td.mdvay_sp) AS STRING) AS mdvay_sp,
+    TRY_CAST(SUBSTR(TRIM(td.mov_date), 1, 10) AS DATE) AS los_td_mov_date,
+    CAST(TRIM(td.tt_pp_de_xuat_gn) AS STRING) AS tt_pp_de_xuat_gn,
+    CAST(TRIM(udf_h.contract_ref_no) AS STRING) AS udfh_contract_ref_no,
+    CAST(TRIM(udf_h.ct_khuyen_mai_cho_vay) AS STRING) AS ct_khuyen_mai_cho_vay,
+    CAST(TRIM(udf_h.ctkm2) AS STRING) AS ctkm2,
+    TRY_CAST(SUBSTR(TRIM(udf_h.mov_date), 1, 10) AS DATE) AS udfh_mov_date,
+    CAST(TRIM(rt_h.co_cau_no) AS STRING) AS co_cau_no,
+    CAST(TRIM(rt_h.contract_ref_no) AS STRING) AS rth_contract_ref_no,
     CAST(try_to_timestamp(NULLIF(TRIM(rt_h.ngay_het_covid19), ''), 'dd/MM/yyyy') AS DATE) AS ngay_het_covid19,
-    CAST(TRIM(fac.id) AS STRING)                                            AS fac_id,
-    CAST(TRIM(fac.product_id) AS STRING)                                    AS product_id,
-    CAST(TRIM(ld_los.amnd_state) AS STRING)                                 AS amnd_state,
-    TRY_CAST(SUBSTR(TRIM(ld_los.booking_date), 1, 10) AS DATE)               AS los_dsbr_booking_date,
-    CAST(TRIM(ld_los.ext_ref_no_1) AS STRING)                               AS ext_ref_no_1,
-    CAST(TRIM(ld_los.facility_id) AS STRING)                                AS facility_id,
-    CAST(TRIM(ld_los.status) AS STRING)                                     AS status,
-    CAST(TRIM(pd_los.id) AS STRING)                                         AS prod_id,
-    CAST(TRIM(pd_los.product_code) AS STRING)                               AS product_code,
-    CAST(TRIM(pd_los.product_name) AS STRING)                               AS product_name,
-    CAST(TRIM(stmt.account) AS STRING)                                      AS account,
-    CAST(TRIM(stmt.account_id) AS STRING)                                   AS account_id,
-    CAST(TRIM(stmt.account_num) AS STRING)                                  AS account_num,
-    CAST(TRIM(stmt.account_number) AS STRING)                               AS account_number,
-    {{ t24_date('stmt.accounting_date') }}                                   AS accounting_date,
-    CAST(TRIM(stmt.acct_id) AS STRING)                                      AS acct_id,
-    COALESCE(TRY_CAST(TRIM(stmt.amount_fcy) AS DECIMAL(25, 5)), 0)           AS amount_fcy,
-    COALESCE(TRY_CAST(TRIM(stmt.amount_lcy) AS DECIMAL(25, 5)), 0)           AS amount_lcy,
-    CAST(TRIM(stmt.balance_type) AS STRING)                                 AS balance_type,
-    {{ t24_date('stmt.booking_date') }}                                      AS booking_date,
-    CAST(TRIM(stmt.card_number) AS STRING)                                  AS card_number,
-    CAST(TRIM(stmt.co_code) AS STRING)                                      AS co_code,
-    CAST(TRIM(stmt.commit_action) AS STRING)                                AS commit_action,
+    CAST(TRIM(fac.id) AS STRING) AS fac_id,
+    CAST(TRIM(fac.product_id) AS STRING) AS product_id,
+    CAST(TRIM(ld_los.amnd_state) AS STRING) AS amnd_state,
+    TRY_CAST(SUBSTR(TRIM(ld_los.booking_date), 1, 10) AS DATE) AS los_dsbr_booking_date,
+    CAST(TRIM(ld_los.ext_ref_no_1) AS STRING) AS ext_ref_no_1,
+    CAST(TRIM(ld_los.facility_id) AS STRING) AS facility_id,
+    CAST(TRIM(ld_los.status) AS STRING) AS status,
+    CAST(TRIM(pd_los.id) AS STRING) AS prod_id,
+    CAST(TRIM(pd_los.product_code) AS STRING) AS product_code,
+    CAST(TRIM(pd_los.product_name) AS STRING) AS product_name,
+    CAST(TRIM(stmt.account) AS STRING) AS account,
+    CAST(TRIM(stmt.account_id) AS STRING) AS account_id,
+    CAST(TRIM(stmt.account_num) AS STRING) AS account_num,
+    CAST(TRIM(stmt.account_number) AS STRING) AS account_number,
+    {{ t24_date('stmt.accounting_date') }} AS accounting_date,
+    CAST(TRIM(stmt.acct_id) AS STRING) AS acct_id,
+    COALESCE(TRY_CAST(TRIM(stmt.amount_fcy) AS DECIMAL(25, 5)), 0) AS amount_fcy,
+    COALESCE(TRY_CAST(TRIM(stmt.amount_lcy) AS DECIMAL(25, 5)), 0) AS amount_lcy,
+    CAST(TRIM(stmt.balance_type) AS STRING) AS balance_type,
+    {{ t24_date('stmt.booking_date') }} AS booking_date,
+    CAST(TRIM(stmt.card_number) AS STRING) AS card_number,
+    CAST(TRIM(stmt.co_code) AS STRING) AS co_code,
+    CAST(TRIM(stmt.commit_action) AS STRING) AS commit_action,
     try_to_timestamp(NULLIF(TRIM(stmt.commit_ts), ''), 'dd-MMM-yy hh.mm.ss.SSSSSS a') AS commit_ts,
-    CAST(TRIM(stmt.company_code) AS STRING)                                 AS company_code,
-    CAST(TRIM(stmt.consol_key) AS STRING)                                   AS consol_key,
-    CAST(TRIM(stmt.contract_bal_id) AS STRING)                              AS contract_bal_id,
-    CAST(TRIM(stmt.crf_prod_cat) AS STRING)                                 AS crf_prod_cat,
-    CAST(TRIM(stmt.crf_type) AS STRING)                                     AS crf_type,
-    COALESCE(TRY_CAST(TRIM(stmt.curr_no) AS DECIMAL(10, 0)), 0)              AS curr_no,
-    CAST(TRIM(stmt.currency) AS STRING)                                     AS currency,
-    CAST(TRIM(stmt.customer_id) AS STRING)                                  AS customer_id,
-    {{ t24_date('stmt.cycle_forward') }}                                     AS cycle_forward,
-    CAST({{ t24_datetime('stmt.date_time') }} AS DATE)                       AS date_time,
-    CAST(TRIM(stmt.department_code) AS STRING)                              AS department_code,
-    CAST(TRIM(stmt.drawn_account) AS STRING)                                AS drawn_account,
-    COALESCE(TRY_CAST(TRIM(stmt.exchange_rate) AS DECIMAL(13, 7)), 0)        AS exchange_rate,
-    CAST(TRIM(stmt.internal_category) AS STRING)                            AS internal_category,
-    CAST(TRIM(stmt.local_ref) AS STRING)                                    AS local_ref,
-    {{ etl_date() }}                                                         AS etl_date
+    CAST(TRIM(stmt.company_code) AS STRING) AS company_code,
+    CAST(TRIM(stmt.consol_key) AS STRING) AS consol_key,
+    CAST(TRIM(stmt.contract_bal_id) AS STRING) AS contract_bal_id,
+    CAST(TRIM(stmt.crf_prod_cat) AS STRING) AS crf_prod_cat,
+    CAST(TRIM(stmt.crf_type) AS STRING) AS crf_type,
+    COALESCE(TRY_CAST(TRIM(stmt.curr_no) AS DECIMAL(10, 0)), 0) AS curr_no,
+    CAST(TRIM(stmt.currency) AS STRING) AS currency,
+    CAST(TRIM(stmt.customer_id) AS STRING) AS customer_id,
+    {{ t24_date('stmt.cycle_forward') }} AS cycle_forward,
+    CAST({{ t24_datetime('stmt.date_time') }} AS DATE) AS date_time,
+    CAST(TRIM(stmt.department_code) AS STRING) AS department_code,
+    CAST(TRIM(stmt.drawn_account) AS STRING) AS drawn_account,
+    COALESCE(TRY_CAST(TRIM(stmt.exchange_rate) AS DECIMAL(13, 7)), 0) AS exchange_rate,
+    CAST(TRIM(stmt.internal_category) AS STRING) AS internal_category,
+    CAST(TRIM(stmt.local_ref) AS STRING) AS local_ref,
+    {{ etl_date() }} AS etl_date
 FROM stmt
-LEFT JOIN m       ON TRIM(m.contract_ref_no) = TRIM(stmt.our_reference)
-LEFT JOIN td      ON TRIM(td.contract_ref_no) = TRIM(stmt.our_reference)
-LEFT JOIN udf     ON TRIM(udf.contract_ref_no) = TRIM(m.contract_ref_no)
-LEFT JOIN udf_h   ON TRIM(udf_h.contract_ref_no) = TRIM(m.contract_ref_no)
-LEFT JOIN rt_h    ON TRIM(rt_h.contract_ref_no) = TRIM(m.contract_ref_no)
+LEFT JOIN m ON TRIM(m.contract_ref_no) = TRIM(stmt.our_reference)
+LEFT JOIN td ON TRIM(td.contract_ref_no) = TRIM(stmt.our_reference)
+LEFT JOIN udf ON TRIM(udf.contract_ref_no) = TRIM(m.contract_ref_no)
+LEFT JOIN udf_h ON TRIM(udf_h.contract_ref_no) = TRIM(m.contract_ref_no)
+LEFT JOIN rt_h ON TRIM(rt_h.contract_ref_no) = TRIM(m.contract_ref_no)
 LEFT JOIN col_udf ON TRIM(col_udf.col_ref) = TRIM(m.contract_ref_no)
-LEFT JOIN ld_los  ON TRIM(ld_los.ext_ref_no_1) = TRIM(stmt.our_reference)
-LEFT JOIN fac     ON TRIM(fac.id) = TRIM(ld_los.facility_id)
-LEFT JOIN pd_los  ON TRIM(pd_los.id) = TRIM(fac.product_id)
+LEFT JOIN ld_los ON TRIM(ld_los.ext_ref_no_1) = TRIM(stmt.our_reference)
+LEFT JOIN fac ON TRIM(fac.id) = TRIM(ld_los.facility_id)
+LEFT JOIN pd_los ON TRIM(pd_los.id) = TRIM(fac.product_id)

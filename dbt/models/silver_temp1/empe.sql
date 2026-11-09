@@ -16,11 +16,12 @@
 WITH src AS (
     SELECT
         {{ fn_hash('T24_EMPLOYEE', 'empe.recid') }} AS empe_id,
-        TRIM(empe.recid)                             AS empe_code,
-        TRIM(empe.name)                              AS empe_nm
+        TRIM(empe.recid) AS empe_code,
+        TRIM(empe.name) AS empe_nm
     FROM {{ ref('t24core_dept_acct_officer') }} AS empe
-    WHERE empe.etl_date = {{ etl_date() }}
-      AND NULLIF(TRIM(empe.recid), '') IS NOT NULL
+    WHERE
+        empe.etl_date = {{ etl_date() }}
+        AND NULLIF(TRIM(empe.recid), '') IS NOT NULL
 ),
 
 {% if is_incremental() %}
@@ -32,12 +33,13 @@ changed AS (
     SELECT
         s.empe_id, s.empe_code, s.empe_nm,
         COALESCE(t.sys_eff_dt, {{ etl_date() }}) AS sys_eff_dt,
-        CAST(NULL AS DATE)                       AS sys_exp_dt
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src AS s
     LEFT JOIN tgt AS t ON s.empe_id = t.empe_id
-    WHERE t.empe_id IS NULL
-       OR t.sys_exp_dt IS NOT NULL
-       OR s.empe_nm IS DISTINCT FROM t.empe_nm
+    WHERE
+        t.empe_id IS NULL
+        OR t.sys_exp_dt IS NOT NULL
+        OR s.empe_nm IS DISTINCT FROM t.empe_nm
 ),
 
 deleted AS (
@@ -48,9 +50,10 @@ deleted AS (
         {{ etl_date() }} AS sys_exp_dt
     FROM tgt AS t
     LEFT JOIN src AS s ON s.empe_id = t.empe_id
-    WHERE s.empe_id IS NULL
-      AND t.sys_exp_dt IS NULL
-      AND EXISTS (SELECT 1 FROM src)
+    WHERE
+        s.empe_id IS NULL
+        AND t.sys_exp_dt IS NULL
+        AND EXISTS (SELECT 1 FROM src)
 ),
 
 final AS (
@@ -62,18 +65,18 @@ final AS (
 final AS (
     SELECT
         empe_id, empe_code, empe_nm,
-        {{ etl_date() }}   AS sys_eff_dt,
+        {{ etl_date() }} AS sys_eff_dt,
         CAST(NULL AS DATE) AS sys_exp_dt
     FROM src
 )
 {% endif %}
 
 SELECT
-    CAST(empe_id AS STRING)   AS empe_id,
+    CAST(empe_id AS STRING) AS empe_id,
     CAST(empe_code AS STRING) AS empe_code,
-    CAST(empe_nm AS STRING)   AS empe_nm,
+    CAST(empe_nm AS STRING) AS empe_nm,
     sys_eff_dt,
     sys_exp_dt,
-    {{ etl_date() }}           AS sys_udt_dt,
-    {{ etl_date() }}           AS etl_date
+    {{ etl_date() }} AS sys_udt_dt,
+    {{ etl_date() }} AS etl_date
 FROM final

@@ -13,14 +13,15 @@
 
 WITH src AS (
     SELECT
-        CAST({{ fn_hash('T24_CUSTOMER', 'c.recid') }} AS STRING)       AS cst_id,
-        CAST(TRIM(c.recid) AS STRING)                                  AS cst_code,
-        CAST(TRIM(c.employment_status) AS STRING)                      AS idv_emp_st_code,
-        TRY_CAST(TRIM(c.net_monthly_in) AS DECIMAL(25, 5))             AS anul_incm,
-        CAST(TRIM(c.occupation) AS STRING)                             AS ocp_code
+        CAST({{ fn_hash('T24_CUSTOMER', 'c.recid') }} AS STRING) AS cst_id,
+        CAST(TRIM(c.recid) AS STRING) AS cst_code,
+        CAST(TRIM(c.employment_status) AS STRING) AS idv_emp_st_code,
+        TRY_CAST(TRIM(c.net_monthly_in) AS DECIMAL(25, 5)) AS anul_incm,
+        CAST(TRIM(c.occupation) AS STRING) AS ocp_code
     FROM {{ ref('t24core_customer') }} AS c
-    WHERE c.etl_date = {{ etl_date() }}
-      AND NULLIF(TRIM(c.recid), '') IS NOT NULL
-      AND c.khoi LIKE '%INDIV%'
+    WHERE
+        c.etl_date = {{ etl_date() }}
+        AND NULLIF(TRIM(c.recid), '') IS NOT NULL
+        AND c.khoi LIKE '%INDIV%'
 )
 {{ scd2(['cst_id']) }}

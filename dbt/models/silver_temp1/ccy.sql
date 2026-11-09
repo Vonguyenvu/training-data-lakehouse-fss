@@ -16,12 +16,13 @@
 WITH src AS (
     SELECT
         {{ fn_hash('T24_CURRENCY', 'cur.currency_code') }} AS ccy_id,
-        TRIM(cur.currency_code)                            AS ccy_code,
-        TRIM(cur.ccy_name)                                 AS ccy_nm,
-        TRIM(cur.numeric_ccy_code)                         AS numeric_ccy_code
+        TRIM(cur.currency_code) AS ccy_code,
+        TRIM(cur.ccy_name) AS ccy_nm,
+        TRIM(cur.numeric_ccy_code) AS numeric_ccy_code
     FROM {{ ref('t24core_currency') }} AS cur
-    WHERE cur.etl_date = {{ etl_date() }}
-      AND NULLIF(TRIM(cur.currency_code), '') IS NOT NULL
+    WHERE
+        cur.etl_date = {{ etl_date() }}
+        AND NULLIF(TRIM(cur.currency_code), '') IS NOT NULL
 ),
 
 {% if is_incremental() %}
@@ -33,13 +34,14 @@ changed AS (
     SELECT
         s.ccy_id, s.ccy_code, s.ccy_nm, s.numeric_ccy_code,
         COALESCE(t.sys_eff_dt, {{ etl_date() }}) AS sys_eff_dt,
-        CAST(NULL AS DATE)                       AS sys_exp_dt
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src AS s
     LEFT JOIN tgt AS t ON s.ccy_id = t.ccy_id
-    WHERE t.ccy_id IS NULL
-       OR t.sys_exp_dt IS NOT NULL
-       OR s.ccy_nm IS DISTINCT FROM t.ccy_nm
-       OR s.numeric_ccy_code IS DISTINCT FROM t.numeric_ccy_code
+    WHERE
+        t.ccy_id IS NULL
+        OR t.sys_exp_dt IS NOT NULL
+        OR s.ccy_nm IS DISTINCT FROM t.ccy_nm
+        OR s.numeric_ccy_code IS DISTINCT FROM t.numeric_ccy_code
 ),
 
 deleted AS (
@@ -50,9 +52,10 @@ deleted AS (
         {{ etl_date() }} AS sys_exp_dt
     FROM tgt AS t
     LEFT JOIN src AS s ON s.ccy_id = t.ccy_id
-    WHERE s.ccy_id IS NULL
-      AND t.sys_exp_dt IS NULL
-      AND EXISTS (SELECT 1 FROM src)
+    WHERE
+        s.ccy_id IS NULL
+        AND t.sys_exp_dt IS NULL
+        AND EXISTS (SELECT 1 FROM src)
 ),
 
 final AS (
@@ -64,20 +67,20 @@ final AS (
 final AS (
     SELECT
         ccy_id, ccy_code, ccy_nm, numeric_ccy_code,
-        {{ etl_date() }}   AS sys_eff_dt,
+        {{ etl_date() }} AS sys_eff_dt,
         CAST(NULL AS DATE) AS sys_exp_dt
     FROM src
 )
 {% endif %}
 
 SELECT
-    CAST(ccy_id AS STRING)           AS ccy_id,
-    CAST(ccy_code AS STRING)         AS ccy_code,
-    CAST(ccy_nm AS STRING)           AS ccy_nm,
+    CAST(ccy_id AS STRING) AS ccy_id,
+    CAST(ccy_code AS STRING) AS ccy_code,
+    CAST(ccy_nm AS STRING) AS ccy_nm,
     CAST(numeric_ccy_code AS STRING) AS numeric_ccy_code,
-    CAST('T24_CURRENCY' AS STRING)   AS src_stm_code,
+    CAST('T24_CURRENCY' AS STRING) AS src_stm_code,
     sys_eff_dt,
     sys_exp_dt,
-    {{ etl_date() }}                  AS sys_udt_dt,
-    {{ etl_date() }}                  AS etl_date
+    {{ etl_date() }} AS sys_udt_dt,
+    {{ etl_date() }} AS etl_date
 FROM final

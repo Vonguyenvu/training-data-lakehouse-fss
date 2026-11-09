@@ -19,27 +19,30 @@
 WITH cus AS (
     SELECT
         {{ fn_hash('T24_CUSTOMER', 'c.recid') }} AS cst_id,
-        TRIM(c.recid)                             AS cst_code,
-        NULLIF(TRIM(c.vn_street), '')             AS vn_street,
-        NULLIF(TRIM(c.vn_town), '')               AS vn_town,
-        NULLIF(TRIM(c.country), '')               AS country,
-        NULLIF(TRIM(c.street), '')                AS street,
-        NULLIF(TRIM(c.resid_province), '')        AS resid_province,
-        NULLIF(TRIM(c.residence), '')             AS residence
+        TRIM(c.recid) AS cst_code,
+        NULLIF(TRIM(c.vn_street), '') AS vn_street,
+        NULLIF(TRIM(c.vn_town), '') AS vn_town,
+        NULLIF(TRIM(c.country), '') AS country,
+        NULLIF(TRIM(c.street), '') AS street,
+        NULLIF(TRIM(c.resid_province), '') AS resid_province,
+        NULLIF(TRIM(c.residence), '') AS residence
     FROM {{ ref('t24core_customer') }} AS c
-    WHERE c.etl_date = {{ etl_date() }}
-      AND NULLIF(TRIM(c.recid), '') IS NOT NULL
+    WHERE
+        c.etl_date = {{ etl_date() }}
+        AND NULLIF(TRIM(c.recid), '') IS NOT NULL
 ),
 
 branches AS (
-    SELECT cst_id, cst_code, 'CURRENT ADDRESS' AS pst_adr_tp,
-           NULLIF(concat_ws(',', vn_street, vn_town, country), '') AS pst_adr_val,
-           country AS cty_nm, vn_town AS prov_nm, vn_street AS str_nm
+    SELECT
+        cst_id, cst_code, 'CURRENT ADDRESS' AS pst_adr_tp,
+        NULLIF(concat_ws(',', vn_street, vn_town, country), '') AS pst_adr_val,
+        country AS cty_nm, vn_town AS prov_nm, vn_street AS str_nm
     FROM cus
     UNION ALL
-    SELECT cst_id, cst_code, 'PERMANENT ADDRESS',
-           NULLIF(concat_ws(',', resid_province, residence), ''),
-           residence, resid_province, street
+    SELECT
+        cst_id, cst_code, 'PERMANENT ADDRESS',
+        NULLIF(concat_ws(',', resid_province, residence), ''),
+        residence, resid_province, street
     FROM cus
 ),
 
@@ -50,38 +53,44 @@ src AS (
 
 {% if is_incremental() %}
 cur AS (
-    SELECT * FROM {{ this }} WHERE sys_exp_dt IS NULL
+    SELECT *
+    FROM {{ this }}
+    WHERE sys_exp_dt IS NULL
 ),
 
 new_ver AS (
-    SELECT s.cst_id, s.cst_code, s.pst_adr_tp, s.pst_adr_val, s.cty_nm, s.prov_nm, s.str_nm,
-           {{ etl_date() }}   AS sys_eff_dt,
-           CAST(NULL AS DATE) AS sys_exp_dt
+    SELECT
+        s.cst_id, s.cst_code, s.pst_adr_tp, s.pst_adr_val, s.cty_nm, s.prov_nm, s.str_nm,
+        {{ etl_date() }} AS sys_eff_dt,
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src AS s
     LEFT JOIN cur AS c ON c.cst_id = s.cst_id AND c.pst_adr_tp = s.pst_adr_tp
-    WHERE c.cst_id IS NULL
-       OR s.pst_adr_val IS DISTINCT FROM c.pst_adr_val
-       OR s.cty_nm IS DISTINCT FROM c.cty_nm
-       OR s.prov_nm IS DISTINCT FROM c.prov_nm
-       OR s.str_nm IS DISTINCT FROM c.str_nm
+    WHERE
+        c.cst_id IS NULL
+        OR s.pst_adr_val IS DISTINCT FROM c.pst_adr_val
+        OR s.cty_nm IS DISTINCT FROM c.cty_nm
+        OR s.prov_nm IS DISTINCT FROM c.prov_nm
+        OR s.str_nm IS DISTINCT FROM c.str_nm
 ),
 
 closed AS (
-    SELECT c.cst_id, c.cst_code, c.pst_adr_tp, c.pst_adr_val, c.cty_nm, c.prov_nm, c.str_nm,
-           c.sys_eff_dt,
-           {{ etl_date() }} AS sys_exp_dt
+    SELECT
+        c.cst_id, c.cst_code, c.pst_adr_tp, c.pst_adr_val, c.cty_nm, c.prov_nm, c.str_nm,
+        c.sys_eff_dt,
+        {{ etl_date() }} AS sys_exp_dt
     FROM cur AS c
     LEFT JOIN src AS s ON s.cst_id = c.cst_id AND s.pst_adr_tp = c.pst_adr_tp
-    WHERE c.sys_eff_dt < {{ etl_date() }}
-      AND (
+    WHERE
+        c.sys_eff_dt < {{ etl_date() }}
+        AND (
             (s.cst_id IS NULL AND EXISTS (SELECT 1 FROM cus))
-         OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
+            OR (s.cst_id IS NOT NULL AND (   -- chỉ so giá trị khi key còn ở nguồn (nguồn rỗng không đóng dòng)
                 s.pst_adr_val IS DISTINCT FROM c.pst_adr_val
-            OR  s.cty_nm IS DISTINCT FROM c.cty_nm
-            OR  s.prov_nm IS DISTINCT FROM c.prov_nm
-            OR  s.str_nm IS DISTINCT FROM c.str_nm
+                OR s.cty_nm IS DISTINCT FROM c.cty_nm
+                OR s.prov_nm IS DISTINCT FROM c.prov_nm
+                OR s.str_nm IS DISTINCT FROM c.str_nm
             ))
-      )
+        )
 ),
 
 final AS (
@@ -91,23 +100,24 @@ final AS (
 )
 {% else %}
 final AS (
-    SELECT src.*,
-           {{ etl_date() }}   AS sys_eff_dt,
-           CAST(NULL AS DATE) AS sys_exp_dt
+    SELECT
+        src.*,
+        {{ etl_date() }} AS sys_eff_dt,
+        CAST(NULL AS DATE) AS sys_exp_dt
     FROM src
 )
 {% endif %}
 
 SELECT
-    CAST(cst_id AS STRING)      AS cst_id,
-    CAST(cst_code AS STRING)    AS cst_code,
-    CAST(pst_adr_tp AS STRING)  AS pst_adr_tp,
+    CAST(cst_id AS STRING) AS cst_id,
+    CAST(cst_code AS STRING) AS cst_code,
+    CAST(pst_adr_tp AS STRING) AS pst_adr_tp,
     CAST(pst_adr_val AS STRING) AS pst_adr_val,
-    CAST(cty_nm AS STRING)      AS cty_nm,
-    CAST(prov_nm AS STRING)     AS prov_nm,
-    CAST(str_nm AS STRING)      AS str_nm,
+    CAST(cty_nm AS STRING) AS cty_nm,
+    CAST(prov_nm AS STRING) AS prov_nm,
+    CAST(str_nm AS STRING) AS str_nm,
     sys_eff_dt,
     sys_exp_dt,
-    {{ etl_date() }}             AS sys_udt_dt,
-    {{ etl_date() }}             AS etl_date
+    {{ etl_date() }} AS sys_udt_dt,
+    {{ etl_date() }} AS etl_date
 FROM final
