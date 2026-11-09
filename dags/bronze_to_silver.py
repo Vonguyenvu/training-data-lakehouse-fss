@@ -7,6 +7,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from airflow import DAG
+from airflow.models.param import Param
 from airflow.operators.bash import BashOperator
 from airflow.utils.task_group import TaskGroup
 
@@ -22,6 +23,13 @@ with DAG(
     max_active_runs=1,  # SCD2 phải chạy ETL_DATE tăng dần, không chồng lần chạy
     max_active_tasks=2,  # Spark chỉ 1 core
     tags=["bronze", "silver", "gold"],
+    # Form trên UI (nút ▶); --conf của CLI ghi đè các giá trị này.
+    params={
+        "etl_date": Param(None, type=["null", "string"], format="date", title="ETL_DATE", description="Ngày batch. Bỏ trống = ngày chạy (ds)."),
+        "biz_date": Param(None, type=["null", "string"], format="date", title="BIZ_DATE", description="Ngày nghiệp vụ cho SNAPSHOT/TXN (Oracle là dữ liệu 2025). Bỏ trống = ETL_DATE."),
+        "backdate": Param(False, type="boolean", description="Chạy lại ngày cũ: bật cho MỌI ngày replay, tăng dần."),
+        "skip_bronze": Param(False, type="boolean", description="Giữ partition Bronze đã có, không đọc lại Oracle (dùng khi backdate)."),
+    },
     doc_md="""
 ## Bronze → Silver Temp 1 → Silver Temp 2 → Gold (1 ngày batch)
 

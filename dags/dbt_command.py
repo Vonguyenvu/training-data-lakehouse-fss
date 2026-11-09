@@ -5,12 +5,12 @@ import re
 from pathlib import Path
 
 PROJECT = "/opt/airflow/dbt"
-ETL_DATE = "{{ dag_run.conf.get('etl_date', ds) }}"
+ETL_DATE = "{{ params.etl_date or ds }}"
 # Ngày nghiệp vụ (BOOKING_DATE / TXN_DATE / MOV_DATE) cho SNAPSHOT/TXN; mặc định = etl_date.
 # Oracle hiện là dữ liệu mẫu 2025 nên phải truyền riêng, vd --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07"}'.
-BIZ_DATE = "{{ dag_run.conf.get('biz_date') or dag_run.conf.get('etl_date', ds) }}"
+BIZ_DATE = "{{ params.biz_date or params.etl_date or ds }}"
 # Chạy lại ngày cũ cho bảng SCD (dbt/macros/scd_backdate.sql): truyền "backdate": true cho MỌI ngày replay.
-BACKDATE = "{{ dag_run.conf.get('backdate', false) | tojson }}"
+BACKDATE = "{{ params.backdate | tojson }}"
 
 
 def dbt(command: str, select: str | None, work: str) -> str:
@@ -25,7 +25,7 @@ def dbt(command: str, select: str | None, work: str) -> str:
 
 def unless_skip_bronze(command: str, when_skipped: str) -> str:
     """conf "skip_bronze": true -> chạy when_skipped thay command (giữ partition Bronze đã có, không đọc lại Oracle)."""
-    return f"{{% if dag_run.conf.get('skip_bronze') %}}{when_skipped}{{% else %}}{command}{{% endif %}}"
+    return f"{{% if params.skip_bronze %}}{when_skipped}{{% else %}}{command}{{% endif %}}"
 
 
 def models_with_refs(folder: str) -> dict[str, set[str]]:

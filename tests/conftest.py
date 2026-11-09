@@ -19,6 +19,11 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=None,
         help="Partition ETL_DATE cần kiểm tra (YYYY-MM-DD). Mặc định: partition mới nhất của từng bảng.",
     )
+    parser.addoption(
+        "--before",
+        default=None,
+        help="check_backdate: thời điểm trước khi backdate, kèm múi giờ (vd '2026-11-10 08:00:00 Asia/Ho_Chi_Minh').",
+    )
 
 
 @pytest.fixture(scope="session")
