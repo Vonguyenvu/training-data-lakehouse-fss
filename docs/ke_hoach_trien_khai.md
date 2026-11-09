@@ -10,7 +10,7 @@ Chỗ thực tế lệch Excel: xem [`thuc_te_vs_thiet_ke.md`](thuc_te_vs_thiet_
 | 2 | Wave 0 — Bronze (Oracle → `pg_bronze`) | 28 | Xong |
 | 3 | Wave 1 — Silver Temp 1 | 13 | Xong |
 | 4 | Wave 2 — Silver Temp 2 | 15 | Đang làm |
-| 5 | Wave 3/4 — Gold (DIM, interface, fact) | 12 | Chưa làm |
+| 5 | Wave 3/4 — Gold (DIM, interface, fact) | 13 | Xong |
 
 ## Trạng thái từng bảng (nguồn sự thật tiến độ — cập nhật cuối mỗi session)
 
@@ -48,9 +48,27 @@ Số dòng đo trên `pg_silver` ngày 2026-11-04 (Bronze `etl_date` 2026-10-29 
 | loan_ar_prfl | 2 | SCD2 | Xong | 54.483 | — | e (UDFIELD_HIST) rỗng trên Bronze |
 | ar_x_ip_rltnp | 2 | SCD2 | Xong | 34.286 | — | 20k hợp đồng LD không có CUSTOMER_ID → bỏ |
 | ar_tvr_smy | 2 | Fact Snapshot | Xong | 1.822 | 2025-10-07 | Sheet lệch dòng Transform; TOT_ODUE = 0 (dữ liệu) |
-| Gold (12 job) | 3–4 | | Chưa làm | | | |
+| dim_ccy | 3 | SCD2 | Xong | 35 | — | |
+| dim_pd | 3 | SCD2 | Xong | 241 | — | |
+| dim_ou | 3 | SCD2 | Xong | 142 | — | |
+| dim_lmt | 3 | SCD2 | Xong | 18.873 | — | `loan_ar.lmt_id` không khớp (xem Còn mở Gold) |
+| dim_rstc_tp | 3 | SCD2 | Xong | 6 | — | |
+| dim_fnc_st | 3 | SCD2 | Xong | 5 | — | |
+| dim_loan_ar | 3 | SCD2 | Xong | 54.483 | — | |
+| dim_cst | 3 | SCD2 | Xong | 36.346 | — | |
+| inf_cst | 4 | SNAPSHOT | Xong | 36.345 | — | 1 CIF không có hồ sơ cá nhân/tổ chức → bỏ (INNER JOIN) |
+| intf_loan_ar | 4 | SNAPSHOT | Xong | 2.479 | cần biz_date | Grain AR_BAL (AR_ID x GL_ITM_CODE) |
+| intf_loan_dsbr | 4 | SNAPSHOT | Xong | 54.483 | — | 20k hợp đồng LD không có CST_CODE |
+| intf_loan_repymt_shd | 4 | SNAPSHOT | Xong | 0 | cần biz_date | 0 dòng vì ar_avy_shd_itm rỗng khi chạy không có biz_date |
+| fct_loan_ar | 4 | SNAPSHOT | Xong | 1.812 | cần biz_date | pd/ccy/lmt DIM_KEY NULL (dữ liệu nguồn / lmt_id lệch) |
 
 Wave 2 xong 2026-11-05: 15/15 model, `_silver_temp2.yml` 79 test pass, chạy incremental 2026-11-03 → 2026-11-05 không sinh phiên bản thừa. Test SCD2 bằng dữ liệu giả lập: `dbt/models/silver_temp2/_unit_scd2.yml` (4 unit test dbt cho macro `scd2`: đổi giá trị, biến mất, xuất hiện lại, chạy lại cùng ngày, nguồn rỗng, lần đầu, khóa ghép) — pass. Chưa có unit test cho `close_missing=false` (`ar_avy_shd_itm`).
+
+Gold xong 2026-11-08: 13 model `dbt/models/gold/` + `_gold.yml` (57 test pass) + DDL tham chiếu `schema/gold.sql` (sinh từ `docs/spec/`). Số dòng đo trên Silver `etl_date` 2026-11-08 (DAG chạy không truyền `biz_date` → bảng lọc ngày nghiệp vụ rỗng). Chạy lại cùng ngày: số dòng giữ nguyên, không sinh phiên bản DIM thừa. Chưa test chạy nhiều ngày liên tiếp với dữ liệu đổi giá trị. Còn mở Gold: (1) `loan_ar.lmt_id` = fn_hash(LIMIT_REFERENCE, vd `5999.01`) nhưng `lmt.lmt_id` = fn_hash(RECID `<CIF>.000<LIMIT_REFERENCE>`) → `fct_loan_ar.lmt_dim_key` NULL hết, cần sửa ở Silver `loan_ar` (ghép CUSTOMER_ID) và hỏi mentor; (2) hợp đồng có số dư gần như không có `pd_code` / `ccy_code` trên Bronze → pd/ccy DIM_KEY NULL; DAG `bronze_to_silver` đã có TaskGroup `gold` sau `silver_temp2` (2026-11-08).
+
+Backdate sửa lại (2026-11-08): (1) DAG có conf `skip_bronze` — Bronze không đọc lại Oracle (Oracle chỉ có trạng thái hiện tại, chạy lại Bronze ngày cũ = ghi đè bản chụp cũ), `bronze.test` thay bằng `dbt run-operation assert_bronze_partition` (lỗi nếu partition ngày đó chưa từng nạp); (2) `backdate: true` phải truyền cho **mọi** ngày replay — test xác nhận thiếu cờ ở ngày replay giữa thì bị chặn (dòng mở lại giữ SYS_UDT_DT cũ); (3) macro `scd2` thêm `compare_exclude`, DIM Gold bỏ `dim_key` khỏi so sánh — trước đó replay làm SYS_UDT_DT của Silver SCD1 đổi -> DIM sinh phiên bản thừa cùng giá trị. Test thật: Bronze giả 11-09..11-11 (đổi USD, mobile + ASSET_CLASS 1 CIF ở 11-11), chạy 11-09→11-11, backdate 11-09, replay có cờ → `ccy`, `dim_ccy`, `ip_elc_adr`, `idv_prfl` khớp 100% trạng thái chạy thường; đã khôi phục từ backup, xoá Bronze giả. Unit test scd2 4/4, Gold 57/57 pass. Chưa chạy backdate qua DAG thật (Oracle hết hạn mật khẩu; logic giống vì DAG chỉ truyền vars cho cùng lệnh dbt).
+
+DAG (2026-11-08): gộp `wave0_bronze_ingest`, `wave1_silver_temp1`, `wave2_silver_temp2` thành 1 DAG `dags/bronze_to_silver.py` (TaskGroup bronze → silver_temp1 → silver_temp2, `dbt test` cuối mỗi tầng); 3 DAG cũ đã xoá cả file lẫn metadata Airflow.
 
 Backdate (2026-11-06): pre-hook `dbt/macros/scd_backdate.sql` cho mọi model Silver. Chạy ngày cũ mà không có var `backdate: true` thì bảng SCD báo lỗi; có cờ thì SCD2 được tua về trước ngày đó (xoá phiên bản `sys_eff_dt >= D`, mở lại dòng `sys_exp_dt >= D`), sau đó replay tăng dần. Đã test tay trên `org_prfl` (lịch sử giả 10-29 → 11-03 → 11-05, backdate về 11-03 rồi về 10-29): đúng từng snapshot, bảng về lại 1.217 dòng, `dbt test` 6/6 pass. SCD1 test trên `ccy` (đổi tên USD + mã giả ZZZ không có ở nguồn): chặn đúng khi không có cờ, có cờ thì chạy được, replay 11-05 cho kết quả đúng; `dbt test` 8/8 pass. SCD1 không có lịch sử nên ở giữa quá trình replay bảng không phản ánh đúng ngày D (vd ZZZ vẫn giữ `sys_exp_dt` 11-05), chỉ đúng khi đã replay tới ngày mới nhất. SCD2 viết tay test trên `ip_elc_adr` (2 thay đổi giả + khóa giả không có ở nguồn): xem từng snapshot thấy khóa bị đóng do biến mất được mở lại rồi đóng lại đúng ngày 11-03; khôi phục về 2.000 dòng, `dbt test` 9/9 pass. Qua DAG (2026-11-06): wave1 ngày 11-03 không có cờ → task `ccy` lỗi, wave2 không được trigger; có `"backdate": true` → wave1 chuyển cờ sang wave2, `org_prfl` được tua đúng; replay 11-05 thì cả 2 wave `success` (gồm `dbt test`), số dòng 28 bảng khớp mốc ban đầu. Bẫy: `biz_date` của từng partition SNAPSHOT không được lưu ở đâu cả. Replay 11-03 với 2025-10-07 làm `cust_info_daily` còn 25 dòng (gốc chạy với 2025-09-26, 9.320 dòng), phải chạy lại riêng → khi backdate phải dùng đúng `biz_date` cũ của từng bảng.
 
@@ -109,7 +127,7 @@ Không bảng nào đọc Temp 1; chỉ `ar_tvr_smy` đọc 3 bảng Temp 2 khá
 - Thư mục `dbt/models/silver_temp2/` + `_silver_temp2.yml` (tag `silver_temp2` đã có trong `dbt_project.yml`).
 - Macro `scd2` (`dbt/macros/scd2.sql`): sinh phần đóng/mở phiên bản của khuôn `ip_elc_adr.sql` cho mọi cột, vì các bảng Temp 2 có tới 100+ cột.
 - `dags/wave2_silver_temp2.py` (copy Wave 1); Wave 1 trigger Wave 2 cùng `etl_date`, `biz_date`. Phụ thuộc `ar_tvr_smy` tự có nhờ `ref()`.
-- `biz_date` truyền qua conf DAG (`dags/dbt_command.py`), mặc định = `etl_date`: `airflow dags trigger wave0_bronze_ingest --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07"}'`.
+- `biz_date` truyền qua conf DAG (`dags/dbt_command.py`), mặc định = `etl_date`: `airflow dags trigger full_luong --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07"}'`.
 - Đã xong: macro `scd2` (+ `close_missing=false` cho nguồn lát cắt theo ngày), macro `t24_code`, DAG wave2.
 
 ### Bước 4.1 — Khách hàng (đều từ `T24CORE_CUSTOMER`)

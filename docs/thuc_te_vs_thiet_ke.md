@@ -10,7 +10,6 @@ Nguyên tắc: **Oracle / dữ liệu Bronze là sự thật**; chỗ lệch đ�
 | Thiết kế (Excel) | Thực tế dự án | Lý do |
 |---|---|---|
 | Bronze/Silver/Gold là file `sql/*.sql` chạy Spark (`INSERT OVERWRITE`) | Model dbt (`dbt/models/<bronze\|silver_temp1\|silver_temp2\|gold>/`), thực thi trên Spark qua Thrift Server (dbt-spark) | Logic tập trung ở dbt: incremental/merge, test, lineage Oracle → Bronze → Silver; Spark vẫn là engine |
-| Docstring DAG ghi `dag_wave0_bronze_ingest` | dag_id thật là `wave0_bronze_ingest` | Docstring sai |
 | — | Nessie không hỗ trợ VIEW → `views_enabled: false`, không dùng `materialized='view'` | Giới hạn catalog |
 | Excel dùng `${ETL_DATE}` cho cả ngày batch lẫn ngày nghiệp vụ | Tách `etl_date()` (partition Bronze) và `biz_date()` (BOOKING_DATE / MOV_DATE / PREV_SCHED_DATE), mặc định bằng nhau | Bronze là bản chụp toàn bộ: dữ liệu nghiệp vụ chỉ có 2025-09 → 2026-02, còn ETL_DATE là 2026-10/11 → điều kiện `BOOKING_DATE = ETL_DATE` trả 0 dòng |
 
@@ -114,6 +113,24 @@ Excel ghi mọi cột ngày là `TO_DATE(x, 'YYYYMMDD')`, số là `CAST(x AS DE
 | Bảng SNAPSHOT/TXN | `= ${ETL_DATE}` | `biz_date()` truyền qua conf DAG | Oracle là dữ liệu mẫu 2025 |
 
 Dữ liệu không khớp: `ar_tvr_smy` — CRB chỉ có 2 hợp đồng PD, không có trong AR_DLQ_SMY → TOT_ODUE = 0; PST_ENTR số tiền đều 0. `loan_ar_prfl` — CONTRACT_UDFIELD_HIST rỗng → PROM_PRGM chỉ từ MB_MG_SAVING_MULTI; CAR_APPLICATION_CODE trống. `saoke_giaingan` — SMY_STMT_DAILY mã 402 và COMPANY (CRB.CO_CODE rỗng với LD/PD) 0 khớp; `idv_emp_st` — 3 cột nguồn không có trên Oracle.
+
+## 4c. Gold (2026-11-08)
+
+| Bảng | Excel | Thực tế dự án | Lý do |
+|---|---|---|---|
+| 8 bảng DIM | `SYS_EFF_DT` / `SYS_EXP_DT` 1:1 từ Silver | Ngày hiệu lực của **phiên bản DIM** (macro `scd2`) | Silver SCD1 chỉ có 1 dòng / ID, SYS_EFF_DT của Silver là ngày xuất hiện đầu tiên → chép 1:1 thì mọi phiên bản cùng ngày hiệu lực |
+| 8 bảng DIM | DIM_KEY đổi = phiên bản mới | Phiên bản mới chỉ khi cột của DIM đổi (`scd2(..., compare_exclude=['dim_key'])`) | DIM_KEY tính từ SYS_UDT_DT của Silver, đổi cả khi Silver đổi cột ngoài DIM hoặc SCD1 bị ghi lại khi backdate → phiên bản thừa |
+| 8 bảng DIM | Không nói cách đóng phiên bản | Nguồn chỉ lấy Silver `SYS_EXP_DT IS NULL`; ID bị xóa ở Silver → `scd2` đóng phiên bản DIM | ID đã xóa không được là phiên bản mở |
+| dim_loan_ar, dim_cst | `ETL_CHANGE_DATE` = ngày của bảng chính | `GREATEST` ngày đổi của bảng chính và bảng phụ (LOAN_AR_PRFL / IDV_PRFL / ORG_PRFL) | Bảng phụ đổi sinh phiên bản mới; lấy ngày bảng chính thì DIM_KEY trùng phiên bản cũ |
+| intf_loan_ar | e (AR_DLQ_SMY) join bằng `CASE` | e chỉ cho hợp đồng `PDLD%` (1:1); LD lấy từ e1 đã gom ORIG_AR_ID | Join CASE cho LD khớp mọi dòng PD con → nhân dòng |
+| intf_loan_ar | d (AR_RATE_HIST) ghi alias `e`, `CDR_DT` | d lọc `SYS_EXP_DT IS NULL` | Sheet ghi nhầm; AR_RATE_HIST là SCD2 |
+| intf_loan_ar, fct_loan_ar | `${ETL_DATE} - PNP_PAST_DUE_DT` | `DATEDIFF(biz_date, …) + 1` | Ngày nghiệp vụ; Oracle là dữ liệu 2025 |
+| intf_loan_ar, intf_loan_repymt_shd | `EFF_MAT_DT >= ${ETL_DATE}` | `>= biz_date` | Như trên |
+| intf_loan_ar | INF_CST join theo CST_CODE | 1 dòng / CST_CODE | Phòng CIF có cả hồ sơ cá nhân lẫn tổ chức |
+| intf_loan_dsbr | AR_X_IP_RLTNP join theo AR_CODE | 1 dòng / AR_CODE (ưu tiên dòng có REFRRER_OFCR) | Nhiều khách hàng / hợp đồng → nhân dòng |
+| fct_loan_ar | `SELECT DISTINCT AR_ID, CDR_DT, MUD_CODE` từ AR_BAL | Gom 1 dòng / AR_ID (`MAX(MUD_CODE)`) | DISTINCT vẫn có thể >1 dòng / hợp đồng |
+| Bảng SNAPSHOT Gold | `CDR_DT = ${ETL_DATE}` / `SNPST_DT = ${ETL_DATE}` khi đọc Silver SNAPSHOT | Lọc partition `etl_date = etl_date()` | CDR_DT của AR_BAL là TXN_DATE nguồn (2025), không phải ngày batch |
+| fct_loan_ar | `a.LMT_ID = dim_lmt.LMT_ID` | Giữ nguyên, nhưng không khớp dòng nào | `loan_ar.lmt_id` băm LIMIT_REFERENCE (`5999.01`), `lmt.lmt_id` băm RECID (`<CIF>.000…`) — cần sửa ở Silver |
 
 ## 5. Ràng buộc vận hành (không có trong Excel)
 

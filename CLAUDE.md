@@ -3,7 +3,7 @@
 Dự án training Data Engineer (ngân hàng): dựng lakehouse local theo kiến trúc Medallion, hiện thực hoá đặc tả mapping trong `Training_Fresher_DeepChecked.xlsx`.
 
 **Luồng:** Oracle nguồn (6 schema `PG_T24CORE`, `PG_FLEXBO`, `PG_LOS_APP`, `PG_SMY`, `PG_SOURCE`, `PG_EBANKING`)
-→ **Bronze** (`iceberg.pg_bronze`, mirror 1:1) → **Silver Temp 1/Temp 2** (`iceberg.pg_silver`) → **Gold** (`iceberg.pg_gold`, chưa làm).
+→ **Bronze** (`iceberg.pg_bronze`, mirror 1:1) → **Silver Temp 1/Temp 2** (`iceberg.pg_silver`) → **Gold** (`iceberg.pg_gold`).
 **Toàn bộ logic là model dbt** (`dbt/models/<bronze|silver_temp1|silver_temp2|gold>/`), **thực thi trên Spark**: dbt-spark → Spark Thrift Server (`spark-thrift`, driver) → executor trên `spark-worker`. Trino chỉ để truy vấn tay / pytest.
 
 **Stack (docker-compose):** Airflow 2.10.5 (LocalExecutor, gọi dbt trong `/opt/dbt-venv`) · Spark 3.5.9 (standalone + Thrift Server) · Iceberg 1.6.1 trên Nessie 0.76.6 (branch `main`) · MinIO (bucket `warehouse`) · dbt-spark · Trino 476 (đọc) · Postgres 16 (metadata Airflow).
@@ -19,16 +19,16 @@ Dự án training Data Engineer (ngân hàng): dựng lakehouse local theo kiế
 | Đường dẫn                                                  | Vai trò                                                                                                                                                                                              |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/config/bronze_tables.py`                              | **Nguồn sự thật** danh sách 28 bảng Bronze (`BronzeTable(source_schema, source_table, target_name)`). DAG và test đều đọc từ đây.                                                                    |
-| `dags/wave0_bronze_ingest.py`                              | 28 task `bronze_<target_name>` (BashOperator `dbt run --select <target_name>`), song song max 2. Trigger thủ công.                                                                                   |
+| `dags/bronze_to_silver.py` | DAG duy nhất, dag_id `full_luong` (trigger thủ công, `max_active_runs=1`): TaskGroup `bronze` (28 task, `src/config/bronze_tables.py`) → `silver_temp1` → `silver_temp2` → `gold` (1 task / model, phụ thuộc đọc từ `ref()` qua `dags/dbt_command.py`); cuối mỗi tầng `dbt test`, pass mới sang tầng sau. Song song max 2. |
 | `schema/bronze.sql`                                        | DDL tham chiếu 28 bảng Bronze (dbt tự tạo bảng; `tests/check_bronze` so kiểu cột với file này).                                                                                                      |
 | `schema/silver.sql`                                        | DDL tham khảo 28 bảng Silver (sinh từ Excel). dbt tự tạo bảng nên file này **chỉ để tra cột/kiểu/comment**, không chạy.                                                                              |
 | `dbt/models/bronze/<target_name>.sql`                      | `SELECT ... FROM {{ source('oracle_<schema>', '<TABLE>') }}`; config chung ở `dbt_project.yml` (incremental `insert_overwrite`, partition `ETL_DATE`).                                               |
 | `sql/test/`                                                | SQL kiểm tra tay trên Oracle.                                                                                                                                                                        |
 | `dbt/models/sources.yml`                                   | 6 nguồn Oracle (`oracle_t24core`, `oracle_flexbo`, …) đọc qua catalog JDBC `oracle` của Spark (`schema: oracle.PG_X`). Silver dùng `ref('<bảng bronze>')`.                                           |
 | `dbt/models/silver_temp1/`                                 | Model Silver Temp 1 + `_silver_temp1.yml` (mô tả cột + data_tests).                                                                                                                                  |
-| `dbt/macros/`                                              | `fn_hash`, `t24_date`, `t24_datetime`, `t24_multi_value`, `t24_code` (số Oracle `'1602.0000000000'` → `'1602'`), `etl_date`, `biz_date`, `scd2`, `generate_schema_name`.                             |
+| `dbt/macros/`                                              | `fn_hash`, `t24_date`, `t24_datetime`, `t24_multi_value`, `t24_code` (số Oracle `'1602.0000000000'` → `'1602'`), `etl_date`, `biz_date`, `scd2`, `scd_backdate` (pre-hook Silver/Gold), `assert_bronze_partition` (DAG `skip_bronze`), `generate_schema_name`.                             |
 | `dbt/models/silver_temp2/`                                 | Model Silver Temp 2 + `_silver_temp2.yml`.                                                                                                                                                           |
-| `dags/wave1_silver_temp1.py`, `dags/wave2_silver_temp2.py` | 1 task / model (phụ thuộc đọc từ `ref()` qua `dags/dbt_command.py`) → `dbt test` → trigger wave sau (chuyển tiếp `etl_date`, `biz_date`).                                                            |
+| `dbt/models/gold/` | 13 model Gold (`pg_gold`): 8 DIM SCD2 (macro `scd2`, `DIM_KEY = yyyyMMdd(ETL_CHANGE_DATE) \|\| id`), `inf_cst`, 3 `intf_loan_*`, `fct_loan_ar` (SNAPSHOT) + `_gold.yml`. DDL tham chiếu `schema/gold.sql`. |
 | `docs/ke_hoach_trien_khai.md`                              | Kế hoạch theo giai đoạn + **bảng trạng thái từng bảng**.                                                                                                                                             |
 | `docs/spec/`                                               | Đặc tả từng bảng Silver/Gold, sinh từ Excel bằng `scripts/export_spec.py` (đừng sửa tay).                                                                                                            |
 | `common/`                                                  | Python dùng chung: `OracleConnection`, `TrinoConnection` (`.from_environment()`), exceptions, `get_logger`.                                                                                          |
@@ -41,16 +41,18 @@ Dự án training Data Engineer (ngân hàng): dựng lakehouse local theo kiế
 
 ```bash
 docker compose up -d                       # Airflow :8088, MinIO :9001, Trino :8080, Spark UI :8081, Thrift UI :4040, Nessie :19120
-# Bronze
-docker compose exec airflow-scheduler airflow dags trigger wave0_bronze_ingest --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07"}'
+# Full luồng 1 ngày: Bronze → Silver Temp 1 → Temp 2 → Gold (đợi run xong mới trigger ngày sau)
+docker compose exec airflow-scheduler airflow dags trigger full_luong --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07"}'
+# Backdate qua DAG: MỌI ngày replay (tăng dần) đều thêm "backdate": true, "skip_bronze": true (giữ partition Bronze cũ, không đọc lại Oracle)
+docker compose exec airflow-scheduler airflow dags trigger full_luong --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07", "backdate": true, "skip_bronze": true}'
 # dbt (Silver)
 docker compose exec dbt dbt run  --select bronze --vars '{etl_date: 2026-10-29}'   # hoặc 1 bảng: --select t24core_currency
 docker compose exec dbt dbt run  --select ccy --vars '{etl_date: 2026-10-29}'
 docker compose exec dbt dbt run  --select pst_entr --vars '{etl_date: 2026-11-03, biz_date: 2025-09-01}'  # bảng lọc ngày nghiệp vụ
 docker compose exec dbt dbt test --select ccy
-# Backdate (macro scd_backdate): ngày đầu thêm backdate: true (tua SCD2 về trước ngày đó), rồi replay TĂNG DẦN tới ngày mới nhất
+# Backdate bằng dbt (macro scd_backdate): backdate: true cho MỌI ngày replay, TĂNG DẦN tới ngày mới nhất; ngày đầu tua SCD2 về trước ngày đó
 docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-03, biz_date: 2025-10-07, backdate: true}'
-docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-04, biz_date: 2025-10-08}'   # ... tới ngày mới nhất
+docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-04, biz_date: 2025-10-08, backdate: true}'   # ... tới ngày mới nhất
 docker compose exec dbt dbt test --select "test_type:unit"     # unit test macro scd2 (dữ liệu giả, cần bảng đích đã build)
 docker compose exec dbt dbt ls --select ccy+              # model phía sau bị ảnh hưởng
 docker compose exec dbt dbt ls --select +ccy              # upstream
@@ -60,7 +62,6 @@ docker compose exec airflow-scheduler bash -c "cd /opt/airflow && pytest -p no:c
 docker compose exec trino trino --execute "SELECT count(*) FROM iceberg.pg_silver.ccy"
 ```
 
-Lưu ý: docstring trong DAG ghi `dag_wave0_bronze_ingest` là **sai**, dag_id đúng là `wave0_bronze_ingest`.
 
 ## Quy ước bắt buộc
 
