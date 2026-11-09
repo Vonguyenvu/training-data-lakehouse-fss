@@ -15,6 +15,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
     AIRFLOW__WEBSERVER__SECRET_KEY: fss-training-local-secret-key
+    AIRFLOW__WEBSERVER__WORKERS: "1"   # 1 người dùng UI; mặc định 4 worker gunicorn tốn ~600MB
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
