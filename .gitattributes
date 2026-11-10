@@ -1,0 +1,7 @@
+# File mount vao container Linux phai la LF (Windows core.autocrlf=true lam hong .sh)
+* text=auto eol=lf
+*.xlsx binary
+*.ods binary
+*.png binary
+*.jpg binary
+*.jar binary
