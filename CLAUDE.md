@@ -32,6 +32,7 @@ Dự án training Data Engineer (ngân hàng): dựng lakehouse local theo kiế
 | `docs/ke_hoach_trien_khai.md`                              | Kế hoạch theo giai đoạn + **bảng trạng thái từng bảng**.                                                                                                                                             |
 | `docs/spec/`                                               | Đặc tả từng bảng Silver/Gold, sinh từ Excel bằng `scripts/export_spec.py` (đừng sửa tay).                                                                                                            |
 | `common/`                                                  | Python dùng chung: `OracleConnection`, `TrinoConnection` (`.from_environment()`), exceptions, `get_logger`.                                                                                          |
+| `docs/backdate.md`                                         | Logic backdate chi tiết (cờ `backdate`/`skip_bronze`, tua SCD2, SCD1, DIM, quy trình, kiểm tra `tests/check_backdate`, giới hạn, kết quả test). |
 | `docs/thuc_te_vs_thiet_ke.md`                              | Tổng hợp chỗ thực tế (Oracle/Bronze) khác Excel và cách đã xử lý. Cập nhật khi làm bảng mới.                                                                                                         |
 | `tests/`                                                   | pytest: `check_connection` (Oracle/Nessie/MinIO/Trino), `check_bronze` (6 check/bảng).                                                                                                               |
 | `conf/spark/spark-defaults.conf`                           | Catalog `iceberg` (Nessie) + catalog JDBC `oracle` (thông tin kết nối Oracle nằm ở đây và `.env`). Thrift Server thêm `defaultCatalog=iceberg`, `timeParserPolicy=CORRECTED` (`docker-compose.yml`). |
@@ -51,8 +52,8 @@ docker compose exec dbt dbt run  --select ccy --vars '{etl_date: 2026-10-29}'
 docker compose exec dbt dbt run  --select pst_entr --vars '{etl_date: 2026-11-03, biz_date: 2025-09-01}'  # bảng lọc ngày nghiệp vụ
 docker compose exec dbt dbt test --select ccy
 # Backdate bằng dbt (macro scd_backdate): backdate: true cho MỌI ngày replay, TĂNG DẦN tới ngày mới nhất; ngày đầu tua SCD2 về trước ngày đó
-docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-03, biz_date: 2025-10-07, backdate: true}'
-docker compose exec dbt dbt run --select tag:silver --vars '{etl_date: 2026-11-04, biz_date: 2025-10-08, backdate: true}'   # ... tới ngày mới nhất
+docker compose exec dbt dbt run --select tag:silver tag:gold --vars '{etl_date: 2026-11-03, biz_date: 2025-10-07, backdate: true}'
+docker compose exec dbt dbt run --select tag:silver tag:gold --vars '{etl_date: 2026-11-04, biz_date: 2025-10-08, backdate: true}'   # ... tới ngày mới nhất
 docker compose exec dbt dbt test --select "test_type:unit"     # unit test macro scd2 (dữ liệu giả, cần bảng đích đã build)
 docker compose exec dbt dbt ls --select ccy+              # model phía sau bị ảnh hưởng
 docker compose exec dbt dbt ls --select +ccy              # upstream
@@ -112,6 +113,7 @@ Phụ thuộc chi tiết theo bảng: cột `WAITING` của sheet `Job_dependenc
 
 - Spark rất ít tài nguyên (`spark.cores.max=1`, executor 800m; Thrift driver 1g) → bảng lớn chạy chậm; không tăng song song DAG quá 2, dbt `threads: 1`.
 - Spark `TIMESTAMP` hiện trên Trino là `timestamp(6) with time zone`.
+- Trino bị kernel OOM-kill (exit 137) khi host thiếu RAM: chỉ `conf/trino/catalog` được mount, `conf/trino/config.properties` (giới hạn memory) không có tác dụng; JVM dùng heap mặc định của image. Tránh `EXCEPT`/join lớn, `docker compose up -d trino` để chạy lại.
 - Endpoint nội bộ: `minio:9000`, `nessie:19120/api/v2`, `spark://spark-master:7077`, `spark-thrift:10000` (dbt), `trino:8080`.
 - `docker compose down -v` xoá toàn bộ dữ liệu Nessie/MinIO/Airflow.
 - Không commit `.env`, không chép mật khẩu Oracle vào code/tài liệu mới.

@@ -17,7 +17,8 @@
 WITH src AS (
     SELECT
         CAST(CONCAT(
-            DATE_FORMAT(COALESCE(cur.sys_udt_dt, cur.sys_eff_dt, {{ etl_date() }}), 'yyyyMMdd'), cur.ccy_id
+            -- LEAST: replay backdate đọc Silver SCD1 không tua được, SYS_UDT_DT có thể là ngày sau ETL_DATE
+            DATE_FORMAT(LEAST(COALESCE(cur.sys_udt_dt, cur.sys_eff_dt, {{ etl_date() }}), {{ etl_date() }}), 'yyyyMMdd'), cur.ccy_id
         ) AS STRING) AS dim_key,
         CAST(cur.ccy_id AS STRING) AS ccy_id,
         CAST(cur.ccy_code AS STRING) AS ccy_code,

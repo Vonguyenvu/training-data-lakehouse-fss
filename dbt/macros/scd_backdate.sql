@@ -4,11 +4,12 @@
       vì merge ngày cũ lên trạng thái mới sẽ hỏng dữ liệu (SCD2 sinh 2 dòng cùng mở).
     - Có `backdate: true` (kể cả khi ETL_DATE = ngày mới nhất, MAX(sys_udt_dt) >= ETL_DATE):
         SCD2 (unique_key chứa sys_eff_dt): tua bảng về trước ETL_DATE: xóa phiên bản mở từ ETL_DATE trở đi,
-          mở lại phiên bản bị đóng từ ETL_DATE trở đi.
+          mở lại phiên bản bị đóng từ ETL_DATE trở đi (SYS_UDT_DT, ETL_DATE trả về SYS_EFF_DT như lúc chưa đóng).
         SCD1: không có lịch sử để tua, chỉ cho chạy; trạng thái đúng lại sau khi replay tới ngày mới nhất.
+          DIM Gold đọc SCD1 nên chặn ngày đổi bằng LEAST(..., ETL_DATE) khi tính DIM_KEY.
     Sau đó PHẢI replay tăng dần từ ETL_DATE tới ngày mới nhất, VẪN truyền backdate: true cho mọi ngày replay:
-    dòng được mở lại / dòng SCD1 không đổi vẫn giữ SYS_UDT_DT cũ (> ngày đang replay), thiếu cờ thì ngày replay
-    ở giữa bị chặn. Cờ an toàn cho mọi ngày: phiên bản đã ghi khi replay có SYS_EFF_DT < ngày kế tiếp nên không bị xóa.
+    dòng SCD1 không đổi vẫn giữ SYS_UDT_DT cũ (> ngày đang replay), thiếu cờ thì ngày replay ở giữa bị chặn.
+    Cờ an toàn cho mọi ngày: phiên bản đã ghi khi replay có SYS_EFF_DT < ngày kế tiếp nên không bị xóa.
     Qua DAG thêm "skip_bronze": true để không ghi đè partition Bronze cũ bằng dữ liệu Oracle hiện tại.
 -#}
 {% macro scd_backdate() %}
@@ -25,8 +26,10 @@
         DELETE FROM {{ this }}
         WHERE sys_eff_dt >= {{ etl_date() }}
       {% endcall %}
+      {#- trước khi bị đóng, dòng mở luôn có SYS_UDT_DT = ETL_DATE = SYS_EFF_DT (scd2 và model SCD2 viết tay
+          chỉ ghi dòng mới hoặc dòng đóng) -> trả lại đúng như vậy, không giữ ngày của lần đóng -#}
       {% call statement('scd_backdate_reopen', fetch_result=False) %}
-        UPDATE {{ this }} SET sys_exp_dt = NULL
+        UPDATE {{ this }} SET sys_exp_dt = NULL, sys_udt_dt = sys_eff_dt, etl_date = sys_eff_dt
         WHERE sys_exp_dt >= {{ etl_date() }}
       {% endcall %}
     {%- endif -%}

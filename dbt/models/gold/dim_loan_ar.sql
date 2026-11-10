@@ -17,11 +17,12 @@
 WITH src AS (
     SELECT
         CAST(CONCAT(
+            -- LEAST: replay backdate đọc Silver SCD1 không tua được, SYS_UDT_DT có thể là ngày sau ETL_DATE
             DATE_FORMAT(
-                COALESCE(
+                LEAST(COALESCE(
                     GREATEST(COALESCE(a.sys_udt_dt, a.sys_eff_dt), COALESCE(b.sys_udt_dt, b.sys_eff_dt)),
                     {{ etl_date() }}
-                ),
+                ), {{ etl_date() }}),
                 'yyyyMMdd'
             ),
             a.ar_id
