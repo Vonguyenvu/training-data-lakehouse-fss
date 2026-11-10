@@ -1,6 +1,6 @@
 #!/bin/bash
 # Spark Thrift Server: engine thực thi của dbt (dbt-spark, method thrift). Driver ở container này,
-# executor trên cụm spark-master/spark-worker.
+# executor chạy local trong cùng JVM (local[1], không có cụm standalone để tiết kiệm RAM).
 set -euo pipefail
 
 COMMON=(--conf spark.sql.legacy.timeParserPolicy=CORRECTED)
@@ -14,8 +14,8 @@ COMMON=(--conf spark.sql.legacy.timeParserPolicy=CORRECTED)
 
 export SPARK_NO_DAEMONIZE=true
 exec /opt/spark/sbin/start-thriftserver.sh \
-  --master spark://spark-master:7077 \
-  --driver-memory 1g \
+  --master 'local[1]' \
+  --driver-memory 1536m \
   --conf spark.driver.host=spark-thrift \
   --conf spark.driver.bindAddress=0.0.0.0 \
   --conf spark.sql.defaultCatalog=iceberg \

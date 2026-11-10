@@ -91,7 +91,7 @@ Backdate (2026-11-06): pre-hook `dbt/macros/scd_backdate.sql` cho mọi model Si
 2. `conf/spark/spark-defaults.conf`: catalog `iceberg` (Nessie + MinIO) và catalog JDBC `oracle`; Thrift Server đặt `defaultCatalog=iceberg`, `timeParserPolicy=CORRECTED`.
 3. `conf/trino/`: catalog `iceberg` trỏ cùng Nessie để truy vấn tay.
 4. Giới hạn tài nguyên: `spark.cores.max=1`, executor 800m → DAG song song tối đa 2, dbt `threads: 1`.
-5. Kiểm tra: `docker compose up -d`, mở Airflow :8088, Spark UI :8081, Trino :8080.
+5. Kiểm tra: `docker compose up -d`, mở Airflow :8088, Spark Thrift UI :4040, Trino :8080.
 
 ## Giai đoạn 1 — Kết nối & thư viện dùng chung
 

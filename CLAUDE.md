@@ -4,9 +4,9 @@ Dự án training Data Engineer (ngân hàng): dựng lakehouse local theo kiế
 
 **Luồng:** Oracle nguồn (6 schema `PG_T24CORE`, `PG_FLEXBO`, `PG_LOS_APP`, `PG_SMY`, `PG_SOURCE`, `PG_EBANKING`)
 → **Bronze** (`iceberg.pg_bronze`, mirror 1:1) → **Silver Temp 1/Temp 2** (`iceberg.pg_silver`) → **Gold** (`iceberg.pg_gold`).
-**Toàn bộ logic là model dbt** (`dbt/models/<bronze|silver_temp1|silver_temp2|gold>/`), **thực thi trên Spark**: dbt-spark → Spark Thrift Server (`spark-thrift`, driver) → executor trên `spark-worker`. Trino chỉ để truy vấn tay / pytest.
+**Toàn bộ logic là model dbt** (`dbt/models/<bronze|silver_temp1|silver_temp2|gold>/`), **thực thi trên Spark**: dbt-spark → Spark Thrift Server (`spark-thrift`, Spark `local[1]` trong cùng container, không có master/worker). Trino chỉ để truy vấn tay / pytest.
 
-**Stack (docker-compose):** Airflow 2.10.5 (LocalExecutor, gọi dbt trong `/opt/dbt-venv`) · Spark 3.5.9 (standalone + Thrift Server) · Iceberg 1.6.1 trên Nessie 0.76.6 (branch `main`) · MinIO (bucket `warehouse`) · dbt-spark · Trino 476 (đọc) · Postgres 16 (metadata Airflow).
+**Stack (docker-compose):** Airflow 2.10.5 (LocalExecutor, gọi dbt trong `/opt/dbt-venv`) · Spark 3.5.9 (Thrift Server, `local[1]`) · Iceberg 1.6.1 trên Nessie 0.76.6 (branch `main`) · MinIO (bucket `warehouse`) · dbt-spark · Trino 476 (đọc) · Postgres 16 (metadata Airflow).
 
 ## Tiến độ & quyết định kiến trúc
 
@@ -41,7 +41,7 @@ Dự án training Data Engineer (ngân hàng): dựng lakehouse local theo kiế
 ## Lệnh thường dùng
 
 ```bash
-docker compose up -d                       # Airflow :8088, MinIO :9001, Trino :8080, Spark UI :8081, Thrift UI :4040, Nessie :19120
+docker compose up -d                       # Airflow :8088, MinIO :9001, Trino :8080, Thrift UI :4040, Nessie :19120
 # Full luồng 1 ngày: Bronze → Silver Temp 1 → Temp 2 → Gold (đợi run xong mới trigger ngày sau)
 docker compose exec airflow-scheduler airflow dags trigger full_luong --conf '{"etl_date": "2026-11-03", "biz_date": "2025-10-07"}'
 # Backdate qua DAG: MỌI ngày replay (tăng dần) đều thêm "backdate": true, "skip_bronze": true (giữ partition Bronze cũ, không đọc lại Oracle)
@@ -111,10 +111,10 @@ Phụ thuộc chi tiết theo bảng: cột `WAITING` của sheet `Job_dependenc
 
 ## Môi trường & bẫy
 
-- Spark rất ít tài nguyên (`spark.cores.max=1`, executor 800m; Thrift driver 1g) → bảng lớn chạy chậm; không tăng song song DAG quá 2, dbt `threads: 1`.
+- Spark rất ít tài nguyên (Thrift `local[1]`, driver 1536m) → bảng lớn chạy chậm; không tăng song song DAG quá 2, dbt `threads: 1`.
 - Spark `TIMESTAMP` hiện trên Trino là `timestamp(6) with time zone`.
 - Trino bị kernel OOM-kill (exit 137) khi host thiếu RAM: chỉ `conf/trino/catalog` được mount, `conf/trino/config.properties` (giới hạn memory) không có tác dụng; JVM dùng heap mặc định của image. Tránh `EXCEPT`/join lớn, `docker compose up -d trino` để chạy lại.
-- Endpoint nội bộ: `minio:9000`, `nessie:19120/api/v2`, `spark://spark-master:7077`, `spark-thrift:10000` (dbt), `trino:8080`.
+- Endpoint nội bộ: `minio:9000`, `nessie:19120/api/v2`, `spark-thrift:10000` (dbt), `trino:8080`.
 - `docker compose down -v` xoá toàn bộ dữ liệu Nessie/MinIO/Airflow.
 - Không commit `.env`, không chép mật khẩu Oracle vào code/tài liệu mới.
 - Ổ `/media/vu/FSS` thuộc root → git báo "dubious ownership"; cần `git config --global --add safe.directory /media/vu/FSS/Training_lakehouse`.

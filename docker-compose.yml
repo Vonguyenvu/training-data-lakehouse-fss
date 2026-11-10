@@ -110,52 +110,7 @@ services:
       - ./conf/trino/catalog:/etc/trino/catalog:ro
       - ./conf/trino/config.properties:/etc/trino/config.properties:ro
 
-  spark-master:
-    build:
-      context: .
-      dockerfile: docker/spark/Dockerfile
-    image: fss-training-spark:3.5.9
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
-    env_file:
-      - .env
-    ports:
-      - "${SPARK_MASTER_PORT:-7077}:7077"
-      - "${SPARK_MASTER_UI_PORT:-8081}:8080"
-    volumes:
-      - ./sql:/opt/spark/sql:ro
-      - ./src:/opt/spark/src:ro
-      - ./common:/opt/spark/common:ro
-      - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
-
-  spark-worker:
-    build:
-      context: .
-      dockerfile: docker/spark/Dockerfile
-    image: fss-training-spark:3.5.9
-    depends_on:
-      - spark-master
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    env_file:
-      - .env
-    # work dir (log + file của executor) và shuffle/spill nằm trên ổ dữ liệu thay vì lớp ghi container (ổ /).
-    environment:
-      SPARK_WORKER_DIR: /opt/spark/work
-      SPARK_LOCAL_DIRS: /opt/spark/local
-      SPARK_WORKER_OPTS: >-
-        -Dspark.worker.cleanup.enabled=true
-        -Dspark.worker.cleanup.interval=1800
-        -Dspark.worker.cleanup.appDataTtl=86400
-    volumes:
-      - ./sql:/opt/spark/sql:ro
-      - ./src:/opt/spark/src:ro
-      - ./common:/opt/spark/common:ro
-      - ./drivers/ojdbc11.jar:/opt/spark/jars/ojdbc11.jar:ro
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
-      - ./.spark/worker-work:/opt/spark/work
-      - ./.spark/worker-local:/opt/spark/local
-
-  # Engine thực thi của dbt cho cả pipeline (Bronze/Silver/Gold): driver ở đây, executor trên spark-worker.
+  # Engine thực thi của dbt cho cả pipeline (Bronze/Silver/Gold): Spark chạy local trong container này.
   spark-thrift:
     build:
       context: .
@@ -168,8 +123,6 @@ services:
         condition: service_completed_successfully
       nessie:
         condition: service_healthy
-      spark-master:
-        condition: service_started
     env_file:
       - .env
     environment:

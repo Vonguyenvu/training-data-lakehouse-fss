@@ -24,7 +24,7 @@ Truy cập:
 - Airflow: http://localhost:8088 (`admin` / `admin`)
 - MinIO Console: http://localhost:9001 (`minioadmin` / `minioadmin123`)
 - Trino: http://localhost:8080
-- Spark Master UI: http://localhost:8081
+- Spark Thrift UI: http://localhost:4040
 - Nessie API: http://localhost:19120
 
 ## Chạy dbt
@@ -53,7 +53,7 @@ Trong DAG hoặc Spark job, dùng các endpoint nội bộ:
 ```text
 S3 endpoint: http://minio:9000
 Iceberg catalog: http://nessie:19120/api/v2
-Spark master: spark://spark-master:7077
+Spark Thrift (dbt): spark-thrift:10000
 Trino: http://trino:8080
 ```
 
